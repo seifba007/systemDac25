@@ -1,0 +1,82 @@
+@use '../../utilities/variables' as *;
+
+.rbc-toolbar-label {
+    color: #0A0C0E;
+    font-size: 32px;
+    font-weight: 600;
+    line-height: 44px; 
+
+    @include mobile {
+      font-size: 16px;
+    }
+}
+.rbc-header {
+    padding: 20px 50px;
+    border-top: 1px solid #E8E8E8;
+    border-right: 1px solid #E8E8E8;
+    border-bottom: 1px solid #E8E8E8;
+    background: #F3F5F7;
+
+    color: #353A44;
+    font-size: 14px;
+    font-weight: 500;
+
+    @include mobile {
+        font-weight: 400;
+        padding: 5px 10px;
+    }
+  }
+  
+  .rbc-btn-group {
+    display: flex;
+    gap: 10px;
+
+    button {
+        border-radius: 8px !important;
+        border: 1px solid #BDC0C6;
+        padding: 12px 15px;
+        @include mobile {
+            padding: 5px 10px;
+        }
+    }
+  }
+//   .rbc-allday-cell {
+//     display: none;
+//   }
+  
+//   .rbc-time-header-cell .rbc-today {
+//     background-color: #04aa6d !important;
+//   }
+  
+//   .rbc-time-slot {
+//     color: #74a4c3;
+//     z-index: 1;
+//   }
+  
+//   .rbc-time-slot:not(.rbc-today .rbc-time-slot) {
+//     background-color: #eff4f7;
+//   }
+  
+//   /*Event Styles*/
+//   .rbc-event,
+//   .rbc-background-event {
+//     z-index: 2;
+//     padding: 0px !important;
+//     border: none !important;
+//   }
+  
+//   .rbc-event-label {
+//     display: none !important;
+//   }
+  
+//   .rbc-events-container {
+//     width: 100% !important;
+//   }
+  
+//   /*Timeslots Customization*/
+//   .rbc-day-slot .rbc-time-slot:after {
+//     content: "";
+//     width: 100%;
+//     border-top: 1px solid #fbb3ec;
+//     display: block;
+//   }

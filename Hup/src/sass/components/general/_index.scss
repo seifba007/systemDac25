@@ -1,0 +1,211 @@
+@use "../../utilities/variables" as *;
+
+// .step {
+//     display: flex;
+//     gap: 1.25rem;
+//     margin-bottom: 1.5rem;
+//     position: relative;
+//     .circle {
+//         width: 23px;
+//         height: 23px;
+//         border-radius: 50%;
+//         background: $teal;
+//         display: grid;
+//         place-items: center;
+//         &.white {
+//             background: $white;
+//             @include tablet {
+//                 background-color: $lightGrey;
+//             }
+//         }
+//     }
+//     > img {
+//         width: 1.5rem;
+//     }
+//     .line {
+//         width: 1px;
+//         height: 2.5rem;
+//         background-color: $white;
+//         position: absolute;
+//         top: 24px;
+//         left: 11px;
+//         @include tablet {
+//             top: -26px;
+//             left: 60px;
+//             transform: rotate(90deg);
+//             height: 75px;
+//             background-color: #dfdfe4;
+//         }
+//     }
+// }
+
+.wrapper {
+    width: 100%;
+    position: relative;
+    h1 {
+        text-align: center;
+        width: 100%;
+    }
+    .edit {
+        cursor: pointer;
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #eeeeef;
+        width: 2rem;
+        height: 2rem;
+        border-radius: 50%;
+        display: flex;
+    }
+}
+
+.avatar {
+    position: relative;
+    .edit {
+        position: absolute;
+        bottom: 10px;
+        right: 50%;
+        transform: translateX(50%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(143, 148, 150, 0.4);
+        width: 2rem;
+        height: 2rem;
+        border-radius: 50%;
+    }
+}
+
+.settings-line {
+    width: 96%;
+    margin: 0 auto;
+    border-top: 1px solid #efefef;
+    &.full {
+        width: 100%;
+    }
+    &.footer {
+        width: 100%;
+        opacity: 0.1;
+    }
+}
+
+.counter-on-scroll {
+    font-size: 6rem;
+    font-weight: 900;
+    @include tablet {
+        font-size: 2.1rem;
+    }
+}
+
+.vertical-progress-bar {
+    width: 10px;
+    height: 99%;
+    border: 1px solid #ccc;
+    position: relative;
+    border-radius: 5rem;
+    .progress {
+        border-radius: 5rem;
+        background-color: $blue;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        transition: height 0.3s ease;
+    }
+}
+
+.line-hover {
+    &:hover {
+        background: rgb(199, 218, 255, 0.2) !important;
+    }
+}
+.btn-hover {
+    &:hover {
+        background: #c7daff !important;
+    }
+}
+.exit-hover {
+    &:hover {
+        background: white !important;
+        color: $black;
+    }
+}
+
+.no-select {
+    div,
+    p,
+    label {
+        user-select: none;
+    }
+}
+.cart-hover {
+    position: relative;
+    @include mobile {
+        width: 100%;
+    }
+    div {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        border-radius: 8px;
+        width: 100%;
+        height: 100%;
+        background-color: rgb(112, 112, 192, 0.5);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        @include mobile {
+            display: flex;
+            background-color: transparent;
+            top: 12px;
+            right: 20px;
+            .option-eye {
+                display: none;
+            }
+        }
+    }
+
+    &:hover > div {
+        display: flex;
+    }
+}
+.ul-style {
+    ul {
+        margin-left: 18px;
+    }
+}
+
+// prevent the horizantal scroll when login with
+#g_a11y_announcement {
+    height: 1px;
+    left: -10000px;
+    overflow: hidden;
+    position: absolute;
+    top: auto;
+    width: 1px;
+}
+
+// candidate history table
+.table-line-badge-history {
+    display: grid;
+    grid-template-columns: 15% 25% 15% 15% 25%;
+    align-items: center;
+}
+.table-line-badge-history-header {
+    @extend .table-line-badge-history;
+    @media (max-width: 769px) {
+        display: none;
+    }
+}
+.table-line-badge-history-row {
+    @extend .table-line-badge-history;
+    @include tablet {
+        grid-template-columns: none;
+        display: flex;
+    }
+}

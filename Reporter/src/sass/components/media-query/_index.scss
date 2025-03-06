@@ -1,0 +1,24 @@
+@use '../../utilities/variables' as *;
+
+.notebook-show {
+    display: none;
+    @include notebook {
+        display: block;
+    }
+}
+.computer-hide {
+    @include computer {
+        display: none;
+    }
+}
+.tablet-show {
+    display: none;
+    @include tablet {
+        display: block;
+    }
+}
+.tablet-hide {
+    @include tablet {
+        display: none;
+    }
+}

@@ -1,0 +1,132 @@
+.navbar {
+  height: 62px;
+  flex-shrink: 0;
+  border-bottom: 1px solid #F3F3F3;
+  background: var(--Primary-Base-White, #FFF);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-left: 25px;
+  padding-right: 25px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Add this line for bottom shadow */
+}
+.navbar {
+  height: 62px;
+  flex-shrink: 0;
+  border-bottom: 1px solid #F3F3F3;
+  position: relative;
+  background: var(--Primary-Base-White, #FFF);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-left: 25px;
+  padding-right: 25px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Add this line for bottom shadow */
+}
+
+.savebutton {
+  width: 65px;
+  height: 36px;
+  gap: 0px;
+  display: flex;
+  justify-content:center ;
+align-items: center;
+  border-radius: 5px;
+  font-family: Inter;
+font-size: 14px;
+font-weight: 500;
+line-height: 20px;
+text-align: center;
+  opacity: 0px;
+}
+
+.Cancelbutton{
+  width: 79px;
+  cursor: pointer;
+  height: 36px;
+  gap: 0px;
+  border: 1px solid #BDC0C6;
+  display: flex;
+  justify-content:center ;
+align-items: center;
+  border-radius: 5px;
+  font-family: Inter;
+font-size: 14px;
+font-weight: 500;
+line-height: 20px;
+text-align: center;
+color: #0A0C0E;
+  opacity: 0px;
+}
+
+.buttonham{
+  width: 32px;
+  height: 32px;
+  border: 1px solid #F3F3F3;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.superadminPage {
+    display: flex;
+    height: 100vh;
+  }
+  .superadminPage2 {
+    height: 100vh;
+  }
+  .displnone{
+    display: none;
+  }
+  .contentWrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .mainContent {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    transition: margin-left 0.3s ease-in-out;
+    width:100%;
+    background-color: #eeeef1;
+    -webkit-tap-highlight-color: transparent;
+    padding: 2em;
+  }
+  
+  
+  .sidebarOpen {
+    margin-left: 250px; // Adjust this value to match the width of your sidebar
+  }
+  
+  @media (max-width: 668px) {
+    .mainContent {
+      margin-left: 0; 
+    }
+    .navbar{
+      padding-right: 4px !important;
+    }
+  .contentWrapper {
+    height: 100vh !important;
+    overflow-x: hidden;
+  }
+    .sidebarOpen {
+      margin-left: 0; 
+      display: none !important;
+    }
+    ._superadminPage_1lc2w_13{
+        display: none !important;
+    }
+
+  }
+  
+.txtnav{
+    color: #0A0C0E;
+font-family: Inter;
+font-size: 24px;
+font-style: normal;
+font-weight: 500;
+line-height: 28px; /* 116.667% */
+letter-spacing: -0.5px;
+}
