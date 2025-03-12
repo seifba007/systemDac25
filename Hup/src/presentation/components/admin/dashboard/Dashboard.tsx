@@ -6,6 +6,7 @@ import BarChart from '../ApexChart/BarChart';
 import { DateInput } from '@mantine/dates';
 import { Add, ArrowDown2, Calendar, Category } from 'iconsax-react';
 import { Resizable } from 're-resizable';
+import useResponsive from '@/presentation/shared/mediaQuery';
 
 interface InputItem {
 	id: string;
@@ -45,11 +46,12 @@ const Dashboard = () => {
 
 		setElements([...elements, newElement]);
 	};
-
+	const { isMobile } = useResponsive();
 	return (
 		<Box className='relative w-full h-screen bg-gray-100'>
-			<Flex justify={'space-between'} align={'center'}>
+			<Flex justify={'space-between'} pt={isMobile ? '1em' : '0em'} align={'center'} wrap={'wrap'}>
 				<Text
+					pb={isMobile ? '1em' : '0em'}
 					style={{
 						textOverflow: 'ellipsis',
 						overflow: 'hidden',
@@ -93,7 +95,7 @@ const Dashboard = () => {
 								leftSection={<Add size='20px' color='#fff' />}
 								rightSection={<ArrowDown2 size='18px' color='#fff' variant='Bold' />}
 							>
-								Add Panel
+								{isMobile ? '' : 'Add Panel'}
 							</Button>
 						</Menu.Target>
 

@@ -5,4 +5,5 @@ export const ADMIN = {
 	Licenses: '/Licenses-Management',
 	Dashboard: '/Dashboard',
 	Apploader: '/apploader/:id',
+	AccountInformation: '/AccountInformation',
 };

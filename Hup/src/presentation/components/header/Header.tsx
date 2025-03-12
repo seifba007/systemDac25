@@ -88,7 +88,6 @@ export const Label: React.FC<LabelProps> = ({ children, mt = 3 }) => {
 export const Congratulations = ({ name, subtitle, onClick }: CongradulationsProps) => {
 	return (
 		<div className='congratulations'>
-
 			<h1>Congratulations!</h1>
 			<p>{subtitle}</p>
 			<Button name={name} onClick={onClick} maw={500} style={{ margin: '0 auto' }} />

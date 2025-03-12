@@ -8,6 +8,8 @@ import Categoriesfilter from '../../modal/Categoriesfilter';
 import DeleteModal from '../../modal/DeleteModal';
 import { useDisclosure } from '@mantine/hooks';
 import CreationApps from '../../modal/CreationApps';
+import toast from 'react-hot-toast';
+import { DeleteApps } from '@/core/services/modulesServices/apps.service';
 
 const tabStyles = (isActive: boolean) => ({
 	height: '32px',
@@ -41,6 +43,7 @@ const RoleData = [
 
 interface TabsButtonProps {
 	data: any[];
+	getappss: () => void;
 	onTabChange: (tabValue: string) => void;
 	onCategoryChange: (category: string) => void;
 	isResponsive: boolean;
@@ -55,6 +58,7 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 	isResponsive,
 	search,
 	titrepage,
+	getappss,
 	onCategoryChange,
 	onSortChange,
 }) => {
@@ -62,7 +66,7 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 	const [modalOpen, setModalOpen] = useState<boolean>(false);
 	const [modalOpen2, setModalOpen2] = useState<boolean>(false);
 	const [editmodalOpen, setEditmodalOpen] = useState<boolean>(false);
-	const [dataOrganization, setdataOrganization] = useState<any>([]);
+	const [dataapp, setDataapp] = useState<any>([]);
 	const [selectedCategory, setSelectedCategory] = useState<string>('');
 	useEffect(() => {
 		onTabChange(activeTab);
@@ -85,11 +89,7 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 
 	const handleSortChange = (sortValue: string) => onSortChange(sortValue);
 	const [isVisibilityOpen, { open: openVisibility, close: closeVisibility }] = useDisclosure(false);
-	const headerTabs = [
-		{ value: 'all', label: 'All' },
-		{ value: 'Active', label: 'Active' },
-		{ value: 'Blocked', label: 'Blocked' },
-	];
+	const headerTabs = [{ value: 'all', label: 'All' }];
 	const TableTh = [
 		{ label: 'App' },
 		{ label: 'Description' },
@@ -145,7 +145,7 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 												value={tab.value}
 												style={tabStyles(activeTab === tab.value)}
 											>
-												<Box className={'textab'}>{tab.label}</Box>
+												<Box className={'textab'}>{tab?.label}</Box>
 											</Tabs.Tab>
 										))}
 									</Tabs.List>
@@ -176,14 +176,12 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 												<Table.Td>
 													<Flex align={'center'} gap={'0.5em'}>
 														<Avatar
-															src={item?.apps.imageUrl}
+															src={item?.logo}
 															alt={item.id}
 															className={'avatar'}
 															radius='sm'
 														/>
-														<Text className={'txttablename'}>
-															{item?.apps.name ?? '..............'}
-														</Text>
+														<Text className={'txttablename'}>{item?.name ?? '..............'}</Text>
 													</Flex>
 												</Table.Td>
 
@@ -197,10 +195,10 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 													<Text className={'txttablename'}>
 														<Box
 															className={
-																item.active === false ? 'Blocked' : statusClassMap['Active']
+																item.isActive === 'false' ? 'Blocked' : statusClassMap['Active']
 															}
 														>
-															{item.active === false ? 'Blocked' : 'Active'}
+															{item.isActive === 'false' ? 'Blocked' : 'Active'}
 														</Box>
 													</Text>
 												</Table.Td>
@@ -218,7 +216,7 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 													<Flex gap={'0.5em'}>
 														<ActionIcon
 															onClick={() => {
-																setdataOrganization(item);
+																setDataapp(item);
 																setEditmodalOpen(true);
 															}}
 															variant='filled'
@@ -233,7 +231,10 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 															color='red'
 															w={'40px'}
 															h={'20px'}
-															onClick={openVisibility}
+															onClick={() => {
+																setDataapp(item);
+																openVisibility();
+															}}
 														>
 															<Trash color='#fff' size={'15'} />
 														</ActionIcon>
@@ -281,22 +282,37 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 					sortLabels={sortLabels}
 				/>
 			)}
-			{editmodalOpen && (
-				<CreationApps
-					opened={editmodalOpen}
-					onClose={() => {
-						setEditmodalOpen(false);
-					}}
-					data={dataOrganization}
-				/>
-			)}
+
+			<CreationApps
+				opened={editmodalOpen}
+				onClose={() => {
+					setEditmodalOpen(false);
+				}}
+				data={dataapp}
+				getApp={getappss}
+				isUpdate={true}
+			/>
+
 			<DeleteModal
 				title='Delete App'
 				deleteText='Delete permanently'
 				subtitle='Are you certain that you want to delete this App permanently?'
 				opened={isVisibilityOpen}
 				close={closeVisibility}
-				handleDelete={() => console.log('delete')}
+				handleDelete={() => {
+					if (dataapp?.id) {
+						DeleteApps({ id: dataapp?.id })
+							.then(() => {
+								toast.success('App deleted');
+								closeVisibility();
+								getappss();
+							})
+							.catch((err) => {
+								console.log(err);
+								toast.error('' + err.data.message);
+							});
+					}
+				}}
 			/>
 		</>
 	);

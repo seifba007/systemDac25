@@ -1,31 +1,24 @@
-import React, { useState } from 'react';
-import {
-	Modal,
-	TextInput,
-	Button,
-	Flex,
-	Box,
-	Title,
-	FileInput,
-	Text,
-	Select,
-} from '@mantine/core';
+import React, { useEffect, useState } from 'react';
+import { Modal, TextInput, Button, Flex, Box, Title, FileInput, Text, Select } from '@mantine/core';
 import '../../../sass/components/SuperAdminGlobal.scss';
 import { Folder } from 'iconsax-react';
-import { updateUser } from '@/core/services/modulesServices/user.service';
+import { getConnectedUser, updateUser } from '@/core/services/modulesServices/user.service';
 import toast from 'react-hot-toast';
-
+import { getOrganizations } from '@/core/services/modulesServices/organizations.service';
+import { ListOptions } from '@/core/entities/http.entity';
+import { setConnectedUser } from '@/core/store/modules/authSlice';
+import { useAppDispatch } from '@/core/store/hooks';
 
 interface UserData {
 	status: string;
 	email: string;
-	organization: string;
+	organization: any; // Can be string or object
 	fullName: string;
 	picture: string;
 	role: string;
 	createdAt: string;
 	action: string;
-	id: any; 
+	id: any;
 }
 
 interface EditUserModelProps {
@@ -35,32 +28,104 @@ interface EditUserModelProps {
 	getUse: () => void;
 }
 
-const EditUserModel: React.FC<EditUserModelProps> = ({ opened, onClose, userdata,getUse }) => {
-	const [formData, setFormData] = useState<UserData>(userdata);
-	const [fileUploaded, setFileUploaded] = useState<File | null>(null); // State to track uploaded file
+const EditUserModel: React.FC<EditUserModelProps> = ({ opened, onClose, userdata, getUse }) => {
+	const [formData, setFormData] = useState<UserData>({
+		...userdata,
+		organization:
+			typeof userdata.organization === 'object' ? userdata.organization?.id : userdata.organization,
+	});
+	const [fileUploaded, setFileUploaded] = useState<File | null>(null);
+	const [organizations, setOrganizations] = useState<any[]>([]);
+
+	// Handle input changes
 	const handleInputChange = (key: keyof UserData, value: string) => {
 		setFormData((prev) => ({ ...prev, [key]: value }));
 	};
-	const Edit = () => {
+
+	// Fetch organizations
+	const fetchOrganizations = () => {
+		const options: ListOptions['options'] = {};
+		getOrganizations({ options })
+			.then((res) => {
+				setOrganizations(res.data.organizations);
+			})
+			.catch((error) => {
+				console.error('Error fetching organizations:', error);
+				toast.error('Failed to load organizations');
+			});
+	};
+	const dispatch = useAppDispatch();
+
+	// Update user
+	const handleUpdate = () => {
 		const updateFormData = new FormData();
 		updateFormData.append('fullName', formData.fullName);
 		updateFormData.append('email', formData.email);
-		updateFormData.append('organization', formData.organization);
+		updateFormData.append('organization', formData.organization); // This is the organization ID
 		updateFormData.append('role', formData.role);
 		if (fileUploaded) {
-			updateFormData.append('picture', fileUploaded); // Add file to FormData
+			updateFormData.append('picture', fileUploaded);
 		}
-		updateUser(updateFormData,userdata?.id.$oid)
+
+		updateUser(updateFormData, userdata?.id?.$oid || userdata?.id)
 			.then(() => {
 				toast.success('User updated successfully!');
-				getUse()
-				onClose(); // Close the modal on success
+				getUse();
+				getConnectedUser().then((userData) => {
+					const user = userData.data.user;
+					dispatch(
+						setConnectedUser({
+							id: user.id,
+							fullName: user.fullName,
+							email: user.email,
+							avatar: user.picture,
+							role: user.role,
+							apps: user?.organization?.availableApps,
+						}),
+					);
+				});
+				onClose();
 			})
 			.catch((error) => {
 				console.error('Error updating user:', error);
 				toast.error('Failed to update user');
 			});
 	};
+
+	// Fetch organizations on mount
+	useEffect(() => {
+		fetchOrganizations();
+	}, []);
+
+	// Update formData when userdata changes
+	useEffect(() => {
+		setFormData({
+			...userdata,
+			organization:
+				typeof userdata.organization === 'object'
+					? userdata?.organization?.id
+					: userdata.organization,
+		});
+	}, [userdata]);
+
+	// Prepare select data for organizations
+	const organizationOptions = organizations.map((org) => ({
+		value: org?.id, // Use ID as value
+		label: org?.name, // Use name as display label
+	}));
+
+	// Add the current user's organization to options if not already present
+	const currentOrg = typeof userdata.organization === 'object' ? userdata.organization : null;
+	if (currentOrg && !organizationOptions.some((opt) => opt.value === currentOrg.id)) {
+		organizationOptions.unshift({
+			value: currentOrg.id,
+			label: currentOrg.name,
+		});
+	}
+
+	console.log('formData:', formData);
+	console.log('userdata:', userdata);
+	console.log('organizationOptions:', organizationOptions);
 
 	return (
 		<Modal
@@ -93,7 +158,7 @@ const EditUserModel: React.FC<EditUserModelProps> = ({ opened, onClose, userdata
 					onChange={(e) => handleInputChange('fullName', e.target.value)}
 				/>
 				<TextInput
-				disabled
+					disabled
 					label={
 						<Text pb={'0.5em'} c={'#868e96'}>
 							Email
@@ -102,14 +167,17 @@ const EditUserModel: React.FC<EditUserModelProps> = ({ opened, onClose, userdata
 					value={formData.email}
 					onChange={(e) => handleInputChange('email', e.target.value)}
 				/>
-				<TextInput
-					value={formData.organization}
+				<Select
 					label={
 						<Text pb={'0.5em'} c={'#868e96'}>
 							Organization
 						</Text>
 					}
-					onChange={(e) => handleInputChange('organization', e.target.value)}
+					value={formData.organization}
+					onChange={(value) => handleInputChange('organization', value || '')}
+					data={organizationOptions}
+					placeholder='Select an organization'
+					searchable
 				/>
 				<Select
 					label={
@@ -135,18 +203,15 @@ const EditUserModel: React.FC<EditUserModelProps> = ({ opened, onClose, userdata
 						</Text>
 					}
 					accept='.png,.jpg'
-					placeholder={<Text
-									style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}
-								>{formData.picture|| 'Upload a picture'} </Text>}
+					placeholder={
+						<Text style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+							{formData.picture || 'Upload a picture'}
+						</Text>
+					}
 					leftSectionPointerEvents='none'
 					onChange={(file) => setFileUploaded(file)}
 				/>
-				<Box
-					style={{
-						height: '0.7px',
-						background: '#DFDFDF',
-					}}
-				></Box>
+				<Box style={{ height: '0.7px', background: '#DFDFDF' }}></Box>
 				<Flex pt={'1em'} gap={20} justify='end'>
 					<Button variant='outline' size='md' color='black' onClick={onClose} radius={10}>
 						Cancel
@@ -158,7 +223,7 @@ const EditUserModel: React.FC<EditUserModelProps> = ({ opened, onClose, userdata
 						loading={false}
 						type='submit'
 						radius={10}
-						onClick={Edit} // Call the Edit function on confirm
+						onClick={handleUpdate}
 					>
 						Confirm
 					</Button>

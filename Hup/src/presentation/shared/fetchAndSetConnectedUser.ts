@@ -4,21 +4,14 @@ import { Dispatch } from 'redux';
 
 export const fetchAndSetConnectedUser = async (dispatch: Dispatch) => {
 	return getConnectedUser().then((res) => {
-		const emailPreference = res.data.data.emailPreference;
 		const connectedUser = {
 			id: res.data.data.id,
-			fullName: res.data.data.fullName,
-			email: res.data.data.email,
-			avatar: res.data.data.avatar,
-			role: res.data.data.role.name,
-			emailPreference: {
-				marketing: emailPreference?.marketing,
-				confirmation_updates: emailPreference?.confirmation_updates,
-				payments: emailPreference?.payments,
-				projects_updates: emailPreference?.projects_updates,
-				job_application: emailPreference?.job_application,
-			},
-			oneSignalUserId: res.data.data.oneSignalUserId,
+			fullName: res.data.user.fullName,
+			email: res.data.user.email,
+			avatar: res.data.user.avatar,
+			role: res.data.user.role,
+			apps: res.data.user.apps,
+		
 		};
 
 		dispatch(setConnectedUser(connectedUser));

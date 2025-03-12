@@ -19,7 +19,7 @@ const UserMangment = () => {
 	const [searchQuery, setSearchQuery] = useState<string>('');
 	const [isLoading, setIsLoading] = useState<boolean>(true);
 	const [totalCount, setTotalCount] = useState<number>(0);
-	const getusers=()=>{
+	const getusers = () => {
 		const options: ListOptions['options'] = {
 			...(currentPage != null && { page: currentPage }),
 			...(resultsPerPage != null && { limit: resultsPerPage }),
@@ -42,25 +42,20 @@ const UserMangment = () => {
 		};
 
 		getUsers({ options })
-		.then((res) => {
-			setUsers(res.data.users);
-			setTotalCount(res.data.total);
-			setIsLoading(false);
-		})
-		.catch((error) => {
-			setIsLoading(false);
-			console.error('Error fetching connected user:', error);
-		});
-	}
-	const [users, setUsers] = useState<UserEntity >();
+			.then((res) => {
+				setUsers(res.data.users);
+				setTotalCount(res.data.total);
+				setIsLoading(false);
+			})
+			.catch((error) => {
+				setIsLoading(false);
+				console.error('Error fetching connected user:', error);
+			});
+	};
+	const [users, setUsers] = useState<UserEntity>();
 	useEffect(() => {
-		getusers()
-	}, [	currentPage,
-		resultsPerPage,
-		sortValue,
-		tabValue,
-		searchQuery,
-		selectedCategory,]);
+		getusers();
+	}, [currentPage, resultsPerPage, sortValue, tabValue, searchQuery, selectedCategory]);
 
 	return isLoading ? (
 		<SkeletonLoader />
@@ -98,7 +93,7 @@ const UserMangment = () => {
 						onCategoryChange={setSelectedCategory}
 						onSortChange={setSortValue}
 						search={searchQuery}
-                        getUser={getusers}
+						getUser={getusers}
 					/>
 				)}
 			/>

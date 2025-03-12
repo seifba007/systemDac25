@@ -15,54 +15,67 @@ import {
 } from '@mantine/core';
 import '../../../sass/components/SuperAdminGlobal.scss';
 import { Folder } from 'iconsax-react';
+import toast from 'react-hot-toast';
+import { createApps, updateApps } from '@/core/services/modulesServices/apps.service';
+import { getConnectedUser } from '@/core/services/modulesServices/user.service';
+import { setConnectedUser } from '@/core/store/modules/authSlice';
+import { useAppDispatch } from '@/core/store/hooks';
 
 // Define the type for the Apps state
 interface AppsState {
-	Name: string;
+	name: string;
 	UploadLogo: File | null | string;
-	Path: string;
-	Active: boolean;
-	Categories: string[];
-	Tags: string[];
-	Description: string;
+	path: string;
+	active: boolean;
+	categories: string[];
+	tags: string[];
+	description: string;
 }
 
 interface EditAppsModelProps {
 	opened: boolean;
+	isUpdate: boolean;
+	getApp: () => void;
 	onClose: () => void;
 	data?: {
 		logo: string;
 		name: string;
 		path: string;
-		active: boolean;
+		isActive: boolean;
 		categories: string[];
 		tags: string[];
 		description: string;
+		id: string;
 	};
 }
 
-const CreationApps: React.FC<EditAppsModelProps> = ({ opened, onClose, data }) => {
+const CreationApps: React.FC<EditAppsModelProps> = ({
+	opened,
+	onClose,
+	data,
+	getApp,
+	isUpdate,
+}) => {
 	const [Apps, setApps] = useState<AppsState>({
-		Name: '',
+		name: '',
 		UploadLogo: null,
-		Path: '',
-		Active: false,
-		Categories: [],
-		Tags: [],
-		Description: '',
+		path: '',
+		active: data?.isActive ?? false, // Ensure the initial value is a boolean
+		categories: [],
+		tags: [],
+		description: '',
 	});
-
-	// Update the state when `data` changes
+	const dispatch = useAppDispatch();
 	useEffect(() => {
 		if (data) {
 			setApps({
-				Name: data.name || '',
+				name: data.name || '',
 				UploadLogo: data.logo || null,
-				Path: data.path || '',
-				Active: data.active || false,
-				Categories: data.categories || [],
-				Tags: data.tags || [],
-				Description: data.description || '',
+				path: data.path || '',
+				active: data.isActive,
+				categories: Array.isArray(data.categories) ? data.categories : [], // Ensure it's an array
+				tags: Array.isArray(data.tags) ? data.tags : [], // Ensure it's an array
+				description: data.description || '',
 			});
 		}
 	}, [data]);
@@ -77,12 +90,57 @@ const CreationApps: React.FC<EditAppsModelProps> = ({ opened, onClose, data }) =
 		setApps((prev) => ({ ...prev, UploadLogo: file }));
 	};
 
-	// Handle Save action
 	const handleSave = () => {
-		console.log(Apps); // Pass this data to your parent component or API
-		onClose();
-	};
+		const formData = new FormData();
 
+		// Append all fields to FormData
+		formData.append('name', Apps.name);
+		if (Apps.UploadLogo instanceof File) {
+			formData.append('logo', Apps.UploadLogo);
+		}
+		formData.append('path', Apps.path);
+		formData.append('description', Apps.description);
+		formData.append('isActive', Apps.active.toString());
+		formData.append('categories', JSON.stringify(Apps.categories)); // Convert to string if needed
+		formData.append('tags', JSON.stringify(Apps.tags)); // Convert to string if needed
+
+		if (isUpdate && data) {
+			// Update logic
+			updateApps(formData, data.id)
+				.then(() => {
+					toast.success('App Updated successfully');
+					getApp();
+					getConnectedUser().then((userData) => {
+						const user = userData.data.user;
+						dispatch(
+							setConnectedUser({
+								id: user.id,
+								fullName: user.fullName,
+								email: user.email,
+								avatar: user.picture,
+								role: user.role,
+								apps: user?.organization?.availableApps,
+							}),
+						);
+					});
+					onClose();
+				})
+				.catch((error) => {
+					toast.error(error.message || 'An unexpected error occurred');
+				});
+		} else {
+			// Create logic
+			createApps(formData)
+				.then(() => {
+					toast.success('New App created successfully');
+					getApp();
+					onClose();
+				})
+				.catch((error) => {
+					toast.error(error.message || 'An unexpected error occurred');
+				});
+		}
+	};
 	return (
 		<Modal
 			overlayProps={{
@@ -106,10 +164,19 @@ const CreationApps: React.FC<EditAppsModelProps> = ({ opened, onClose, data }) =
 			<Flex direction='column' gap='0.6em'>
 				{/* Logo Preview */}
 				{data && (
-					<Avatar src={data?.logo} className={'avatar'} radius='sm' w={'6.5rem'} h={'5.5rem'} />
+					<Avatar
+						src={
+							Apps.UploadLogo instanceof File ? URL.createObjectURL(Apps.UploadLogo) : data?.logo
+						}
+						className={'avatar'}
+						radius='sm'
+						w={'6.5rem'}
+						h={'5.5rem'}
+					/>
 				)}
 				{/* Upload Logo */}
 				<FileInput
+					accept='.png,.csv,.jpg'
 					leftSection={<Folder size='20' color='#868e96' variant='Bold' />}
 					label={
 						<Text pb='0.3em' color='#868e96'>
@@ -124,35 +191,35 @@ const CreationApps: React.FC<EditAppsModelProps> = ({ opened, onClose, data }) =
 
 				{/* Name Input */}
 				<TextInput
-					value={Apps.Name}
+					value={Apps.name}
 					label={
 						<Text pb='0.3em' color='#868e96'>
 							Name
 						</Text>
 					}
-					onChange={(e) => handleInputChange('Name', e.target.value)}
+					onChange={(e) => handleInputChange('name', e.target.value)}
 				/>
 
 				{/* Description */}
 				<Textarea
-					value={Apps.Description}
+					value={Apps.description}
 					label={
 						<Text pb='0.3em' color='#868e96'>
 							Description
 						</Text>
 					}
-					onChange={(e) => handleInputChange('Description', e.target.value)}
+					onChange={(e) => handleInputChange('description', e.target.value)}
 				/>
 
 				{/* Path Input */}
 				<TextInput
-					value={Apps.Path}
+					value={Apps.path}
 					label={
 						<Text pb='0.3em' color='#868e96'>
 							Path
 						</Text>
 					}
-					onChange={(e) => handleInputChange('Path', e.target.value)}
+					onChange={(e) => handleInputChange('path', e.target.value)}
 				/>
 
 				{/* Active Switch */}
@@ -161,15 +228,15 @@ const CreationApps: React.FC<EditAppsModelProps> = ({ opened, onClose, data }) =
 						Active
 					</Text>
 					<Switch
-						checked={Apps.Active}
-						onChange={(e) => handleInputChange('Active', e.currentTarget.checked)}
-						label={Apps.Active ? 'Yes' : 'No'}
+						checked={String(Apps.active) == 'true' ? true : false}
+						onChange={(e) => handleInputChange('active', e.currentTarget.checked)}
+						label={String(Apps.active) == 'true' ? 'Yes' : 'No'}
 					/>
 				</Box>
 
 				{/* Categories MultiSelect */}
 				<MultiSelect
-					value={Apps.Categories}
+					value={Apps.categories}
 					data={['Category 1', 'Category 2', 'Category 3']} // Example data
 					label={
 						<Text pb='0.3em' color='#868e96'>
@@ -177,13 +244,13 @@ const CreationApps: React.FC<EditAppsModelProps> = ({ opened, onClose, data }) =
 						</Text>
 					}
 					placeholder='Select Categories'
-					onChange={(value) => handleInputChange('Categories', value)}
+					onChange={(value) => handleInputChange('categories', value)}
 				/>
 
 				{/* Tags MultiSelect */}
 				<MultiSelect
 					pb={'1.5em'}
-					value={Apps.Tags}
+					value={Apps.tags}
 					data={['Tag 1', 'Tag 2', 'Tag 3']} // Example data
 					label={
 						<Text pb='0.3em' color='#868e96'>
@@ -191,7 +258,7 @@ const CreationApps: React.FC<EditAppsModelProps> = ({ opened, onClose, data }) =
 						</Text>
 					}
 					placeholder='Select Tags'
-					onChange={(value) => handleInputChange('Tags', value)}
+					onChange={(value) => handleInputChange('tags', value)}
 				/>
 
 				{/* Divider */}

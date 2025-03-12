@@ -53,30 +53,6 @@ const RouteMiddleware = ({ _ }: Props) => {
 						userIsConnected: true,
 					});
 				}
-			} else if (!connectedUser && !!token) {
-				getConnectedUser()
-					.then((res) => {
-						dispatch(
-							setConnectedUser({
-								id: res.data.data.id,
-								fullName: res.data.data.fullName,
-								avatar: res.data.data.avatar,
-								email: res.data.data.email,
-								role: res.data.data.role.name,
-							}),
-						);
-						//
-						setPassport({
-							requestIsFinished: true,
-							userIsConnected: true,
-						});
-					})
-					.catch(() => {
-						setPassport({
-							requestIsFinished: true,
-							userIsConnected: false,
-						});
-					});
 			} else if (!token) {
 				setPassport({
 					requestIsFinished: true,

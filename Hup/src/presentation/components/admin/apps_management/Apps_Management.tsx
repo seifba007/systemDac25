@@ -1,6 +1,6 @@
 import useResponsive from '@/presentation/shared/mediaQuery';
 import { Flex, Stack, Text } from '@mantine/core';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import SearchInput from '../../input/Searchinput';
 import BoxTableAdmin from '../../boxtableglobal/BoxSuperAdmin';
 import SkeletonLoader from '../../boxtableglobal/skeletonLoader';
@@ -8,6 +8,9 @@ import CreateButton from '../../button/CreateTalentButton';
 import { AddCircle } from 'iconsax-react';
 import TabsButton from './TabsButtonApps';
 import CreationApps from '../../modal/CreationApps';
+import { ListOptions } from '@/core/entities/http.entity';
+import { getUsers } from '@/core/services/modulesServices/user.service';
+import { getApps } from '@/core/services/modulesServices/apps.service';
 
 const Apps_Management = () => {
 	const { isMobile } = useResponsive();
@@ -17,86 +20,54 @@ const Apps_Management = () => {
 	const [selectedCategory, setSelectedCategory] = useState<string>('');
 	const [sortValue, setSortValue] = useState<string>('');
 	const [openModel, setOpenModel] = useState<boolean>(false);
+	const [apps, setApps] = useState<any>();
 
 	const [searchQuery, setSearchQuery] = useState<string>('');
-	const appsData = [
-		{
-			apps: {
-				name: 'App 1',
-				imageUrl: 'https://example.com/app1_image.png',
-			},
-			description: 'A useful app for managing educational content.',
-			active: true,
-			path: '/app1',
-			actions: ['Edit', 'Delete'],
-		},
-		{
-			apps: {
-				name: 'App 2',
-				imageUrl: 'https://example.com/app2_image.png',
-			},
-			description: 'An app designed for collaboration in learning environments.',
-			active: false,
-			path: '/app2',
-			actions: ['Edit', 'Delete'],
-		},
-		{
-			apps: {
-				name: 'App 3',
-				imageUrl: 'https://example.com/app3_image.png',
-			},
-			description: 'A resource management app for educational institutions.',
-			active: true,
-			path: '/app3',
-			actions: ['Edit', 'Delete'],
-		},
-		{
-			apps: {
-				name: 'AI App',
-				imageUrl: 'https://example.com/ai_app_image.png',
-			},
-			description: 'An AI-powered application for data analysis.',
-			active: true,
-			path: '/ai-app',
-			actions: ['Edit', 'Delete'],
-		},
-		{
-			apps: {
-				name: 'Cloud App',
-				imageUrl: 'https://example.com/cloud_app_image.png',
-			},
-			description: 'A cloud management tool for scalable solutions.',
-			active: true,
-			path: '/cloud-app',
-			actions: ['Edit', 'Delete'],
-		},
-		{
-			apps: {
-				name: 'AI App',
-				imageUrl: 'https://example.com/ai_app_image.png',
-			},
-			description: 'An AI-powered application for automation.',
-			active: false,
-			path: '/ai-app-automation',
-			actions: ['Edit', 'Delete'],
-		},
-		{
-			apps: {
-				name: 'Cloud App',
-				imageUrl: 'https://example.com/cloud_app_image.png',
-			},
-			description: 'A secure and scalable cloud storage app.',
-			active: true,
-			path: '/cloud-app-storage',
-			actions: ['Edit', 'Delete'],
-		},
-	];
+
+	const [totalCount, setTotalCount] = useState<number>(0);
+	const getapps = () => {
+		const options: ListOptions['options'] = {
+			...(currentPage != null && { page: currentPage }),
+			...(resultsPerPage != null && { limit: resultsPerPage }),
+			...(sortValue &&
+				sortValue !== 'default' && {
+					...(sortValue === 'createdAt desc' || sortValue === 'createdAt asc'
+						? { sort: sortValue.split(' ')[1], sortKey: sortValue.split(' ')[0] }
+						: { sort: sortValue }),
+				}),
+			...(searchQuery && { search: searchQuery }),
+			...(tabValue != null &&
+				(tabValue === 'banned'
+					? { ban: true }
+					: tabValue === 'to-validate'
+					? { verified: false }
+					: tabValue === 'all'
+					? null
+					: { status: tabValue })),
+			...(selectedCategory && selectedCategory !== '0' && { categoryId: selectedCategory }),
+		};
+
+		getApps({ options })
+			.then((res) => {
+				setApps(res.data.apps);
+				setTotalCount(res.data.total);
+				setIsLoading(false);
+			})
+			.catch((error) => {
+				setIsLoading(false);
+				console.error('Error fetching connected user:', error);
+			});
+	};
+	useEffect(() => {
+		getapps();
+	}, [currentPage, resultsPerPage, sortValue, tabValue, searchQuery, selectedCategory]);
 
 	const changebutton = () => {
 		setOpenModel(true);
 	};
+
 	const [isLoading, setIsLoading] = useState<boolean>(true);
-	return !isLoading ? (
+	return isLoading ? (
 		<SkeletonLoader />
 	) : (
 		<Stack>
@@ -126,16 +97,17 @@ const Apps_Management = () => {
 			</Flex>
 			<BoxTableAdmin
 				isResponsive={isMobile ? isMobile : false}
-				Data={appsData}
-				totalCount={50}
-				currentPage={2}
-				resultsPerPage={1}
+				Data={apps}
+				totalCount={totalCount}
+				currentPage={currentPage}
+				resultsPerPage={resultsPerPage}
 				setCurrentPage={setCurrentPage}
 				setResultsPerPage={setResultsPerPage}
 				renderTableBody={() => (
 					<TabsButton
+						getappss={getapps}
 						onTabChange={setTabValue}
-						data={appsData}
+						data={apps}
 						isResponsive={isMobile ? isMobile : false}
 						titrepage={'Apps'}
 						onCategoryChange={setSelectedCategory}
@@ -150,6 +122,8 @@ const Apps_Management = () => {
 					onClose={() => {
 						setOpenModel(false);
 					}}
+					getApp={getapps}
+					isUpdate={false}
 				/>
 			)}
 		</Stack>

@@ -15,6 +15,9 @@ const Apps = React.lazy(
 const Licenses = React.lazy(() => import('@/presentation/components/admin/licenses/Licenses'));
 const Dashboard = React.lazy(() => import('@/presentation/components/admin/dashboard/Dashboard'));
 const Apploader = React.lazy(() => import('@/presentation/components/admin/apploader/Apploader'));
+const AccountInformation = React.lazy(
+	() => import('@/presentation/components/admin/accountinformation/AccountInformation'),
+);
 
 const usermangmentRoutes: Array<RoutesType> = [
 	{
@@ -24,6 +27,13 @@ const usermangmentRoutes: Array<RoutesType> = [
 		isPrivate: true,
 		role: '4',
 		children: [
+			{
+				path: ADMIN.AccountInformation,
+				component: AccountInformation,
+				displayType: 'ALL',
+				isPrivate: true,
+				role: '4',
+			},
 			{
 				path: ADMIN.Apploader,
 				component: Apploader,

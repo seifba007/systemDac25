@@ -282,15 +282,7 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 					sortLabels={sortLabels}
 				/>
 			)}
-			{editmodalOpen && (
-				<CreationApps
-					opened={editmodalOpen}
-					onClose={() => {
-						setEditmodalOpen(false);
-					}}
-					data={dataOrganization}
-				/>
-			)}
+		
 			<DeleteModal
 				title='Delete App'
 				deleteText='Delete permanently'

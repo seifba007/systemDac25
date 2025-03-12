@@ -3,8 +3,8 @@ export type SendCodeEntity = {
 };
 
 export type ResetPasswordEntity = SendCodeEntity & {
-	verificationCode: string;
-	newPassword: string;
+	code: string;
+	new_password: string;
 };
 
 export enum ECommitment {

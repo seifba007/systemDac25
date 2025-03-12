@@ -21,6 +21,7 @@ class HttpService {
 		conflictError: 409,
 		TooManyRequests: 429,
 	};
+
 	private constructor() {
 		HttpService.interceptor = axios.create({
 			timeout: 10000,
@@ -52,7 +53,6 @@ class HttpService {
 		token?: string,
 		contentType = 'application/json',
 	): Promise<any> {
-		// Retrieve the accessToken as you want here
 		const accessToken = token ? token : store.getState().token.accessToken;
 		return new Promise((resolve, reject) => {
 			if (HttpService.isRefreshingToken) {
@@ -71,14 +71,18 @@ class HttpService {
 					headers: {
 						'Content-Type': contentType,
 						'id-token': idToken,
-						//see accessToken at line 51
 						Authorization: `Bearer ${accessToken}`,
 					},
 				})
 					.then((res: AxiosResponse) => {
+						// Check for "Token has expired" only for GET requests
+						if (config.method.toLowerCase() === 'get' && res.data?.msg === 'Token has expired') {
+							this.logout();
+							reject({ status: 401, data: res.data });
+							return;
+						}
 						switch (res.status) {
 							case HttpService.Status.badRequestError:
-								// TODO Logic for Form validation error, it can be in here or down on catch.
 								resolve(res);
 								break;
 							case HttpService.Status.success:
@@ -90,6 +94,14 @@ class HttpService {
 					})
 					.catch((err: AxiosError) => {
 						store.dispatch(setRootLoading(false));
+						// Check for "Token has expired" only for GET requests
+						const errorData = err.response?.data as { msg?: string };
+						if (config.method.toLowerCase() === 'get' && errorData?.msg === 'Token has expired') {
+							this.logout();
+							reject({ status: 401, data: errorData });
+							return;
+						}
+
 						switch (err.response?.status) {
 							case HttpService.Status.refreshTokenError:
 								if (!HttpService.isRefreshingToken) {
@@ -139,7 +151,6 @@ class HttpService {
 	}
 
 	public logout = () => {
-		//TODO: Implement logout
 		const state = store.getState();
 		const refreshToken = state.token.refreshToken;
 		const accessToken = state.token.accessToken;
@@ -161,7 +172,6 @@ class HttpService {
 	};
 
 	private refreshMyToken = (): Promise<any> => {
-		//retrieve refrest token from cookie, localstorage or redux persist
 		const refreshToken = store.getState().token.refreshToken;
 		return new Promise((resolve, reject) => {
 			HttpService.interceptor({

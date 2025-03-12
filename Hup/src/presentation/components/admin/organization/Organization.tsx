@@ -1,6 +1,6 @@
 import useResponsive from '@/presentation/shared/mediaQuery';
 import { Flex, Stack, Text } from '@mantine/core';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import SearchInput from '../../input/Searchinput';
 import BoxTableAdmin from '../../boxtableglobal/BoxSuperAdmin';
 import TabsButton from './TabsButtonOrganization';
@@ -8,6 +8,8 @@ import SkeletonLoader from '../../boxtableglobal/skeletonLoader';
 import CreateButton from '../../button/CreateTalentButton';
 import { AddCircle } from 'iconsax-react';
 import CreationOrganization from '../../modal/CreationOrganization';
+import { ListOptions } from '@/core/entities/http.entity';
+import { getOrganizations } from '@/core/services/modulesServices/organizations.service';
 
 const Organization = () => {
 	const { isMobile } = useResponsive();
@@ -17,44 +19,53 @@ const Organization = () => {
 	const [selectedCategory, setSelectedCategory] = useState<string>('');
 	const [sortValue, setSortValue] = useState<string>('');
 	const [openModel, setOpenModel] = useState<boolean>(false);
-
+	const [totalCount, setTotalCount] = useState<number>(0);
+	const [isLoading, setIsLoading] = useState<boolean>(true);
 	const [searchQuery, setSearchQuery] = useState<string>('');
-	const organizationData = [
-		{
-			logo: 'https://example.com/path_to_logo_image_1.png', // Example online logo
-			name: 'Organization 1',
-			address: '1234 Main St, City, Country',
-			email: 'contact@organization1.com',
-			description: 'A non-profit organization focused on education.',
-			availableApps: [
-				{ name: 'App 1', imageUrl: 'https://example.com/app1_image.png' }, // Example online app image
-				{ name: 'App 2', imageUrl: 'https://example.com/app2_image.png' },
-				{ name: 'App 3', imageUrl: 'https://example.com/app3_image.png' },
-			],
-			actions: ['Edit', 'Delete'],
-		},
-		{
-			logo: 'https://example.com/path_to_logo_image_2.png', // Example online logo
-			name: 'Organization 2',
-			address: '5678 Elm St, City, Country',
-			email: 'contact@organization2.com',
-			description: 'A tech company specializing in AI solutions.',
-			availableApps: [
-				{ name: 'AI App', imageUrl: 'https://example.com/ai_app_image.png' }, // Example online app image
-				{ name: 'Cloud App', imageUrl: 'https://example.com/cloud_app_image.png' },
-				{ name: 'AI App', imageUrl: 'https://example.com/ai_app_image.png' },
-				{ name: 'AI App', imageUrl: 'https://example.com/ai_app_image.png' },
-				{ name: 'AI App', imageUrl: 'https://example.com/ai_app_image.png' },
-				{ name: 'Cloud App', imageUrl: 'https://example.com/cloud_app_image.png' },
-			],
-			actions: ['Edit', 'Delete'],
-		},
-	];
+
+	const getOrganization = () => {
+		const options: ListOptions['options'] = {
+			...(currentPage != null && { page: currentPage }),
+			...(resultsPerPage != null && { limit: resultsPerPage }),
+			...(sortValue &&
+				sortValue !== 'default' && {
+					...(sortValue === 'createdAt desc' || sortValue === 'createdAt asc'
+						? { sort: sortValue.split(' ')[1], sortKey: sortValue.split(' ')[0] }
+						: { sort: sortValue }),
+				}),
+			...(searchQuery && { search: searchQuery }),
+			...(tabValue != null &&
+				(tabValue === 'banned'
+					? { ban: true }
+					: tabValue === 'to-validate'
+					? { verified: false }
+					: tabValue === 'all'
+					? null
+					: { status: tabValue })),
+			...(selectedCategory && selectedCategory !== '0' && { categoryId: selectedCategory }),
+		};
+
+		getOrganizations({ options })
+			.then((res) => {
+				setOrganization(res.data.organizations);
+				setTotalCount(res.data.total);
+				setIsLoading(false);
+			})
+			.catch((error) => {
+				setIsLoading(false);
+				console.error('Error fetching connected user:', error);
+			});
+	};
+	const [organization, setOrganization] = useState<any>();
+
+	useEffect(() => {
+		getOrganization();
+	}, [currentPage, resultsPerPage, sortValue, tabValue, searchQuery, selectedCategory]);
 	const changebutton = () => {
 		setOpenModel(true);
 	};
-	const [isLoading, setIsLoading] = useState<boolean>(true);
-	return !isLoading ? (
+
+	return isLoading ? (
 		<SkeletonLoader />
 	) : (
 		<Stack>
@@ -84,16 +95,17 @@ const Organization = () => {
 			</Flex>
 			<BoxTableAdmin
 				isResponsive={isMobile ? isMobile : false}
-				Data={organizationData}
-				totalCount={50}
-				currentPage={2}
-				resultsPerPage={1}
+				Data={organization}
+				totalCount={totalCount}
+				currentPage={currentPage}
+				resultsPerPage={resultsPerPage}
 				setCurrentPage={setCurrentPage}
 				setResultsPerPage={setResultsPerPage}
 				renderTableBody={() => (
 					<TabsButton
+						getOrgs={getOrganization}
 						onTabChange={setTabValue}
-						data={organizationData}
+						data={organization}
 						isResponsive={isMobile ? isMobile : false}
 						titrepage={'Organization'}
 						onCategoryChange={setSelectedCategory}
@@ -105,9 +117,11 @@ const Organization = () => {
 			{openModel && (
 				<CreationOrganization
 					opened={openModel}
+					getOrg={getOrganization}
 					onClose={() => {
 						setOpenModel(false);
 					}}
+					isUpdate={false}
 				/>
 			)}
 		</Stack>

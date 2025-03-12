@@ -8,7 +8,7 @@ const SEND_CODE = `${BASE_URL}/auth/forgot-password`;
 const RESET_PASSWORD = `${BASE_URL}/auth/reset-password`;
 const DELETE_USER = `${USER_BASE_URL}/:id`;
 const UPDATE_USER = `${USER_BASE_URL}/:id`;
-const ADD_USER_AVATAR = `${USER_BASE_URL}/avatar`;
+const ADD_USER_AVATAR = `${USERURL}/avatar`;
 
 export const USER = {
 	USERURL,

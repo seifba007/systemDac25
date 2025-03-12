@@ -32,11 +32,8 @@ const EntryPoint = () => {
 					},
 				});
 
-				const OneSignalID = OneSignal.User.PushSubscription.id;
 				OneSignal.User.addTag('user_role', user.role as ERole);
-				if (OneSignalID) {
-					await updateUser({ oneSignalUserId: OneSignalID });
-				}
+			
 			})();
 		}
 	}, [user]);

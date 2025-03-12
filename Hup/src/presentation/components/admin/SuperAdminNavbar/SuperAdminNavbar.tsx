@@ -17,6 +17,9 @@ import Avatarsml from '../../../../assets/logo-sm.png';
 import NotificationNav from '../notification/Notification';
 import CategoryApps from '../categoryapps/CategoryApps';
 import { logout } from '@/core/services/modulesServices/auth.service';
+import { useAppSelector } from '@/core/store/hooks';
+import { selectConnectedUser } from '@/core/store/modules/authSlice';
+import { useNavigate } from 'react-router-dom';
 
 interface SuperAdminNavbarProps {
 	onMenuClick: () => void;
@@ -62,10 +65,11 @@ const SuperAdminNavbar: React.FC<SuperAdminNavbarProps> = ({ onMenuClick }) => {
 			comment: 'Sarah Miller shared a link',
 		},
 	];
+	const nav = useNavigate();
 	const handleLogout = () => {
 		logout().finally();
 	};
-
+	const user = useAppSelector(selectConnectedUser);
 	return (
 		<Box className='navbar'>
 			{!isMobile && (
@@ -114,7 +118,7 @@ const SuperAdminNavbar: React.FC<SuperAdminNavbarProps> = ({ onMenuClick }) => {
 									pl={'1em'}
 									pr={'1em'}
 								>
-									<Avatar src={Avatardef} alt='User Avatar' size='30' />
+									<Avatar src={user?.avatar} alt='User Avatar' size='30' />
 								</Flex>
 							</Menu.Target>
 
@@ -122,6 +126,9 @@ const SuperAdminNavbar: React.FC<SuperAdminNavbarProps> = ({ onMenuClick }) => {
 								<Menu.Label> welcome!</Menu.Label>
 								<Menu.Item
 									p={'4%'}
+									onClick={() => {
+										nav('/AccountInformation');
+									}}
 									leftSection={<UserCirlceAdd size='20' color='#6c757d' variant='Bold' />}
 								>
 									<Text c={'#6c757d'} fz={'12px'} fw={'400'}>
@@ -171,7 +178,7 @@ const SuperAdminNavbar: React.FC<SuperAdminNavbarProps> = ({ onMenuClick }) => {
 				</Flex>
 			) : (
 				<Flex align='center' gap='md'>
-					<CategoryApps data={fakeData} />
+					<CategoryApps data={user?.apps} />
 
 					<NotificationNav data={fakeData} />
 
@@ -192,14 +199,14 @@ const SuperAdminNavbar: React.FC<SuperAdminNavbarProps> = ({ onMenuClick }) => {
 								pl={'1em'}
 								pr={'1em'}
 							>
-								<Avatar src={Avatardef} alt='User Avatar' size='30' />
+								<Avatar src={user?.avatar} alt='User Avatar' size='30' />
 
 								<Flex direction={'column'} gap={'0em'}>
-									<Text c={'#6c757d'} fz={'15px'} fw={'600'}>
-										seif
+									<Text c={'#6c757d'} fz={'13px'} fw={'600'}>
+										{user?.fullName}
 									</Text>
-									<Text c={'#6c757d'} fz={'14px'} fw={'500'}>
-										seifbenaicha@gmail.com
+									<Text c={'#6c757d'} fz={'12px'} fw={'500'}>
+										{user?.email}
 									</Text>
 								</Flex>
 							</Flex>
@@ -209,6 +216,9 @@ const SuperAdminNavbar: React.FC<SuperAdminNavbarProps> = ({ onMenuClick }) => {
 							<Menu.Label> welcome!</Menu.Label>
 							<Menu.Item
 								p={'4%'}
+								onClick={() => {
+									nav('/AccountInformation');
+								}}
 								leftSection={<UserCirlceAdd size='20' color='#6c757d' variant='Bold' />}
 							>
 								<Text c={'#6c757d'} fz={'12px'} fw={'400'}>

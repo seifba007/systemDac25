@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useAppSelector } from '@/core/store/hooks';
 import { selectConnectedUser } from '@/core/store/modules/authSlice';
 import { Box, Button, Flex, Menu, Stack, Text, rem } from '@mantine/core';
@@ -14,7 +14,6 @@ import { logout } from '@/core/services/modulesServices/auth.service';
 const DashBoardSidebar = () => {
 	const { isMobile } = useResponsive();
 	const { pathname } = useLocation();
-	const currentPage = pathname.split('/')[1];
 	const currentUser = useAppSelector(selectConnectedUser);
 	const user = useAppSelector(selectConnectedUser);
 	const [opened, { open, close }] = useDisclosure(false);
@@ -117,11 +116,6 @@ const DashBoardSidebar = () => {
 			/>
 		</Box>
 	);
-};
-const getBackgroundColor = (opened: string, text: string) => {
-	const normalizedOpened = opened.replace(/-/g, '').toLocaleLowerCase();
-	const normalizedText = text.replace(/\s+/g, '').toLocaleLowerCase();
-	return normalizedOpened === normalizedText ? 'black.10' : 'black.0';
 };
 
 export default DashBoardSidebar;

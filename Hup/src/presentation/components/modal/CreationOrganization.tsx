@@ -12,6 +12,11 @@ import {
 } from '@mantine/core';
 import '../../../sass/components/SuperAdminGlobal.scss';
 import { Folder } from 'iconsax-react';
+import {
+	createOrganizations,
+	updateOrganizations,
+} from '@/core/services/modulesServices/organizations.service';
+import toast from 'react-hot-toast';
 
 // Define the type for the organization state
 interface OrganizationState {
@@ -25,17 +30,27 @@ interface OrganizationState {
 
 interface EditUserModelProps {
 	opened: boolean;
+	getOrg: () => void;
+	isUpdate: boolean;
 	onClose: () => void;
 	data?: {
+		id: string;
 		logo: string;
 		name: string;
 		address: string;
 		email: string;
 		description: string;
+		phoneNumber: string;
 	};
 }
 
-const CreationOrganization: React.FC<EditUserModelProps> = ({ opened, onClose, data }) => {
+const CreationOrganization: React.FC<EditUserModelProps> = ({
+	opened,
+	onClose,
+	data,
+	getOrg,
+	isUpdate,
+}) => {
 	const [Organization, setOrganization] = useState<OrganizationState>({
 		OrganizationName: '',
 		UploadLogo: null,
@@ -52,7 +67,7 @@ const CreationOrganization: React.FC<EditUserModelProps> = ({ opened, onClose, d
 				OrganizationName: data.name || '',
 				UploadLogo: data.logo || null,
 				Address: data.address || '',
-				PhoneNumber: '', // Add a field in data if needed
+				PhoneNumber: data.phoneNumber || '', // Add a field in data if needed
 				Email: data.email || '',
 				Description: data.description || '',
 			});
@@ -71,9 +86,51 @@ const CreationOrganization: React.FC<EditUserModelProps> = ({ opened, onClose, d
 
 	// Handle Save action
 	const handleSave = () => {
-		// Here, you can pass the updated organization data to your parent component or API.
-		console.log(Organization); // Just log the updated organization data
-		onClose();
+		const formData = new FormData();
+
+		// Append all fields to FormData
+		formData.append('name', Organization.OrganizationName);
+		if (Organization.UploadLogo instanceof File) {
+			formData.append('logo', Organization.UploadLogo);
+		} else {
+			console.warn('UploadLogo is not a valid file:', Organization.UploadLogo);
+		}
+		formData.append('address', Organization.Address);
+		formData.append('phoneNumber', Organization.PhoneNumber);
+		formData.append('email', Organization.Email);
+		formData.append('description', Organization.Description);
+
+		if (isUpdate && data) {
+			updateOrganizations(formData, data.id)
+				.then(() => {
+					toast.success(' Organization Updated successfully');
+					getOrg();
+					onClose();
+				})
+				.catch((error) => {
+					toast.error(error.message || 'An unexpected error occurred');
+				})
+				.finally(() => {
+					console.log('Finalizing process');
+				});
+		} else {
+			createOrganizations(formData)
+				.then((response) => {
+					if (response?.status === 201) {
+						toast.success('New Organization created successfully');
+						getOrg();
+						onClose();
+					} else {
+						toast.error(response?.message || 'Failed to create organization');
+					}
+				})
+				.catch((error) => {
+					toast.error(error.message || 'An unexpected error occurred');
+				})
+				.finally(() => {
+					console.log('Finalizing process');
+				});
+		}
 	};
 
 	return (
@@ -98,7 +155,7 @@ const CreationOrganization: React.FC<EditUserModelProps> = ({ opened, onClose, d
 		>
 			<Flex direction='column' gap='0.6em'>
 				{data && (
-					<Avatar src={data?.logo} className={'avatar'} radius='sm' w={'7.5rem'} h={'7.5rem'} />
+					<Avatar src={data?.logo} className='avatar' radius='sm' w={'7.5rem'} h={'7.5rem'} />
 				)}
 				<FileInput
 					leftSection={<Folder size='20' color='#868e96' variant='Bold' />}
@@ -107,8 +164,9 @@ const CreationOrganization: React.FC<EditUserModelProps> = ({ opened, onClose, d
 							Upload Logo
 						</Text>
 					}
+					accept='.png,.jpg,.jpeg'
 					placeholder='Choose Logo'
-					value={Organization.UploadLogo as File | null} // Prefill with logo if available
+					value={Organization.UploadLogo as File | null}
 					onChange={handleFileChange}
 					leftSectionPointerEvents='none'
 				/>
@@ -131,6 +189,7 @@ const CreationOrganization: React.FC<EditUserModelProps> = ({ opened, onClose, d
 					onChange={(e) => handleInputChange('Address', e.target.value)}
 				/>
 				<TextInput
+					type='Number'
 					value={Organization.PhoneNumber}
 					label={
 						<Text pb={'0.3em'} c={'#868e96'}>
@@ -167,7 +226,7 @@ const CreationOrganization: React.FC<EditUserModelProps> = ({ opened, onClose, d
 						size='md'
 						color='black'
 						loading={false}
-						onClick={handleSave} // Make sure save button triggers the save logic
+						onClick={handleSave}
 						radius={10}
 					>
 						Confirm

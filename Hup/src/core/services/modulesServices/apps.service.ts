@@ -4,25 +4,22 @@ import { CLIENT, EDUCATOR, EXPERT, USER } from '../endPoint/user.endPoint';
 import HttpService from '../httpServices/http.service';
 import RequestService from '../requestServices/request';
 import { ListOptions } from '@/core/entities/http.entity';
+import { APPS } from '../endPoint/apps.endPoint';
 
-export const getConnectedUser = () => {
-	return HttpService.getInstance().executeRequest({
-		method: 'get',
-		endPoint: USER.GET_ME,
-	});
+export const getApps = ({ options = {} }: ListOptions) => {
+	return RequestService.list({ entity: APPS.APPS_BASE_URL, options });
+};
+export const createApps = (data: any) => {
+	return RequestService.createAndUpload({ entity: APPS.APPS_BASE_URL, data });
 };
 
-export const getUsers = ({ options = {} }: ListOptions) => {
-	return RequestService.list({ entity: USER.USERURL, options });
+export const DeleteApps = ({ id }: { id: string }) => {
+	return RequestService.delete({ entity: APPS.APPS_BASE_URL + `/${id}` });
 };
 
-export const DeleteUsers = ({ id }: { id: string }) => {
-	return RequestService.delete({ entity: USER.USERURL + `/${id}` });
-};
-
-export const updateUser = <T extends Partial<any>>(data: T, id: string) => {
+export const updateApps = (data: any, id: string) => {
 	return RequestService.updateAndUpload({
-		entity: `${USER.USERURL}/${id}`, // Append the ID to the base URL
+		entity: `${APPS.APPS_BASE_URL}/${id}`, // Append the ID to the base URL
 		data,
 		method: 'put',
 	});
@@ -37,7 +34,7 @@ export const resetPassword = (data: ResetPasswordEntity) => {
 };
 
 export const addUserAvatar = (formData: FormData) => {
-	return RequestService.updateAndUpload({
+	return RequestService.createAndUpload({
 		entity: USER.ADD_USER_AVATAR,
 		data: formData,
 	});

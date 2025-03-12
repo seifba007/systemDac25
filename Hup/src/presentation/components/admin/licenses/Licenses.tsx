@@ -76,14 +76,7 @@ const Licenses = () => {
 				setResultsPerPage={setResultsPerPage}
 				Data={exampleData}
 			/>
-			{openModel && (
-				<CreationApps
-					opened={openModel}
-					onClose={() => {
-						setOpenModel(false);
-					}}
-				/>
-			)}
+		
 		</Stack>
 	);
 };

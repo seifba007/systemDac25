@@ -1,11 +1,9 @@
 import { LoginEntity } from '@/core/entities/auth/authSlice.entity';
-import useGoogleAuth from '@/core/hooks/useGoogleAuth';
 import useRedirectIfConn from '@/core/hooks/useRedirectIfConn';
-import { login, loginWithGoogle } from '@/core/services/modulesServices/auth.service';
+import { login } from '@/core/services/modulesServices/auth.service';
 import errorHandler from '@/core/services/requestServices/errorHandle';
 import { useAppDispatch, useAppSelector } from '@/core/store/hooks';
 import { clearConnectedUser, setConnectedUser } from '@/core/store/modules/authSlice';
-
 import { selectRootLoading } from '@/core/store/modules/rootSlice';
 import { setUserToken } from '@/core/store/modules/tokenSlice';
 import Button from '@/presentation/components/button/Button';
@@ -13,13 +11,11 @@ import Input from '@/presentation/components/input/Input';
 import InputPassword from '@/presentation/components/input/InputPassword';
 import useResponsive from '@/presentation/shared/mediaQuery';
 import { email_validation, password_validation } from '@/utils/inputValidations';
-import { Box, Divider, Image } from '@mantine/core';
-import { AxiosResponse, HttpStatusCode } from 'axios';
-import { t } from 'i18next';
+import { Divider, Image } from '@mantine/core';
+import { AxiosResponse } from 'axios';
 import React from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import toast from 'react-hot-toast';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import logo from '../../../../assets/logo-dark.png';
 import { getConnectedUser } from '@/core/services/modulesServices/user.service';
 
@@ -36,16 +32,14 @@ const Login = () => {
 			const user = userData.data.user;
 			dispatch(
 				setConnectedUser({
-					id: user.id.$oid,
-					fullName: user.username,
+					id: user.id,
+					fullName: user.fullName,
 					email: user.email,
 					avatar: user.picture,
 					role: user.role,
+					apps: user?.organization?.availableApps,
 				}),
 			);
-			return setTimeout(() => {
-				window.location.href = '/';
-			}, 1000);
 		});
 	};
 
@@ -64,7 +58,6 @@ const Login = () => {
 				errorHandler(err);
 			});
 	});
-
 
 	return (
 		<main id='login'>

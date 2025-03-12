@@ -13,7 +13,6 @@ import {
 } from '@mantine/core';
 import { ArrowSwapVertical, Category, Edit, Setting4, Trash } from 'iconsax-react';
 import BOX from '../../../../assets/boxnodata.png';
-import { useAppDispatch } from '@/core/store/hooks';
 import TableComponent from '../../boxtableglobal/Table';
 import ModelFilter from '../../modal/ModelFilter';
 import Categoriesfilter from '../../modal/Categoriesfilter';
@@ -21,6 +20,8 @@ import CreationOrganization from '../../modal/CreationOrganization';
 import AssignAappsModel from '../../modal/AssignAappsModel';
 import DeleteModal from '../../modal/DeleteModal';
 import { useDisclosure } from '@mantine/hooks';
+import toast from 'react-hot-toast';
+import { DeleteOrganizations } from '@/core/services/modulesServices/organizations.service';
 
 const tabStyles = (isActive: boolean) => ({
 	height: '32px',
@@ -60,6 +61,7 @@ interface TabsButtonProps {
 	titrepage: string;
 	onSortChange: (sortValue: string) => void;
 	search: string;
+	getOrgs: () => void;
 }
 
 const TabsButton: React.FC<TabsButtonProps> = ({
@@ -70,6 +72,7 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 	titrepage,
 	onCategoryChange,
 	onSortChange,
+	getOrgs,
 }) => {
 	const [activeTab, setActiveTab] = useState<string>('all');
 	const [modalOpen, setModalOpen] = useState<boolean>(false);
@@ -99,15 +102,9 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 	const closeModal3 = () => setEditmodalOpen(false);
 	const openModal2 = () => setModalOpen2(true);
 	const closeModal2 = () => setModalOpen2(false);
-
 	const handleSortChange = (sortValue: string) => onSortChange(sortValue);
 	const [isVisibilityOpen, { open: openVisibility, close: closeVisibility }] = useDisclosure(false);
-
-	const headerTabs = [
-		{ value: 'all', label: 'All' },
-		{ value: 'Active', label: 'Active' },
-		{ value: 'Blocked', label: 'Blocked' },
-	];
+	const headerTabs = [{ value: 'all', label: 'All' }];
 	const TableTh = [
 		{ label: 'Organizations ' },
 		{ label: 'Address' },
@@ -116,7 +113,6 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 		{ label: 'Available Apps' },
 		{ label: 'action' },
 	];
-
 	return (
 		<>
 			<Flex direction='column'>
@@ -216,17 +212,17 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 													</Text>
 												</Table.Td>
 												<Table.Td>
-													<Avatar.Group>
-														{/* Display the first 4 avatars */}
-														{item?.availableApps?.slice(0, 4).map((app: any, index: any) => (
-															<Avatar key={index} src={app.imageUrl} alt={app.name} />
-														))}
+													<Table.Td>
+														<Avatar.Group>
+															{item?.availableApps?.slice(0, 4).map((app: any, index: any) => (
+																<Avatar key={index} src={app.logo} alt={app.name} />
+															))}
 
-														{/* Show the number of additional avatars if more than 4 */}
-														{item?.availableApps?.length > 4 && (
-															<Avatar>+{item?.availableApps?.length - 4}</Avatar>
-														)}
-													</Avatar.Group>
+															{item?.availableApps?.length > 4 && (
+																<Avatar>+{item?.availableApps?.length - 4}</Avatar>
+															)}
+														</Avatar.Group>
+													</Table.Td>
 												</Table.Td>
 
 												<Table.Td>
@@ -260,7 +256,10 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 															color='red'
 															w={'40px'}
 															h={'20px'}
-															onClick={openVisibility}
+															onClick={() => {
+																setdataOrganization(item);
+																openVisibility();
+															}}
 														>
 															<Trash color='#fff' size={'15'} />
 														</ActionIcon>
@@ -310,6 +309,8 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 			)}
 			{editmodalOpen && (
 				<CreationOrganization
+					getOrg={getOrgs}
+					isUpdate={true}
 					opened={editmodalOpen}
 					onClose={closeModal3}
 					data={dataOrganization}
@@ -321,14 +322,29 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 				subtitle='Are you certain that you want to delete this Organization permanently?'
 				opened={isVisibilityOpen}
 				close={closeVisibility}
-				handleDelete={() => console.log('delete')}
+				handleDelete={() => {
+					if (dataOrganization?.id) {
+						DeleteOrganizations({ id: dataOrganization?.id })
+							.then(() => {
+								toast.success('Organization deleted');
+								closeVisibility();
+								getOrgs();
+							})
+							.catch((err) => {
+								console.log(err);
+								toast.error('' + err.data.message);
+							});
+					}
+				}}
 			/>
 			{assignAppsOpen && (
 				<AssignAappsModel
+					getOrgr={getOrgs}
 					opened={assignAppsOpen}
 					onClose={() => {
 						setAssignAppsOpen(false);
 					}}
+					data={dataOrganization}
 				/>
 			)}
 		</>

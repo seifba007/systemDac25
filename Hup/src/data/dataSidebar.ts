@@ -14,17 +14,6 @@ interface NavItem {
 // Define the data array
 const data: NavItem[] = [
 	{ id: 1, section: 'Corporate Apps' },
-	{ id: 7, section: 'Demo Apps' },
-	{
-		id: 2,
-		link: 'apploader/5175',
-		label: 'app eMaint',
-	},
-	{
-		id: 102,
-		link: 'apploader/5174',
-		label: 'app Reporter',
-	},
 
 	{ id: 14, section: 'Admin Setting' },
 	{ id: 3, link: 'Dashboard', label: 'Dashboard', icon: Category }, // Fixed duplicate ID

@@ -23,8 +23,8 @@ const ResetPassword = ({ goToNextEtape }: ResetPasswordProps) => {
 	const onSubmit = methods.handleSubmit((data) => {
 		const sendCodeData: ResetPasswordEntity = {
 			email: email,
-			verificationCode: verificationCode,
-			newPassword: data.newPassword,
+			code: verificationCode,
+			new_password: data.newPassword,
 		};
 		resetPassword(sendCodeData).then(() => {
 			toast.success('Password reset successfully');

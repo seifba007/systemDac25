@@ -50,7 +50,6 @@ interface TabsButtonProps {
 	onSortChange: (sortValue: string) => void;
 	search: string;
 	getUser: () => void; // Specify that `getUser` is a function that returns `void`
-
 }
 
 const TabsButton: React.FC<TabsButtonProps> = ({
@@ -96,7 +95,7 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 	const statusClassMap: Record<ActivityStatus, string> = {
 		Active: 'Active',
 		Blocked: 'Blocked',
-		Inactive: 'Inactive'
+		Inactive: 'Inactive',
 	};
 	const headerTabs = [
 		{ value: 'all', label: 'All' },
@@ -192,9 +191,7 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 															className={'avatar'}
 															radius='sm'
 														/>
-														<Text className={'txttablename'}>
-															{item?.fullName ?? '........'}
-														</Text>
+														<Text className={'txttablename'}>{item?.fullName ?? '........'}</Text>
 													</Flex>
 												</Table.Td>
 												<Table.Td>
@@ -214,7 +211,7 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 												</Table.Td>
 												<Table.Td>
 													<Text className={'txttablename'}>
-														{item?.organization ?? '..............'}
+														{item?.organization?.name ?? '..............'}
 													</Text>
 												</Table.Td>
 												<Table.Td>
@@ -239,12 +236,15 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 														<Edit color='#fff' size={'15'} />
 													</ActionIcon>
 													<ActionIcon
-													   ml='0.5em'
+														ml='0.5em'
 														variant='filled'
 														color='red'
 														w={'40px'}
 														h={'20px'}
-														onClick={()=>{setdatauser(item);openVisibility()}}
+														onClick={() => {
+															setdatauser(item);
+															openVisibility();
+														}}
 													>
 														<Trash color='#fff' size={'15'} />
 													</ActionIcon>
@@ -292,26 +292,30 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 				/>
 			)}
 			{editmodalOpen && (
-				<EditUserModel getUse={getUser} opened={editmodalOpen} onClose={closeModal3} userdata={datauser} />
+				<EditUserModel
+					getUse={getUser}
+					opened={editmodalOpen}
+					onClose={closeModal3}
+					userdata={datauser}
+				/>
 			)}
-				<DeleteModal
+			<DeleteModal
 				title='Delete User'
 				deleteText='Delete permanently'
 				subtitle='Are you certain that you want to delete this User permanently?'
 				opened={isVisibilityOpen}
-				close={closeVisibility} 
+				close={closeVisibility}
 				handleDelete={() => {
-					if( datauser?.id?.$oid){
+					if (datauser?.id?.$oid) {
 						DeleteUsers({ id: datauser?.id?.$oid })
-						.then(() => {
-							toast.success('User test deleted');
-							closeVisibility();
-							getUser();
-						})
-						.catch();
+							.then(() => {
+								toast.success('User test deleted');
+								closeVisibility();
+								getUser();
+							})
+							.catch();
 					}
-					
-				}}			
+				}}
 			/>
 		</>
 	);
