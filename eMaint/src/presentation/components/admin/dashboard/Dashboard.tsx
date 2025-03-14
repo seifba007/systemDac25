@@ -28,7 +28,7 @@ const Dashboard = () => {
       icon: <Setting4 color="#FFF" variant="Bold" />,
       subText: 'Since last month',
       actionColor: '#299bf6',
-    },
+    },  
     {
       title: 'Spare Parts Inventory',
       value: '180',

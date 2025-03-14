@@ -14,9 +14,11 @@ export const getConnectedUser = () => {
 export const updateUser = <T extends Partial<UserEntity>>(data: T) => {
 	return RequestService.update({ entity: USER.USER_BASE_URL, data, method: 'patch' });
 };
-
-export const updateUserSettings = (data: Pick<UserEntity, 'emailPreference'>) => {
-	return RequestService.update({ entity: USER.USER_BASE_URL, data, method: 'patch' });
+export const getConnectedverif= () => {
+	return HttpService.getInstance().executeRequest({
+		method: 'get',
+		endPoint: USER.VERIF,
+	});
 };
 
 export const sendCode = (data: SendCodeEntity) => {

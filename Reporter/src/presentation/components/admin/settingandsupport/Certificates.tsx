@@ -32,7 +32,7 @@ interface Question {
   correctAnswer: string;
 }
 
-const Certificates: React.FC = () => {
+const Certificates = () => {
   const { isMobile } = useResponsive();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [file, setFile] = useState<File | null>(null);

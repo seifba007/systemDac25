@@ -42,9 +42,7 @@ export type UserEntity = {
 	fullName: string;
 	email: string;
 	avatar: string | null;
-	emailPreference: EmailPreferenceType;
-	role: ERole;
-	oneSignalUserId: string | null;
+	role: any;
 };
 
 export type TokenSliceState = {

@@ -85,7 +85,7 @@ export const data5: CountryData[] = [
 
 ];
 
-const Dashboard: React.FC = () => {
+const Dashboard = () => {
   const [date, setDate] = useState<Date>(new Date());
   const { isMobile } = useResponsive();
 

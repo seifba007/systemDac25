@@ -233,7 +233,7 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 														w={'40px'}
 														h={'20px'}
 													>
-														<Edit color='#fff' size={'15'} />
+														<Edit color='#fff' size={'15'} variant='Bold' />
 													</ActionIcon>
 													<ActionIcon
 														ml='0.5em'
@@ -246,7 +246,7 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 															openVisibility();
 														}}
 													>
-														<Trash color='#fff' size={'15'} />
+														<Trash color='#fff' size={'15'} variant='Bold' />
 													</ActionIcon>
 												</Table.Td>
 											</Table.Tr>

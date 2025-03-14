@@ -8,11 +8,13 @@ const RESET_PASSWORD = `${USER_BASE_URL}/reset_password`;
 const DELETE_USER = `${USER_BASE_URL}/:id`;
 const UPDATE_USER = `${USER_BASE_URL}/:id`;
 const ADD_USER_AVATAR = `${USER_BASE_URL}/avatar`;
+const VERIF = `${BASE_URL}/auth/verify-token`;
 
 export const USER = {
 	USER_BASE_URL,
 	GET_ME,
 	SEND_CODE,
+	VERIF,
 	RESET_PASSWORD,
 	DELETE_USER,
 	UPDATE_USER,

@@ -1,208 +1,96 @@
-import { Icons } from '@/assets/icons/Icons';
-import { ERole, LoginEntity } from '@/core/entities/auth/authSlice.entity';
-import useGoogleAuth from '@/core/hooks/useGoogleAuth';
 import useRedirectIfConn from '@/core/hooks/useRedirectIfConn';
-import { login, loginWithGoogle } from '@/core/services/modulesServices/auth.service';
-import {
-
-	getConnectedTalent,
-	getConnectedUser,
-} from '@/core/services/modulesServices/user.service';
-import errorHandler from '@/core/services/requestServices/errorHandle';
-import { useAppDispatch, useAppSelector } from '@/core/store/hooks';
+import useRedirectIfConnlogin from '@/core/hooks/useRedirectIfConnlogin';
+import { useAppDispatch } from '@/core/store/hooks';
 import { clearConnectedUser, setConnectedUser } from '@/core/store/modules/authSlice';
+import { clearUserToken, setUserToken } from '@/core/store/modules/tokenSlice';
+import React, { useEffect, useState } from 'react';
+import { io, Socket } from 'socket.io-client';
 
-import { selectRootLoading } from '@/core/store/modules/rootSlice';
-import { setUserToken } from '@/core/store/modules/tokenSlice';
-import Button from '@/presentation/components/button/Button';
-import Input from '@/presentation/components/input/Input';
-import InputPassword from '@/presentation/components/input/InputPassword';
-import useResponsive from '@/presentation/shared/mediaQuery';
-import { email_validation, password_validation } from '@/utils/inputValidations';
-import { Box, Divider, Image } from '@mantine/core';
-import { AxiosResponse, HttpStatusCode } from 'axios';
-import { t } from 'i18next';
-import React from 'react';
-import { FormProvider, useForm } from 'react-hook-form';
-import toast from 'react-hot-toast';
-import { Link, useNavigate } from 'react-router-dom';
-import logo from '../../../../assets/logo-dark.png'
-
-const Login = () => {
-	const methods = useForm();
-	const isRootLoading = useAppSelector(selectRootLoading);
-	const { isTablet } = useResponsive();
-	const dispatch = useAppDispatch();
-	const navigate = useNavigate();
-
-	useRedirectIfConn();
-
-	const dispatchNewUser = (res: AxiosResponse) => {
-		const { accessToken, refreshToken } = res.data;
-		dispatch(setUserToken({ accessToken, refreshToken }));
-		getConnectedUser().then((userData) => {
-			const userRole = userData.data.data.role.name === ERole.USER;
-			if (userRole) {
-				switch (userData.data.data.typeOfUser) {
-					case ERole.USER:
-						window.location.href = '/account-setup/1';
-						break;
-				}
-			}
-
-			if (!userRole) {
-				switch (userData.data.data.role.name) {
-					case ERole.TALENT:
-						getConnectedTalent().then((res) => {
-							toast.error('Account setup incomplete');
-							getConnectedTalent().then((res) => {
-								const talentData = res.data.data;
-								return setTimeout(() => {
-									window.location.href = '/account-setup/5';
-								}, 1000);
-							});
-						});
-
-						break;
-				}
-			}
-		});
-	};
-
-	const onSubmit = methods.handleSubmit((data) => {
-		const loginData: LoginEntity = {
-			email: data.email,
-			password: data.password,
-		};
-
-		dispatch(clearConnectedUser());
-		login(loginData)
-			.then((res) => {
-				if (res.data.role == ERole.SUPERADMIN) {
-					return toast.error('Can not connect!');
-				}
-				dispatchNewUser(res);
-			})
-			.catch((err) => {
-				if (err?.data?.send_code) {
-					const emailPreference = err.data.user.emailPreference;
-					dispatch(
-						setConnectedUser({
-							id: err.data.user.id,
-							fullName: err.data.user.fullName,
-							email: err.data.user.email,
-							avatar: err.data.user.avatar,
-							role: ERole.USER,
-							emailPreference: {
-								marketing: emailPreference?.marketing,
-								confirmation_updates: emailPreference?.confirmation_updates,
-								payments: emailPreference?.payments,
-								projects_updates: emailPreference?.projects_updates,
-								job_application: emailPreference?.job_application,
-							},
-							oneSignalUserId: err.data.user.oneSignalUserId,
-						}),
-					);
-					navigate('/register/user/2');
-				}
-				errorHandler(err);
-			});
-	});
-
-	const handleGoogle = async (response: any) => {
-		dispatch(clearConnectedUser());
-		loginWithGoogle(response.credential)
-			.then((res) => dispatchNewUser(res))
-			.catch((error) =>
-				error.status === HttpStatusCode.NotFound
-					? toast.error(t('account_not_exist'))
-					: errorHandler(error),
-			);
-	};
-	const authDivRef = useGoogleAuth(handleGoogle);
-
-	return (
-		<main id='login'>
-			<header>
-				<div className='logo'>
-					<Link to={'/'}>
-						{isTablet ? 
-									<Link to={'/'}>
-			<Image src={logo}  h={'20px'}/>
-			</Link> : 
-			<Link to={'/'}>
-			<Image src={logo}  h={'40px'}/>
-			</Link>
+interface LoginEvent {
+  username: string;
+  event: string;
 }
-					</Link>
-				</div>
-				{!isTablet && (
-					<p className='register-link'>
-						New to SmarDac? Join us as a{' '}
-						<Link to='/register/user/1' className='link'>
-							{' '}
-							Talent
-						</Link>{' '}
-						or{' '}
-						<Link to='/register/client/1' className='link'>
-							{' '}
-							Client
-						</Link>
-					</p>
-				)}
-			</header>
-			<section>
-				<div className='box'>
-					<h1>Login</h1>
-					<FormProvider {...methods}>
-						<form onSubmit={(e) => e.preventDefault()} noValidate autoCapitalize='off'>
-							<Input {...email_validation} />
-							<InputPassword {...password_validation} />
-							<p>
-								<Link to={'/forgotPassword/1'}>Forgot password?</Link>
-							</p>
-							<Button
-								name='Login'
-								onClick={onSubmit}
-								loading={isRootLoading}
-								style={{ marginTop: '2.5rem' }}
-							/>
-							<Divider mt='xl' label='Or' labelPosition='center' size='sm' />
-							<button style={{ position: 'relative' }}>
-								<Box
-									ref={authDivRef}
-									data-text='signup_with'
-									style={{
-										opacity: 0,
-										position: 'absolute',
-										left: '50%',
-										top: '50%',
-										transform: 'translate(-50%, -50%)',
-									}}
-								></Box>
-								<Icons.google width={24} />
-								<span>Continue with Google</span>
-							</button>
-						</form>
-					</FormProvider>
-					{isTablet && (
-						<p className='register-link'>
-							New to Talent619? Join us as a{' '}
-							<Link to='/register/user/1' className='link'>
-								{' '}
-								Talent{' '}
-							</Link>{' '}
-							or{' '}
-							<Link to='/register/client/1' className='link'>
-								{' '}
-								Client{' '}
-							</Link>
-						</p>
-					)}
-				</div>
-			</section>
-		</main>
-	);
+
+const Login: React.FC = () => {
+  const [events, setEvents] = useState<LoginEvent[]>([]);
+    const [apiMessage, setApiMessage] = useState<string | null>(null);
+    const dispatch = useAppDispatch();
+  const [socketStatus, setSocketStatus] = useState<string>('Connecting...');
+  useRedirectIfConnlogin();
+  const fetchTokenVerification = async () => {
+ 
+    try {
+      const response = await fetch('http://localhost:5000/auth/verify-token', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json', // Just the content-type, no token
+        },
+      });
+  
+      // Check if the response is ok
+      if (response.ok) {
+        const data = await response.json(); // Parse the response body as JSON
+    
+     
+         const accessToken=data.accessToken
+        const refreshToken=data.refreshToken
+        console.log(accessToken);
+        dispatch(setUserToken({ accessToken,refreshToken }));
+        // Dispatch the user data to the Redux store
+        dispatch(
+          setConnectedUser({
+            id: data.user.id,
+            fullName: data.user.fullName,
+            email: data.user.email,
+            avatar: data.user.picture,
+            role: data.user.role,
+          })
+        );
+  
+      } 
+    } catch (error) {
+
+    }
+  };
+
+
+  useEffect(() => {
+    fetchTokenVerification();
+  
+  }, []);
+
+  return (
+    <div className="App" style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+      <h1 style={{ marginBottom: '20px' }}>Real-Time Login Events</h1>
+      <p style={{ color: socketStatus === 'Connected' ? 'green' : 'red' }}>
+        Socket Status: {socketStatus}
+      </p>
+      <div style={{ border: '1px solid #ccc', padding: '10px', borderRadius: '8px' }}>
+        {events.length > 0 ? (
+          <ul style={{ listStyleType: 'none', padding: 0 }}>
+            {events.map((event, index) => (
+              <li
+                key={index}
+                style={{
+                  marginBottom: '10px',
+                  padding: '8px',
+                  backgroundColor: '#f9f9f9',
+                  borderRadius: '4px',
+                }}
+              >
+                <strong>User:</strong> {event.username} <br />
+                <strong>Event:</strong> {event.event}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No events yet. Waiting for user logins...</p>
+        )}
+      </div>
+      {/* Debug output */}
+      <pre>Events array: {JSON.stringify(events, null, 2)}</pre>
+    </div>
+  );
 };
 
 export default Login;

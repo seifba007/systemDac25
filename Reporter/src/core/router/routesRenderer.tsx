@@ -38,7 +38,6 @@ const RouteMiddleware = ({ _ }: Props) => {
 		requestIsFinished: false,
 		userIsConnected: false,
 	});
-
 	useEffect(() => {
 		if (_.isPrivate) {
 			if (!!connectedUser && !!token) {
@@ -50,7 +49,7 @@ const RouteMiddleware = ({ _ }: Props) => {
 				} else {
 					setPassport({
 						requestIsFinished: true,
-						userIsConnected: false,
+						userIsConnected: true,
 					});
 				}
 			} else if (!connectedUser && !!token) {
@@ -64,14 +63,6 @@ const RouteMiddleware = ({ _ }: Props) => {
 								avatar: res.data.data.avatar,
 								email: res.data.data.email,
 								role: res.data.data.role.name,
-								emailPreference: {
-									marketing: emailPreference.marketing,
-									confirmation_updates: emailPreference.confirmation_updates,
-									payments: emailPreference.payments,
-									projects_updates: emailPreference.projects_updates,
-									job_application: emailPreference.job_application,
-								},
-								oneSignalUserId: res.data.data.oneSignalUserId,
 							}),
 						);
 						//

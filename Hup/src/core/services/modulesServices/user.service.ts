@@ -27,7 +27,13 @@ export const updateUser = <T extends Partial<any>>(data: T, id: string) => {
 		method: 'put',
 	});
 };
-
+export const updateUserAccess = <T extends Partial<any>>(data: T, id: string) => {
+	return RequestService.update({
+		entity: `${USER.UPDATE_ACCESS}/${id}`, // Append the ID to the base URL
+		data,
+		method: 'put',
+	});
+};
 export const sendCode = (data: SendCodeEntity) => {
 	return RequestService.create({ entity: USER.SEND_CODE, data });
 };

@@ -9,12 +9,13 @@ const RESET_PASSWORD = `${BASE_URL}/auth/reset-password`;
 const DELETE_USER = `${USER_BASE_URL}/:id`;
 const UPDATE_USER = `${USER_BASE_URL}/:id`;
 const ADD_USER_AVATAR = `${USERURL}/avatar`;
-
+const UPDATE_ACCESS= `${USERURL}/update_access`;
 export const USER = {
 	USERURL,
 	USER_BASE_URL,
 	GET_ME,
 	SEND_CODE,
+	UPDATE_ACCESS,
 	RESET_PASSWORD,
 	DELETE_USER,
 	UPDATE_USER,

@@ -14,7 +14,7 @@ interface FormField {
   [key: string]: any; // Allow additional properties
 }
 
-const AddlIncidentReporting: React.FC = () => {
+const AddlIncidentReporting = () => {
   const [checked, setChecked] = useState<boolean>(false);
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
   const [files, setFiles] = useState<File[]>([]);
