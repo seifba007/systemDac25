@@ -5,7 +5,6 @@ import '../../../sass/components/SuperAdminGlobal.scss';
 
 import { useMediaQuery } from '@mantine/hooks';
 import '../../../sass/pages/SuperAdmin/sideBar.scss';
-import { SuperAdminSideBar } from '@/presentation/components/admin/SuperAdminsidebar/SuperAdminSideBar';
 import SuperAdminNavbar from '@/presentation/components/admin/SuperAdminNavbar/SuperAdminNavbar';
 
 const SuperAdminPage = () => {

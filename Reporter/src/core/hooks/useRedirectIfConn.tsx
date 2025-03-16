@@ -9,7 +9,7 @@ const useRedirectIfConn = () => {
 
 	useEffect(() => {
 		if (!(user?.role) ) {
-			navigate('/login');
+			navigate('/404');
 		}
 	}, [user, navigate]);
 };

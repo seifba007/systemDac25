@@ -1,0 +1,13 @@
+import { BASE_URL } from '../endpoints';
+
+const ACTIONITEMS_BASE_URL = `${BASE_URL}/action-items/`;
+const ACTIONITEMSDELEGATE= `${ACTIONITEMS_BASE_URL}delegate-action`;
+const ACTIONITEMSDELETE= `${ACTIONITEMS_BASE_URL}delete`;
+
+
+export const ACTIONITEMS  = {
+	ACTIONITEMS_BASE_URL,
+	ACTIONITEMSDELEGATE,
+	ACTIONITEMSDELETE
+};
+

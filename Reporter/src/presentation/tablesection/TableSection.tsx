@@ -5,7 +5,7 @@ import { Add, Trash } from 'iconsax-react';
 interface TableSectionProps {
   isAddItems: boolean;
   onSubmit: (data: any) => void;
-  data: string[]; // Array of headers (e.g., ['Checklist Item', 'Due Date', 'Comments'])
+  data: any; // Array of headers (e.g., ['Checklist Item', 'Due Date', 'Comments'])
 }
 
 const TableSection = ({ isAddItems, onSubmit, data }: TableSectionProps) => {
@@ -33,7 +33,7 @@ const TableSection = ({ isAddItems, onSubmit, data }: TableSectionProps) => {
               ...section,
               items: [
                 ...section.items,
-                data.reduce((acc, header) => {
+                data.reduce((acc:any, header:any) => {
                   acc[header] = ''; // Initialize each item with an empty string for each header
                   return acc;
                 }, {} as { [key: string]: string }),
@@ -159,7 +159,7 @@ const TableSection = ({ isAddItems, onSubmit, data }: TableSectionProps) => {
           <Table>
             <Table.Thead>
               <Table.Tr>
-                {data.map((header, idx) => (
+                {data.map((header:any, idx:any) => (
                   <Table.Th key={idx} fz={'13px'}>
                     {header}
                   </Table.Th>
@@ -170,7 +170,7 @@ const TableSection = ({ isAddItems, onSubmit, data }: TableSectionProps) => {
             <Table.Tbody>
               {section.items.map((item, itemIndex) => (
                 <Table.Tr key={itemIndex}>
-                  {data.map((header, idx) => (
+                  {data.map((header:any, idx:any) => (
                     <Table.Td key={idx}>
                       {renderInputField(header, item[header] || '', section.id, itemIndex)}
                     </Table.Td>

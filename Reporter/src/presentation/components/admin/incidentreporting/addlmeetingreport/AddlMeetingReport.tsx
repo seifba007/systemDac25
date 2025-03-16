@@ -1,366 +1,243 @@
-import React, { useState } from 'react';
-import DynamicForm from '@/presentation/components/input/DynamicForm';
-import { MultiSelect, Stack, Switch, Text, Table, Button, FileInput, Flex, TextInput, ActionIcon, Textarea } from '@mantine/core';
-import { formFieldsMeetingReport } from '@/data/formCreate';
+import React, { useState, useCallback } from 'react';
+import { MultiSelect, Stack, Switch, Text, Table, Button, FileInput, Flex, TextInput, ActionIcon, Textarea, Select } from '@mantine/core';
+import { DateTimePicker } from '@mantine/dates';
 import { IconCheck, IconX } from '@tabler/icons-react';
 import { Folder2, Trash } from 'iconsax-react';
 import TableSection from '@/presentation/tablesection/TableSection';
 
-const AddlMeetingReport = () => {
-  const [checked, setChecked] = useState<boolean>(false);
+// Define interfaces for type safety
+interface FormData {
+  meetingType: string;
+  meetingTitle: string;
+  dateTime: Date | null;
+  businessDepartment: string;
+  businessLocation: string;
+  meetingLocation: string;
+  meetingObjective: string;
+  note: string;
+}
+
+interface TeamMember {
+  name: string;
+  department: string;
+  role: string;
+  companyName: string;
+}
+
+interface AgendaItem {
+  agendaItem: string;
+  presenter: string;
+  timeAllocated: string;
+}
+
+const AddlMeetingReport: React.FC = () => {
+  const [checked, setChecked] = useState(false);
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
   const [files, setFiles] = useState<File[]>([]);
-  const [fileNames, setFileNames] = useState<string[]>([]); // To track file names displayed below input
-  const [teamMembers, setTeamMembers] = useState<{ name: string; department: string; role: string; companyName: string }[]>([]);
-  const [agendaItems, setAgendaItems] = useState<{ agendaItem: string; presenter: string; timeAllocated: string }[]>([]);
+  const [fileNames, setFileNames] = useState<string[]>([]);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [agendaItems, setAgendaItems] = useState<AgendaItem[]>([]);
+  const [formData, setFormData] = useState<FormData>({
+    meetingType: '',
+    meetingTitle: '',
+    dateTime: null,
+    businessDepartment: '',
+    businessLocation: '',
+    meetingLocation: '',
+    meetingObjective: '',
+    note: '',
+  });
 
-  const handleFormSubmit = (formData: Record<string, string | number | File[]>) => {
-    console.log('Form Submitted Data:', formData);
-  };
+  // Memoized event handlers for performance
+  const handleInputChange = useCallback((field: keyof FormData, value: any) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  }, []);
 
-  const handleSwitchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const isChecked = event.currentTarget.checked;
+  const handleSwitchChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const isChecked = event.target.checked;
     setChecked(isChecked);
-    if (!isChecked) {
-      setSelectedValues([]); // Clear selected values when disabling MultiSelect
-    }
-  };
-  const data = ['Status', 'Description', 'Assigned To	', 'Priority', 'Due Date', '	Control Date', 'Efficiency Check'];
+    if (!isChecked) setSelectedValues([]);
+  }, []);
 
-  const handleFileChange = (newFiles: File[] | null) => {
-    if (newFiles && newFiles.length > 0) {
-      setFiles((prevFiles) => [...prevFiles, ...newFiles]);
-      setFileNames((prevNames) => [
-        ...prevNames,
-        ...newFiles.map((file) => file.name),
-      ]);
+  const handleFileChange = useCallback((newFiles: File[] | null) => {
+    if (newFiles?.length) {
+      setFiles((prev) => [...prev, ...newFiles]);
+      setFileNames((prev) => [...prev, ...newFiles.map((file) => file.name)]);
     } else {
-      // Clear files and fileNames when no files are selected
       setFiles([]);
       setFileNames([]);
     }
-  };
+  }, []);
 
-  const removeFile = (index: number) => {
-    setFiles(files.filter((_, i) => i !== index)); // Remove file at the specified index
-    setFileNames(fileNames.filter((_, i) => i !== index)); // Remove name at the specified index
-  };
+  const removeFile = useCallback((index: number) => {
+    setFiles((prev) => prev.filter((_, i) => i !== index));
+    setFileNames((prev) => prev.filter((_, i) => i !== index));
+  }, []);
 
-  // Add Team Member
-  const addTeamMember = () => {
-    setTeamMembers([
-      ...teamMembers,
-      { name: '', department: '', role: '', companyName: '' },
-    ]);
-  };
+  const addTeamMember = useCallback(() => {
+    setTeamMembers((prev) => [...prev, { name: '', department: '', role: '', companyName: '' }]);
+  }, []);
 
-  // Remove Team Member
-  const removeTeamMember = (index: number) => {
-    const updatedMembers = teamMembers.filter((_, i) => i !== index);
-    setTeamMembers(updatedMembers);
-  };
+  const removeTeamMember = useCallback((index: number) => {
+    setTeamMembers((prev) => prev.filter((_, i) => i !== index));
+  }, []);
 
-  // Add Agenda Item
-  const addAgendaItem = () => {
-    setAgendaItems([
-      ...agendaItems,
-      { agendaItem: '', presenter: '', timeAllocated: '' },
-    ]);
-  };
+  const addAgendaItem = useCallback(() => {
+    setAgendaItems((prev) => [...prev, { agendaItem: '', presenter: '', timeAllocated: '' }]);
+  }, []);
 
-  // Remove Agenda Item
-  const removeAgendaItem = (index: number) => {
-    const updatedAgenda = agendaItems.filter((_, i) => i !== index);
-    setAgendaItems(updatedAgenda);
-  };
-  const handleSubmit = (data: any) => {
-    console.log(data);
-  };
+  const removeAgendaItem = useCallback((index: number) => {
+    setAgendaItems((prev) => prev.filter((_, i) => i !== index));
+  }, []);
+
+  const handleSubmit = useCallback((data: any) => {
+    console.log('Action Items Submitted:', data);
+  }, []);
+
+  const handleFormSubmit = useCallback(() => {
+    const submittedData = { ...formData, teamMembers, agendaItems, files, visibleTo: selectedValues };
+    console.log('Form Submitted Data:', submittedData);
+  }, [formData, teamMembers, agendaItems, files, selectedValues]);
+
+  const data = ['Status', 'Description', 'Assigned To', 'Priority', 'Due Date', 'Control Date', 'Efficiency Check'] as const;
+
+  const inputStyles = { label: { marginBottom: '5px' }, input: { borderColor: '#ced4da', borderRadius: '4px', height: '38px' } };
+  const textareaStyles = { label: { marginBottom: '5px' }, input: { borderColor: '#ced4da', borderRadius: '4px', minHeight: '80px' } };
+
   return (
     <Stack>
-      <Text
-        style={{
-          textOverflow: 'ellipsis',
-          overflow: 'hidden',
-          whiteSpace: 'nowrap',
-        }}
-        ff={'"Roboto",sans-serif'}
-        fw={'700'}
-        c={'#6c757d'}
-        fz={'18px'}
-      >
+      <Text style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} ff="'Roboto', sans-serif" fw={700} c="#6c757d" fz="18px">
         Meeting Report
       </Text>
 
-      <Stack className="BoxTableForms" p={'1em'}>
-        <DynamicForm
-          buttonanme="Submit Meeting"
-          fields={formFieldsMeetingReport}
-          onSubmit={handleFormSubmit}
-        >
-          <Stack>
-            {/* Team Members Section */}
-            <Text ff={'"Roboto",sans-serif'} fw={'600'} c={'#6c757d'} fz={'13px'}>
-              Team Members
-            </Text>
+      <Stack p="1em" style={{ backgroundColor: '#fff', border: '1px solid #e9ecef', borderRadius: '5px' }}>
+        <Flex gap="md" wrap="wrap">
+          <Select
+            label={<Text ff="'Roboto', sans-serif" fw={600} c="#6c757d" fz="13px">Meeting Type <Text c="red" span>*</Text></Text>}
+            placeholder="Select meeting type"
+            data={['Team Meeting', 'Client Meeting', 'Board Meeting', 'Other']}
+            value={formData.meetingType}
+            onChange={(value) => handleInputChange('meetingType', value)}
+            w="32%"
+            styles={inputStyles}
+          />
+          <TextInput
+            label={<Text ff="'Roboto', sans-serif" fw={600} c="#6c757d" fz="13px">Meeting Title <Text c="red" span>*</Text></Text>}
+            placeholder="Enter meeting title"
+            value={formData.meetingTitle}
+            onChange={(e) => handleInputChange('meetingTitle', e.target.value)}
+            w="32%"
+            styles={inputStyles}
+          />
+          <DateTimePicker
+            label={<Text ff="'Roboto', sans-serif" fw={600} c="#6c757d" fz="13px">Date and Time <Text c="red" span>*</Text></Text>}
+            placeholder="mm/dd/yyyy"
+            value={formData.dateTime}
+            onChange={(value) => handleInputChange('dateTime', value)}
+            w="32%"
+            styles={inputStyles}
+          />
+        </Flex>
 
-            {teamMembers.map((member, index) => (
-              <Flex align={'center'} justify={'space-between'} w={'100%'} key={index}>
-                <TextInput
-                  placeholder="Team Member Name"
-                  w={'25%'}
-                  value={member.name}
-                  onChange={(e) =>
-                    setTeamMembers((prev) =>
-                      prev.map((m, i) =>
-                        i === index ? { ...m, name: e.target.value } : m
-                      )
-                    )
-                  }
-                />
-                <TextInput
-                  placeholder="Department"
-                  w={'25%'}
-                  value={member.department}
-                  onChange={(e) =>
-                    setTeamMembers((prev) =>
-                      prev.map((m, i) =>
-                        i === index ? { ...m, department: e.target.value } : m
-                      )
-                    )
-                  }
-                />
-                <TextInput
-                  placeholder="Role"
-                  w={'10%'}
-                  value={member.role}
-                  onChange={(e) =>
-                    setTeamMembers((prev) =>
-                      prev.map((m, i) =>
-                        i === index ? { ...m, role: e.target.value } : m
-                      )
-                    )
-                  }
-                />
-                <TextInput
-                  placeholder="Company Name"
-                  w={'25%'}
-                  value={member.companyName}
-                  onChange={(e) =>
-                    setTeamMembers((prev) =>
-                      prev.map((m, i) =>
-                        i === index ? { ...m, companyName: e.target.value } : m
-                      )
-                    )
-                  }
-                />
-                <ActionIcon
-                  variant="filled"
-                  color="red"
-                  w="25px"
-                  h="20px"
-                  onClick={() => removeTeamMember(index)}
-                >
-                  <Trash color="#fff" size="15" />
-                </ActionIcon>
-              </Flex>
-            ))}
+        <Flex gap="md" wrap="wrap">
+          <Select
+            label={<Text ff="'Roboto', sans-serif" fw={600} c="#6c757d" fz="13px">Business Department <Text c="red" span>*</Text></Text>}
+            placeholder="Select department"
+            data={['Finance', 'HR', 'IT', 'Marketing', 'Operations']}
+            value={formData.businessDepartment}
+            onChange={(value) => handleInputChange('businessDepartment', value)}
+            w="32%"
+            styles={inputStyles}
+          />
+          <Select
+            label={<Text ff="'Roboto', sans-serif" fw={600} c="#6c757d" fz="13px">Business Location <Text c="red" span>*</Text></Text>}
+            placeholder="Select location"
+            data={['New York', 'London', 'Tokyo', 'Sydney', 'Remote']}
+            value={formData.businessLocation}
+            onChange={(value) => handleInputChange('businessLocation', value)}
+            w="32%"
+            styles={inputStyles}
+          />
+          <Select
+            label={<Text ff="'Roboto', sans-serif" fw={600} c="#6c757d" fz="13px">Meeting Location <Text c="red" span>*</Text></Text>}
+            placeholder="Select meeting location"
+            data={['Conference Room A', 'Conference Room B', 'Online', 'Client Office']}
+            value={formData.meetingLocation}
+            onChange={(value) => handleInputChange('meetingLocation', value)}
+            w="32%"
+            styles={inputStyles}
+          />
+        </Flex>
 
-            <Button w={'9%'} bg={"#6c757d"} onClick={addTeamMember}>
-              <Text fz={'12px'}>Add Member</Text>
-            </Button>
+        <Textarea
+          label={<Text ff="'Roboto', sans-serif" fw={600} c="#6c757d" fz="13px">Meeting Objective <Text c="red" span>*</Text></Text>}
+          placeholder="Enter meeting objective"
+          value={formData.meetingObjective}
+          onChange={(e) => handleInputChange('meetingObjective', e.target.value)}
+          styles={textareaStyles}
+        />
 
-            {/* Agenda Section */}
-            <Text ff={'"Roboto",sans-serif'} fw={'600'} c={'#6c757d'} fz={'13px'}>
-              Agenda
-            </Text>
+        <Text ff="'Roboto', sans-serif" fw={600} c="#6c757d" fz="13px" mt="md">
+          Team Members
+        </Text>
+        {teamMembers.map((member, index) => (
+          <Flex align="center" justify="space-between" w="100%" key={index} gap="sm">
+            <TextInput placeholder="Team Member Name" w="25%" value={member.name} onChange={(e) => setTeamMembers((prev) => prev.map((m, i) => (i === index ? { ...m, name: e.target.value } : m)))}
+              styles={{ input: { borderColor: '#ced4da', borderRadius: '4px', height: '38px' } }} />
+            <TextInput placeholder="Department" w="25%" value={member.department} onChange={(e) => setTeamMembers((prev) => prev.map((m, i) => (i === index ? { ...m, department: e.target.value } : m)))}
+              styles={{ input: { borderColor: '#ced4da', borderRadius: '4px', height: '38px' } }} />
+            <TextInput placeholder="Role" w="20%" value={member.role} onChange={(e) => setTeamMembers((prev) => prev.map((m, i) => (i === index ? { ...m, role: e.target.value } : m)))}
+              styles={{ input: { borderColor: '#ced4da', borderRadius: '4px', height: '38px' } }} />
+            <TextInput placeholder="Company Name" w="25%" value={member.companyName} onChange={(e) => setTeamMembers((prev) => prev.map((m, i) => (i === index ? { ...m, companyName: e.target.value } : m)))}
+              styles={{ input: { borderColor: '#ced4da', borderRadius: '4px', height: '38px' } }} />
+            <ActionIcon variant="filled" color="red" w="25px" h="25px" onClick={() => removeTeamMember(index)}><Trash color="#fff" size="15" /></ActionIcon>
+          </Flex>
+        ))}
+        <Button w="150px" bg="#6c757d" onClick={addTeamMember}><Text fz="12px">Add Member</Text></Button>
 
-            {agendaItems.map((agenda, index) => (
-              <Flex align={'center'} justify={'space-between'} w={'100%'} key={index}>
-                <TextInput
-                  placeholder="Agenda Item"
-                  w={'30%'}
-                  value={agenda.agendaItem}
-                  onChange={(e) =>
-                    setAgendaItems((prev) =>
-                      prev.map((a, i) =>
-                        i === index ? { ...a, agendaItem: e.target.value } : a
-                      )
-                    )
-                  }
-                />
-                <TextInput
-                  placeholder="Presenter"
-                  w={'30%'}
-                  value={agenda.presenter}
-                  onChange={(e) =>
-                    setAgendaItems((prev) =>
-                      prev.map((a, i) =>
-                        i === index ? { ...a, presenter: e.target.value } : a
-                      )
-                    )
-                  }
-                />
-                <TextInput
-                  placeholder="Time Allocated"
-                  w={'30%'}
-                  value={agenda.timeAllocated}
-                  onChange={(e) =>
-                    setAgendaItems((prev) =>
-                      prev.map((a, i) =>
-                        i === index ? { ...a, timeAllocated: e.target.value } : a
-                      )
-                    )
-                  }
-                />
-                <ActionIcon
-                  variant="filled"
-                  color="red"
-                  w="25px"
-                  h="20px"
-                  onClick={() => removeAgendaItem(index)}
-                >
-                  <Trash color="#fff" size="15" />
-                </ActionIcon>
-              </Flex>
-            ))}
+        <Text ff="'Roboto', sans-serif" fw={600} c="#6c757d" fz="13px" mt="md">
+          Agenda
+        </Text>
+        {agendaItems.map((agenda, index) => (
+          <Flex align="center" justify="space-between" w="100%" key={index} gap="sm">
+            <TextInput placeholder="Agenda Item" w="32%" value={agenda.agendaItem} onChange={(e) => setAgendaItems((prev) => prev.map((a, i) => (i === index ? { ...a, agendaItem: e.target.value } : a)))}
+              styles={{ input: { borderColor: '#ced4da', borderRadius: '4px', height: '38px' } }} />
+            <TextInput placeholder="Presenter" w="32%" value={agenda.presenter} onChange={(e) => setAgendaItems((prev) => prev.map((a, i) => (i === index ? { ...a, presenter: e.target.value } : a)))}
+              styles={{ input: { borderColor: '#ced4da', borderRadius: '4px', height: '38px' } }} />
+            <TextInput placeholder="Time Allocated" w="32%" value={agenda.timeAllocated} onChange={(e) => setAgendaItems((prev) => prev.map((a, i) => (i === index ? { ...a, timeAllocated: e.target.value } : a)))}
+              styles={{ input: { borderColor: '#ced4da', borderRadius: '4px', height: '38px' } }} />
+            <ActionIcon variant="filled" color="red" w="25px" h="25px" onClick={() => removeAgendaItem(index)}><Trash color="#fff" size="15" /></ActionIcon>
+          </Flex>
+        ))}
+        <Button w="150px" bg="#6c757d" onClick={addAgendaItem}><Text fz="12px">Add Agenda Item</Text></Button>
 
-            <Button w={'11%'} bg={"#6c757d"} onClick={addAgendaItem}>
-              <Text fz={'12px'}>Add Agenda Item</Text>
-            </Button>
-                    <Stack>
-                        <Text
-                          ff={'"Roboto",sans-serif'}
-                          fw={'600'}
-                          c={'rgb(108 117 125 / 76%)'}
-                          fz={'12px'}
-                        >
-                          Visibility
-                        </Text>
-                        <Switch
-                          w={'28%'}
-                          checked={checked}
-                          onChange={handleSwitchChange}
-                          color="green"
-                          size="sm"
-                          label={
-                            <Text
-                              ff={'"Roboto",sans-serif'}
-                              fw={'600'}
-                              c={'rgb(108 117 125 / 76%)'}
-                              fz={'12px'}
-                            >
-                              Customize Visibility
-                            </Text>
-                          }
-                          thumbIcon={
-                            checked ? (
-                              <IconCheck size={12} color="var(--mantine-color-teal-5)" stroke={3} />
-                            ) : (
-                              <IconX size={12} color="var(--mantine-color-red-6)" stroke={3} />
-                            )
-                          }
-                        />
-            
-                        <MultiSelect
-                          label={
-                            <Text
-                              ff={'"Roboto",sans-serif'}
-                              fw={'600'}
-                              c={'rgb(108 117 125 / 76%)'}
-                              fz={'12px'}
-                            >
-                              Visible To
-                            </Text>
-                          }
-                          placeholder="Pick value"
-                          data={['React', 'Angular', 'Vue', 'Svelte']}
-                          value={selectedValues}
-                          onChange={setSelectedValues}
-                          clearable
-                          w={'50%'}
-                          disabled={!checked} // Disable when Switch is false
-                          withCheckIcon={false}
-                        />
-              <Textarea    label={
-                            <Text
-                              ff={'"Roboto",sans-serif'}
-                              fw={'600'}
-                              c={'rgb(108 117 125 / 76%)'}
-                              fz={'12px'}
-                            >
-                              Note
-                            </Text>
-                          }
-                            w={'50%'}
-                          />
-                        <Text
-                          ff={'"Roboto",sans-serif'}
-                          fw={'600'}
-                          c={'rgb(108 117 125 / 76%)'}
-                          fz={'12px'}
-                        >
-                          Attach Files
-                        </Text>
-            
-                        {/* File Input */}
-                        <FileInput
-                          placeholder={fileNames.length > 0 ? fileNames.join(', ') : "No file chosen"}
-                          multiple
-                          value={files} // The actual files array is passed to the value
-                          onChange={handleFileChange}
-                          rightSection={<Folder2 size="25" color="#868e96" variant="Bold" />}
-                          w={'50%'}
-                        />
-            
-                        <Table>
-                          <Table.Thead>
-                            <Table.Tr>
-                              <Table.Th fz={'13px'} c={'rgb(34 34 34 / 58%)'}>Image</Table.Th>
-                              <Table.Th fz={'13px'} c={'rgb(34 34 34 / 58%)'}>File Name</Table.Th>
-                              <Table.Th fz={'13px'} c={'rgb(34 34 34 / 58%)'}>Size</Table.Th>
-                              <Table.Th fz={'13px'} c={'rgb(34 34 34 / 58%)'}>Action</Table.Th>
-                            </Table.Tr>
-                          </Table.Thead>
-                          <Table.Tbody>
-                            {files.map((file, index) => (
-                              <Table.Tr key={file.name}>
-                                <Table.Td>
-                                  {/* Show image preview for image files */}
-                                  {file.type.startsWith('image/') && (
-                                    <img
-                                      src={URL.createObjectURL(file)}
-                                      alt={file.name}
-                                      style={{ width: '50px', height: '50px', objectFit: 'cover' }}
-                                    />
-                                  )}
-                                </Table.Td>
-                                <Table.Td fz={'13px'} c={'rgb(34 34 34 / 58%)'}>{file.name}</Table.Td>
-                                <Table.Td fz={'13px'} c={'rgb(34 34 34 / 58%)'}>{(file.size / 1024).toFixed(2)} KB</Table.Td>
-                                <Table.Td>
-                                  <Button
-                                    variant="subtle"
-                                    color="red"
-                                    onClick={() => removeFile(index)} // Pass the index to remove the correct file
-                                    fz={'13px'}
-                                  >
-                                    Remove
-                                  </Button>
-                                </Table.Td>
-                              </Table.Tr>
-                            ))}
-                          </Table.Tbody>
-                        </Table>
-            
-            
-                        <TableSection isAddItems={false} onSubmit={handleSubmit} data={data} />
-                      </Stack>
-          </Stack>
-        </DynamicForm>
-
+        <Stack mt="md">
+          <Text ff="'Roboto', sans-serif" fw={600} c="#6c757d" fz="12px">Visibility</Text>
+          <Switch w="28%" checked={checked} onChange={handleSwitchChange} color="green" size="sm" label={<Text ff="'Roboto', sans-serif" fw={600} c="#6c757d" fz="12px">Customize Visibility</Text>}
+            thumbIcon={checked ? <IconCheck size={12} color="var(--mantine-color-teal-5)" stroke={3} /> : <IconX size={12} color="var(--mantine-color-red-6)" stroke={3} />} />
+          <MultiSelect label={<Text ff="'Roboto', sans-serif" fw={600} c="#6c757d" fz="12px">Visible To</Text>} placeholder="Pick value" data={['React', 'Angular', 'Vue', 'Svelte']}
+            value={selectedValues} onChange={setSelectedValues} clearable w="50%" disabled={!checked} withCheckIcon={false} styles={inputStyles} />
+          <Textarea label={<Text ff="'Roboto', sans-serif" fw={600} c="#6c757d" fz="12px">Note</Text>} placeholder="Enter note" value={formData.note}
+            onChange={(e) => handleInputChange('note', e.target.value)} w="50%" styles={textareaStyles} />
+          <Text ff="'Roboto', sans-serif" fw={600} c="#6c757d" fz="12px">Attach Files</Text>
+          <FileInput placeholder={fileNames.length > 0 ? fileNames.join(', ') : "No file chosen"} multiple value={files} onChange={handleFileChange}
+            rightSection={<Folder2 size="25" color="#868e96" variant="Bold" />} w="50%" styles={inputStyles} />
+          <Table>
+            <Table.Thead><Table.Tr><Table.Th fz="13px" c="#6c757d">Image</Table.Th><Table.Th fz="13px" c="#6c757d">File Name</Table.Th>
+              <Table.Th fz="13px" c="#6c757d">Size</Table.Th><Table.Th fz="13px" c="#6c757d">Action</Table.Th></Table.Tr></Table.Thead>
+            <Table.Tbody>{files.map((file, index) => (
+              <Table.Tr key={file.name}><Table.Td>{file.type.startsWith('image/') && <img src={URL.createObjectURL(file)} alt={file.name}
+                style={{ width: '50px', height: '50px', objectFit: 'cover' }} />}</Table.Td><Table.Td fz="13px" c="#6c757d">{file.name}</Table.Td>
+                <Table.Td fz="13px" c="#6c757d">{(file.size / 1024).toFixed(2)} KB</Table.Td>
+                <Table.Td><ActionIcon variant="filled" color="red" w="25px" h="25px" onClick={() => removeFile(index)}><Trash color="#fff" size="15" /></ActionIcon></Table.Td></Table.Tr>
+            ))}</Table.Tbody>
+          </Table>
+          <TableSection isAddItems={false} onSubmit={handleSubmit} data={data} />
+        </Stack>
+        <Flex justify="end"><Button bg="#0d6efd" onClick={handleFormSubmit}>Submit Meeting</Button></Flex>
       </Stack>
     </Stack>
   );
 };
 
-export default AddlMeetingReport;
+export default React.memo(AddlMeetingReport);

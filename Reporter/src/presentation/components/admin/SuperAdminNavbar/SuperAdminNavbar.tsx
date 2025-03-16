@@ -187,7 +187,7 @@ const SuperAdminNavbar: React.FC = () => {
               >
                 <Burger aria-label="Toggle navigation" />
               </Button>
-              <Image src={smollogo} width="11%" />
+              <Image src={smollogo} w="10%" />
             </Flex>
 
             <Drawer

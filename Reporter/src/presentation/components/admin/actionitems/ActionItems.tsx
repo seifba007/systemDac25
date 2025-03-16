@@ -1,10 +1,12 @@
 import { Stack, Text } from '@mantine/core'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import BoxTableAdmin from '../../boxtableglobal/BoxSuperAdmin'
 import useResponsive from '@/presentation/shared/mediaQuery'
 import SkeletonLoader from '../../boxtableglobal/skeletonLoader'
 import SearchInput from '../../input/Searchinput'
 import TabsButton from './TabsButtonActionItems'
+import { ListOptions } from '@/core/entities/http.entity'
+import { getActionItems } from '@/core/services/modulesServices/actionitems.service'
 
 const ActionItems = () => {
   const { isMobile } = useResponsive();
@@ -14,6 +16,7 @@ const ActionItems = () => {
 	const [selectedCategory, setSelectedCategory] = useState<string>('');
 	const [sortValue, setSortValue] = useState<string>('');
 	const [searchQuery, setSearchQuery] = useState<string>('');
+  const [user, setUser] = useState();
   const tableData = [
     {
       id: 1,
@@ -81,10 +84,51 @@ const ActionItems = () => {
       path: '/drafts/policy-update',
     },
   ];
-  
+  const [totalCount, setTotalCount] = useState<number>(0);
+	const getaction = () => {
+		const options: ListOptions['options'] = {
+			...(currentPage != null && { page: currentPage }),
+			...(resultsPerPage != null && { limit: resultsPerPage }),
+			...(sortValue &&
+				sortValue !== 'default' && {
+					...(sortValue === 'createdAt desc' || sortValue === 'createdAt asc'
+						? { sort: sortValue.split(' ')[1], sortKey: sortValue.split(' ')[0] }
+						: { sort: sortValue }),
+				}),
+      
+      ...( { organization: "Smardac" }),
+			...(searchQuery && { search: searchQuery }),
+			...(tabValue != null &&
+				(tabValue === 'createdbyme'
+					? { filter_type: "createdbyme" }
+					: tabValue === 'assignedtome'
+					? { filter_type:  'assignedtome' }
+					: tabValue === 'all'
+					? null
+					: { filter_type: tabValue })),
+			...(selectedCategory && selectedCategory !== '0' && { categoryId: selectedCategory }),
+		};
+
+		getActionItems({ options })
+			.then((res) => {
+				setActiondata(res.data.actionItems);
+        setUser(res.data.usersList);
+				setTotalCount(res.data.total);
+				setIsLoading(false);
+			})
+			.catch((error) => {
+				setIsLoading(false);
+				console.error('Error fetching connected user:', error);
+			});
+	};
+	const [actiondata, setActiondata] = useState<any>();
+	useEffect(() => {
+		getaction();
+	}, [currentPage, resultsPerPage, sortValue, tabValue, searchQuery, selectedCategory]);
+
 const [isLoading, setIsLoading] = useState<boolean>(true);
   return (
-    !isLoading ? (
+    isLoading ? (
       <SkeletonLoader />
     ) :(
     <Stack>
@@ -99,7 +143,7 @@ const [isLoading, setIsLoading] = useState<boolean>(true);
 				/>
       <BoxTableAdmin
 				isResponsive={isMobile ? isMobile : false}
-				Data={tableData}
+				Data={actiondata}
 				totalCount={50}
 				currentPage={2}
 				resultsPerPage={1}
@@ -107,8 +151,10 @@ const [isLoading, setIsLoading] = useState<boolean>(true);
 				setResultsPerPage={setResultsPerPage}
 				renderTableBody={() => (
 					<TabsButton
+            userdata={user}
+            getactions={getaction}
 						onTabChange={setTabValue}
-						data={tableData}
+						data={actiondata}
 						isResponsive={isMobile ? isMobile : false}
 						titrepage={'Organization'}
 						onCategoryChange={setSelectedCategory}

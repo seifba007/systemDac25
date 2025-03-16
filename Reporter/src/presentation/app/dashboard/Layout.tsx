@@ -32,11 +32,8 @@ const SuperAdminPage = () => {
       // Check if the response is ok
       if (response.ok) {
         const data = await response.json(); // Parse the response body as JSON
-    
-     
          const accessToken=data.accessToken
         const refreshToken=data.refreshToken
-        console.log(accessToken);
         dispatch(setUserToken({ accessToken,refreshToken }));
         // Dispatch the user data to the Redux store
         dispatch(

@@ -306,8 +306,8 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 				opened={isVisibilityOpen}
 				close={closeVisibility}
 				handleDelete={() => {
-					if (datauser?.id?.$oid) {
-						DeleteUsers({ id: datauser?.id?.$oid })
+					if (datauser?.id) {
+						DeleteUsers({ id: datauser?.id })
 							.then(() => {
 								toast.success('User test deleted');
 								closeVisibility();
