@@ -33,8 +33,8 @@ const TableSection = ({ isAddItems, onSubmit, data }: TableSectionProps) => {
               ...section,
               items: [
                 ...section.items,
-                data.reduce((acc:any, header:any) => {
-                  acc[header] = ''; // Initialize each item with an empty string for each header
+                data.reduce((acc: any, header: any) => {
+                  acc[header] = '';
                   return acc;
                 }, {} as { [key: string]: string }),
               ],
@@ -82,17 +82,15 @@ const TableSection = ({ isAddItems, onSubmit, data }: TableSectionProps) => {
       )
     );
 
-    // Send updated data to parent component immediately
     const formData = sections.map((section) => ({
       sectionId: section.id,
       items: section.items,
     }));
-    onSubmit(formData);
+    onSubmit(formData); 
   };
 
-  // Function to render the appropriate input field based on the header
   const renderInputField = (header: string, value: string, sectionId: number, itemId: number) => {
-    if (header === "Due Date") {
+    if (header === "Due Date" || header == "Control Date"|| header == "Efficiency Check") {
       return (
         <Input
           type="date"
@@ -102,12 +100,12 @@ const TableSection = ({ isAddItems, onSubmit, data }: TableSectionProps) => {
       );
     }
     if (header === "Status") {
-        return (
-            <Badge bg='#6c757d' >
-              <Text fz={'12px'} > Pending</Text>
-            </Badge>
-        );
-      }
+      return (
+        <Badge bg='#6c757d'>
+          <Text fz={'12px'}>Pending</Text>
+        </Badge>
+      );
+    }
     return (
       <Input
         placeholder={header}
@@ -119,7 +117,6 @@ const TableSection = ({ isAddItems, onSubmit, data }: TableSectionProps) => {
 
   return (
     <Box>
-      {/* Conditionally render the "Add Section" button based on `isAddItems` */}
       {isAddItems && (
         <Button
           rightSection={<Add size={'15'} color="#FFF" />}
@@ -133,7 +130,6 @@ const TableSection = ({ isAddItems, onSubmit, data }: TableSectionProps) => {
         </Button>
       )}
 
-      {/* Render dynamic sections */}
       {sections.map((section) => (
         <Box
           key={section.id}
@@ -144,7 +140,6 @@ const TableSection = ({ isAddItems, onSubmit, data }: TableSectionProps) => {
         >
           <Flex justify="space-between" align="center" mb="1em">
             <Text fz={'13px'}>Action Items</Text>
-
             <ActionIcon
               variant="filled"
               color="red"
@@ -159,7 +154,7 @@ const TableSection = ({ isAddItems, onSubmit, data }: TableSectionProps) => {
           <Table>
             <Table.Thead>
               <Table.Tr>
-                {data.map((header:any, idx:any) => (
+                {data.map((header: any, idx: any) => (
                   <Table.Th key={idx} fz={'13px'}>
                     {header}
                   </Table.Th>
@@ -170,7 +165,7 @@ const TableSection = ({ isAddItems, onSubmit, data }: TableSectionProps) => {
             <Table.Tbody>
               {section.items.map((item, itemIndex) => (
                 <Table.Tr key={itemIndex}>
-                  {data.map((header:any, idx:any) => (
+                  {data.map((header: any, idx: any) => (
                     <Table.Td key={idx}>
                       {renderInputField(header, item[header] || '', section.id, itemIndex)}
                     </Table.Td>
@@ -191,13 +186,11 @@ const TableSection = ({ isAddItems, onSubmit, data }: TableSectionProps) => {
             </Table.Tbody>
           </Table>
 
-          {/* Button to add items */}
           <Button mt="1em" leftSection={<Add size="22" />} onClick={() => handleAddItem(section.id)}>
             <Text fz={'11px'}>Add Item</Text>
           </Button>
         </Box>
       ))}
-
     </Box>
   );
 };

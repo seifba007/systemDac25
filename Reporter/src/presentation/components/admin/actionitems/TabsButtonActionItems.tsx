@@ -85,9 +85,11 @@ const TabsButton: React.FC<TabsButtonProps> = ({
   const [idaction, setIdaction] = useState('');
   const [modalOpenDelegate, setModalOpenDelegate] = useState<boolean>(false);
   const [modalOpenApproveiteam, setModalOpenApproveiteam] = useState<boolean>(false);
-
+  const [editModal, setEditModal] = useState<boolean>(false);
+console.log(idaction)
   const [edit, setEdit] = useState<boolean>(false);
   const [reject, setReject] = useState<boolean>(false);
+  const [dataveiw, setDataveiw] = useState([]);
 
   const [editmodalOpen, setEditmodalOpen] = useState<boolean>(false);
   const [dataOrganization, setdataOrganization] = useState<any>([]);
@@ -287,7 +289,7 @@ const TabsButton: React.FC<TabsButtonProps> = ({
                               w="25px"
                               h="20px"
                               onClick={() => {
-                                setModalOpenDelegate(true);
+                                setModalOpenDelegate(true);setIdaction(item._id)
                               }}
                             >
                               <ProfileAdd color="#fff" size="15" variant="Bold" />
@@ -299,6 +301,7 @@ const TabsButton: React.FC<TabsButtonProps> = ({
                               h="20px"
                               onClick={() => {
                                 setModalOpenVue(true), setEdit(true);
+                                setDataveiw(item);setEditModal(true)
                               }}
                             >
                               <Edit color="#fff" size="15" variant="Bold" />
@@ -309,7 +312,8 @@ const TabsButton: React.FC<TabsButtonProps> = ({
                               w="25px"
                               h="20px"
                               onClick={() => {
-                                setModalOpenVue(true), setEdit(false);
+                                setModalOpenVue(true); setEdit(false);
+                                setDataveiw(item);setEditModal(false)
                               }}
                             >
                               <Eye color="#fff" size="15" variant="Bold" />
@@ -359,21 +363,27 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 			  datauser={userdata}
 			  roleData={RoleData} idaction={idaction}      />
       <DelegateAction
-
+        userdat={userdata}
         opened={modalOpenDelegate}
         onClose={() => {
           setModalOpenDelegate(false);
         }}
         roleData={RoleData}
+        idAction={idaction}  
       />
-      <VueActionItems
-        opened={modalOpenVue}
-        onClose={() => {
-          setModalOpenVue(false);
-        }}
-        roleData={RoleData}
-        isUpdate={edit}
-      />
+      {
+        modalOpenVue&&(
+          <VueActionItems
+            opened={modalOpenVue}
+            onClose={() => {
+              setModalOpenVue(false);
+            } }
+            roleData={RoleData}
+            isUpdate={edit}
+            data={dataveiw} isEdit={editModal}        />
+        )
+      }
+  
       {modalOpen2 && (
         <Categoriesfilter
           title="Categories filter"

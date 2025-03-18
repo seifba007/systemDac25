@@ -4,9 +4,7 @@ import { ArrowSwapVertical, Edit, Setting4 } from 'iconsax-react';
 import BOX from '../../../../assets/boxnodata.png';
 import { useAppDispatch } from '@/core/store/hooks';
 import TableComponent from '../../boxtableglobal/Table';
-import ModelFilter from '../../modal/ModelFilter';
-import Categoriesfilter from '../../modal/Categoriesfilter';
-import EditUserModel from '../../modal/EditUserModel';
+
 
 
 const tabStyles = (isActive: boolean) => ({
@@ -29,16 +27,6 @@ export const sortLabels = {
 	'createdAt desc': 'Added date (Oldest to Newest)',
 	'createdAt asc': 'Added date (Newest to Oldest)',
 };
-const RoleData = [
-	
-	{
-	  roles: [
-		{ key: 'default', label: 'Default' },
-		{ key: 'nameAsc', label: 'Administrator' },
-		{ key: 'nameDesc', label: 'Editor' },
-	  ],
-	},
-  ];
   
 interface TabsButtonProps {
 	data: any[];
@@ -82,16 +70,6 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 			setActiveTab(value);
 		}
 	};
-	const openModal = () => setModalOpen(true);
-	const closeModal = () => setModalOpen(false);
-	const closeModal3 = () => setEditmodalOpen(false);
-	const openModal2 = () => setModalOpen2(true);
-	const closeModal2 = () => setModalOpen2(false);
-
-	const handleSortChange = (sortValue: string) => onSortChange(sortValue);
-
-	type ActivityStatus = 'Active' | 'Blocked';
-
 	const headerTabs = [
 		{ value: 'all', label: 'All' },
 		{ value: 'Active', label: 'Active' },

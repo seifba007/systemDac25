@@ -3,7 +3,7 @@ import { Modal, Text, Flex, Box, Stack, Button, Select, Textarea } from '@mantin
 import '../../../sass/components/SuperAdminGlobal.scss';
 import { ArrowDown2 } from 'iconsax-react';
 import toast from 'react-hot-toast';
-import { updateDelegateAction } from '@/core/services/modulesServices/actionitems.service';
+import { RejectDelegateAction, updateDelegateAction } from '@/core/services/modulesServices/actionitems.service';
 
 interface ModelFilterProps {
   opened: boolean;
@@ -43,7 +43,8 @@ const ApproveItem: React.FC<ModelFilterProps> = ({
       assignedPerson: isReject ? null : selectedApprover, // Only include if not rejecting
       comments,
     };
-    updateDelegateAction(formData, idaction)
+    if(isReject){
+      updateDelegateAction(formData, idaction)
 			.then(() => {
 				toast.success('User updated successfully!');
 				onClose();
@@ -52,6 +53,18 @@ const ApproveItem: React.FC<ModelFilterProps> = ({
 				console.error('Error updating user:', error);
 				toast.error('Failed to update user');
 			});
+    }else{
+      RejectDelegateAction(formData, idaction)
+			.then(() => {
+				toast.success('User updated successfully!');
+				onClose();
+			})
+			.catch((error) => {
+				console.error('Error updating user:', error);
+				toast.error('Failed to update user');
+			});
+    }
+ 
   };
 
   return (

@@ -337,7 +337,7 @@ const RiskAssessmentTable = ({ onRowsChange }: RiskAssessmentTableProps) => {
         </Table.Tbody>
       </Table>
       <Button onClick={addNewRow} style={{ marginTop: '16px' }}>
-        Add Risk
+         <Text fz={'11px'}> Add Risk</Text>
       </Button>
     </div>
   );

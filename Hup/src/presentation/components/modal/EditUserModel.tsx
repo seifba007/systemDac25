@@ -123,10 +123,6 @@ const EditUserModel: React.FC<EditUserModelProps> = ({ opened, onClose, userdata
 		});
 	}
 
-	console.log('formData:', formData);
-	console.log('userdata:', userdata);
-	console.log('organizationOptions:', organizationOptions);
-
 	return (
 		<Modal
 			overlayProps={{
@@ -185,14 +181,18 @@ const EditUserModel: React.FC<EditUserModelProps> = ({ opened, onClose, userdata
 							Role
 						</Text>
 					}
-					value={formData.role}
+					value={formData.role}  
 					onChange={(value) => handleInputChange('role', value || '')}
 					data={[
-						{ value: 'SmarDac Super Admin', label: 'SmarDac Super Admin' },
-						{ value: 'SmarDac Admin', label: 'SmarDac Admin' },
-						{ value: 'Organization Admin', label: 'Organization Admin' },
-						{ value: 'Organization Manager', label: 'Organization Manager' },
+						{ value: 'SmarDac Administrator', label: 'SmarDac Administrator' },
+						{ value: 'SmarDac Manager', label: 'SmarDac Manager' },
+						{ value: 'Organization IT Admin', label: 'Organization IT Admin' },
+						{ value: 'Organization Supervisor', label: 'Organization Supervisor' },
 						{ value: 'Organization User', label: 'Organization User' },
+						{ value: 'Organization Manager', label: 'Organization Manager' },
+						{ value: 'Organization Viewer', label: 'Organization Viewer' },
+						{ value: 'Invited User', label: 'Invited User' },
+
 					]}
 				/>
 				<FileInput

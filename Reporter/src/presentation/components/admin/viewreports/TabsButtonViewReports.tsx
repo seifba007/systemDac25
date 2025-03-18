@@ -9,7 +9,6 @@ import DeleteModal from '../../modal/DeleteModal';
 import { useDisclosure } from '@mantine/hooks';
 import CreationApps from '../../modal/CreationApps';
 
-
 const tabStyles = (isActive: boolean) => ({
 	height: '32px',
 	padding: '0 16px',
@@ -30,16 +29,6 @@ export const sortLabels = {
 	'createdAt desc': 'Added date (Oldest to Newest)',
 	'createdAt asc': 'Added date (Newest to Oldest)',
 };
-const RoleData = [
-
-	{
-		roles: [
-			{ key: 'default', label: 'Default' },
-			{ key: 'nameAsc', label: 'Administrator' },
-			{ key: 'nameDesc', label: 'Editor' },
-		],
-	},
-];
 
 interface TabsButtonProps {
 	data: any[];

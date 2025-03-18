@@ -38,6 +38,7 @@ const Login = () => {
 					avatar: user.picture,
 					role: user.role,
 					apps: user?.organization?.availableApps,
+					organization: user?.organization,
 				}),
 			);
 		});

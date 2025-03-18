@@ -629,11 +629,6 @@ export const formFieldsAssets: FormField[] = [
       type: 'textarea',
       name: 'teamMembers',
     },
-    {
-      label: 'Attach Files',
-      value: '',
-      type: 'file',
-      name: 'attachedFiles',
-    },
+  
   ];
   

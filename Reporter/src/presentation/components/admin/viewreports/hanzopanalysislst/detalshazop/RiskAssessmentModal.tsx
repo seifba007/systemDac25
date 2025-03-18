@@ -1,5 +1,15 @@
-import React, { useCallback, useMemo } from 'react';
-import { Table, Text } from '@mantine/core';
+import React, { useState, useMemo, useCallback } from 'react';
+import { Button, Modal, Text, Group, Table } from '@mantine/core';
+
+interface RiskAssessmentModalProps {
+  opened: boolean;
+  onClose: () => void;
+  setSelectedLikelihood: (value: string) => void;
+  setSelectedSeverity: (value: string) => void;
+  onSetRisk: () => void;
+  selectedLikelihood: string;
+  selectedSeverity: string;
+}
 
 // Risk level types
 type RiskType = 'number' | 'Ma' | 'M' | 'H' | 'Ha' | 'VH' | 'VHa' | 'L' | 'La' | 'headerCell' | 'td';
@@ -21,11 +31,11 @@ const riskStyles: Record<RiskType, React.CSSProperties> = {
 
 // Table data structure
 const tableData = [
-  { likelihood: 'Very High (5)', description: 'It is or has already happened', risks: ['M', 'H', 'H', 'VH', 'VH'], styles: ['Ma', 'Ha', 'Ha', 'VHa', 'VHa'] },
-  { likelihood: 'High (4)', description: 'It will probably happen', risks: ['M', 'M', 'H', 'VH', 'VH'], styles: ['Ma', 'Ma', 'Ha', 'VHa', 'VHa'] },
-  { likelihood: 'Moderate (3)', description: 'It could possibly happen', risks: ['L', 'M', 'M', 'H', 'H'], styles: ['La', 'Ma', 'Ma', 'Ha', 'Ha'] },
-  { likelihood: 'Low (2)', description: 'It is unlikely to happen', risks: ['L', 'L', 'M', 'M', 'H'], styles: ['La', 'La', 'Ma', 'Ma', 'Ha'] },
-  { likelihood: 'Very Low (1)', description: 'It is very unlikely to happen', risks: ['L', 'L', 'L', 'M', 'M'], styles: ['La', 'La', 'La', 'Ma', 'Ma'] },
+  { likelihood: '5', description: 'It is or has already happened', risks: ['M', 'H', 'H', 'VH', 'VH'], styles: ['Ma', 'Ha', 'Ha', 'VHa', 'VHa'] },
+  { likelihood: '4', description: 'It will probably happen', risks: ['M', 'M', 'H', 'VH', 'VH'], styles: ['Ma', 'Ma', 'Ha', 'VHa', 'VHa'] },
+  { likelihood: '3', description: 'It could possibly happen', risks: ['L', 'M', 'M', 'H', 'H'], styles: ['La', 'Ma', 'Ma', 'Ha', 'Ha'] },
+  { likelihood: '2', description: 'It is unlikely to happen', risks: ['L', 'L', 'M', 'M', 'H'], styles: ['La', 'La', 'Ma', 'Ma', 'Ha'] },
+  { likelihood: '1', description: 'It is very unlikely to happen', risks: ['L', 'L', 'L', 'M', 'M'], styles: ['La', 'La', 'La', 'Ma', 'Ma'] },
 ];
 
 const outcomeData = [
@@ -35,47 +45,50 @@ const outcomeData = [
 ];
 
 const severityLevels = [
-  { value: 'Minor (1)', bg: '#4c7c04' },
-  { value: 'Moderate (2)', bg: '#4c7c04' },
-  { value: 'Serious (3)', bg: '#f9d909' },
-  { value: 'Major (4)', bg: '#f99d09' },
-  { value: 'Catastrophic (5)', bg: '#f90909' },
+  { value: '1', bg: '#4c7c04' },
+  { value: '2', bg: '#4c7c04' },
+  { value: '3', bg: '#f9d909' },
+  { value: '4', bg: '#f99d09' },
+  { value: '5', bg: '#f90909' },
 ];
 
-// Props interface for TableRisk
-interface TableRiskProps {
-  likelihood: string;
-  severity: string;
-  onCellClick: (likelihood: string, severity: string) => void;
-}
-
-const TableRisk: React.FC<TableRiskProps> = ({ likelihood, severity, onCellClick }) => {
-  // Map likelihood and severity to row and column indices
-  const likelihoodIndex = tableData.findIndex((row) => row.likelihood === likelihood) + 1;
-  const severityIndex = severityLevels.findIndex((level) => level.value === severity) + 1;
+const RiskAssessmentModal: React.FC<RiskAssessmentModalProps> = ({
+  opened,
+  onClose,
+  setSelectedLikelihood,
+  setSelectedSeverity,
+  onSetRisk,
+  selectedLikelihood,
+  selectedSeverity,
+}) => {
+  const [selectedCellIndex, setSelectedCellIndex] = useState<{ row: number | null; col: number | null }>({ row: null, col: null });
 
   // Memoize the cell click handler to prevent unnecessary re-renders
   const handleCellClick = useCallback(
-    (rowLikelihood: string, colSeverity: string) => {
-      onCellClick(rowLikelihood, colSeverity);
+    (rowIndex: number, colIndex: number) => {
+      setSelectedCellIndex({ row: rowIndex, col: colIndex });
+      const likelihood = tableData[rowIndex - 1].likelihood; // Row index starts at 1 for cells
+      const severity = (colIndex).toString(); // Col index starts at 1 for severity
+      setSelectedLikelihood(likelihood);
+      setSelectedSeverity(severity);
     },
-    [onCellClick]
+    [setSelectedLikelihood, setSelectedSeverity]
   );
 
   // Memoize the renderRiskCell function to avoid re-creating it on every render
   const renderRiskCell = useCallback(
-    (riskType: string, rowLikelihood: string, colSeverity: string, styleKey: RiskType, rowIndex: number, colIndex: number) => {
-      const isSelected = likelihood === rowLikelihood && severity === colSeverity;
+    (riskType: string, rowIndex: number, colIndex: number, styleKey: RiskType) => {
+      const isSelected = selectedCellIndex.row === rowIndex && selectedCellIndex.col === colIndex;
       return (
         <Table.Td
           style={isSelected ? riskStyles[styleKey] : riskStyles[riskType as RiskType]}
-          onClick={() => handleCellClick(rowLikelihood, colSeverity)}
+          onClick={() => handleCellClick(rowIndex, colIndex)}
         >
           {riskType}
         </Table.Td>
       );
     },
-    [likelihood, severity, handleCellClick]
+    [selectedCellIndex, handleCellClick]
   );
 
   // Memoize table rows to prevent unnecessary re-rendering
@@ -84,25 +97,18 @@ const TableRisk: React.FC<TableRiskProps> = ({ likelihood, severity, onCellClick
       tableData.map((row, rowIndex) => (
         <Table.Tr key={row.likelihood}>
           {rowIndex === 0 && (
-            <Table.Td rowSpan={5} style={riskStyles.td}>
+            <Table.Td rowSpan={5} style={riskStyles.headerCell}>
               <Text fz="13px">LIKELIHOOD OF EVENT HAPPENING</Text>
             </Table.Td>
           )}
           <Table.Td style={riskStyles.td} w="4%">
-            {row.likelihood.split(' ')[2]?.replace('(', '')?.replace(')', '')} {/* Extract number, e.g., "5" */}
+            {row.likelihood}
           </Table.Td>
           <Table.Td style={riskStyles.td} fz="13px">
             {row.description}
           </Table.Td>
           {row.risks.map((risk, colIndex) =>
-            renderRiskCell(
-              risk,
-              row.likelihood,
-              severityLevels[colIndex].value,
-              row.styles[colIndex] as RiskType,
-              rowIndex + 1,
-              colIndex + 1
-            )
+            renderRiskCell(risk, rowIndex + 1, colIndex + 1, row.styles[colIndex] as RiskType)
           )}
         </Table.Tr>
       )),
@@ -140,7 +146,7 @@ const TableRisk: React.FC<TableRiskProps> = ({ likelihood, severity, onCellClick
         </Table.Td>
         {severityLevels.map((level, index) => (
           <Table.Td key={index} bg={level.bg} style={riskStyles.number}>
-            {level.value.split(' ')[1].replace('(', '').replace(')', '')} {/* Extract number, e.g., "1" */}
+            {level.value}
           </Table.Td>
         ))}
       </Table.Tr>
@@ -149,25 +155,66 @@ const TableRisk: React.FC<TableRiskProps> = ({ likelihood, severity, onCellClick
   );
 
   return (
-    <Table withTableBorder withColumnBorders>
-      <Table.Thead>
-        <Table.Tr>
-          <Table.Th />
-          <Table.Th colSpan={2} style={riskStyles.headerCell}>
-            <Text fz="13px">STATUS OF EVENT</Text>
-          </Table.Th>
-          <Table.Th colSpan={5} style={riskStyles.headerCell}>
-            <Text fz="13px">RISK CLASS</Text>
-          </Table.Th>
-        </Table.Tr>
-      </Table.Thead>
-      <Table.Tbody>
-        {likelihoodRows}
-        {outcomeRows}
-        {severityRow}
-      </Table.Tbody>
-    </Table>
+    <Modal
+      opened={opened}
+      onClose={onClose}
+      title={<Text fz="17px" fw={600} c="#6c757d">Risk Assessment Matrix</Text>}
+      size="lg"
+      radius={8}
+      className="risk-assessment-modal"
+    >
+      <div className="modal-body">
+        {/* Display selected Likelihood and Severity */}
+        <Group mb="md" style={{ justifyContent: "space-between" }}>
+          <Text fz="13px" fw={500}>
+            Selected Likelihood: {selectedLikelihood || "N/A"}
+          </Text>
+          <Text fz="13px" fw={500}>
+            Selected Severity: {selectedSeverity || "N/A"}
+          </Text>
+        </Group>
+
+        <div className="mb-3">
+          <Table withTableBorder withColumnBorders>
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th />
+                <Table.Th colSpan={2} style={riskStyles.headerCell}>
+                  <Text fz="13px">STATUS OF EVENT</Text>
+                </Table.Th>
+                <Table.Th colSpan={5} style={riskStyles.headerCell}>
+                  <Text fz="13px">RISK CLASS</Text>
+                </Table.Th>
+              </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>
+              {likelihoodRows}
+              {outcomeRows}
+              {severityRow}
+            </Table.Tbody>
+          </Table>
+        </div>
+      </div>
+      <div className="modal-footer" style={{ display: "flex", justifyContent: "flex-end", gap: "10px", padding: "10px" }}>
+        <Button
+          variant="filled"
+          color="blue"
+          onClick={onSetRisk}
+          style={{ fontSize: "13px", padding: "6px 12px" }}
+        >
+          Set Risk
+        </Button>
+        <Button
+          variant="filled"
+          color="gray"
+          onClick={onClose}
+          style={{ fontSize: "13px", padding: "6px 12px" }}
+        >
+          Close
+        </Button>
+      </div>
+    </Modal>
   );
 };
 
-export default TableRisk;
+export default RiskAssessmentModal;

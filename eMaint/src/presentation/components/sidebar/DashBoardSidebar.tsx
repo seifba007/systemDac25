@@ -5,8 +5,6 @@ import { Box, Button, Flex, Menu, Stack, Text, rem } from '@mantine/core';
 import PortfolioAvatar from '../avatar/ProtofolioAvatar';
 import { Link, useLocation } from 'react-router-dom';
 import { Logout, More } from 'iconsax-react';
-import { sidebarOptions } from './constant';
-import { ERole } from '@/core/entities/auth/authSlice.entity';
 import { MenuBar } from '../menu';
 import { ConfirmationModal } from '../modal';
 import { useDisclosure } from '@mantine/hooks';

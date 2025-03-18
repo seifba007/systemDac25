@@ -1,9 +1,13 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { MultiSelect, Stack, Switch, Text, Table, Button, FileInput, Flex, TextInput, ActionIcon, Textarea, Select } from '@mantine/core';
 import { DateTimePicker } from '@mantine/dates';
 import { IconCheck, IconX } from '@tabler/icons-react';
 import { Folder2, Trash } from 'iconsax-react';
 import TableSection from '@/presentation/tablesection/TableSection';
+import toast from 'react-hot-toast';
+import { createMeetingReport } from '@/core/services/modulesServices/meetingreport.service';
+import { selectConnectedUser } from '@/core/store/modules/authSlice';
+import { useAppSelector } from '@/core/store/hooks';
 
 // Define interfaces for type safety
 interface FormData {
@@ -30,13 +34,29 @@ interface AgendaItem {
   timeAllocated: string;
 }
 
-const AddlMeetingReport: React.FC = () => {
+interface User {
+  _id: string;
+  name: string;
+}
+
+interface ActionItem {
+   Status: string;
+   Description: string;
+  'Assigned To': string;
+   Priority: string;
+  'Due Date': string;
+  'Control Date': string;
+  'Efficiency Check': string;
+}
+
+const AddlMeetingReport: React.FC<{ user?: { organization: string } }> = () => {
   const [checked, setChecked] = useState(false);
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
   const [files, setFiles] = useState<File[]>([]);
   const [fileNames, setFileNames] = useState<string[]>([]);
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [agendaItems, setAgendaItems] = useState<AgendaItem[]>([]);
+  const [actionItems, setActionItems] = useState<ActionItem[]>([]); // New state for action items
   const [formData, setFormData] = useState<FormData>({
     meetingType: '',
     meetingTitle: '',
@@ -47,8 +67,8 @@ const AddlMeetingReport: React.FC = () => {
     meetingObjective: '',
     note: '',
   });
+  const [usersList, setUsersList] = useState<User[]>([]);
 
-  // Memoized event handlers for performance
   const handleInputChange = useCallback((field: keyof FormData, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   }, []);
@@ -90,19 +110,72 @@ const AddlMeetingReport: React.FC = () => {
     setAgendaItems((prev) => prev.filter((_, i) => i !== index));
   }, []);
 
-  const handleSubmit = useCallback((data: any) => {
-    console.log('Action Items Submitted:', data);
+  const handleActionItemsSubmit = useCallback((data: any) => {
+    // Flatten the sections into a single array of action items
+    const flattenedActionItems = data.flatMap((section: { items: ActionItem[] }) => section.items);
+    setActionItems(flattenedActionItems);
   }, []);
 
-  const handleFormSubmit = useCallback(() => {
-    const submittedData = { ...formData, teamMembers, agendaItems, files, visibleTo: selectedValues };
-    console.log('Form Submitted Data:', submittedData);
-  }, [formData, teamMembers, agendaItems, files, selectedValues]);
+  const handleFormSubmit = useCallback(async () => {
+    // Map action items to match backend expected format
+    const formattedActionItems = actionItems.map(item => ({
+      status: item.Status || 'Pending', // Default to 'Pending' if not set
+      description: item.Description || '',
+      assignedPerson: item['Assigned To'] || '',
+      priority: item.Priority || '',
+      targetDate: item['Due Date'] || '',
+      controlDate: item['Control Date'] || 'N/A',
+      efficiencyCheck: item['Efficiency Check'] || 'N/A',
+    }));
 
-  const data = ['Status', 'Description', 'Assigned To', 'Priority', 'Due Date', 'Control Date', 'Efficiency Check'] as const;
+    const data = {
+      meetingType: formData.meetingType,
+      meetingTitle: formData.meetingTitle,
+      dateTime: formData.dateTime?.toISOString() || new Date().toISOString(),
+      businessDepartment: formData.businessDepartment,
+      businessLocation: formData.businessLocation,
+      meetingLocation: formData.meetingLocation,
+      meetingObjective: formData.meetingObjective,
+      notes: formData.note,
+      attendees: JSON.stringify(teamMembers),
+      agenda: JSON.stringify(agendaItems),
+      attachedFiles: JSON.stringify(files.map(file => ({ name: file.name, size: file.size }))),
+      visibleTo: checked ? JSON.stringify(selectedValues) : JSON.stringify(['all']),
+      actionItems: JSON.stringify(formattedActionItems), // Use data from TableSection
+      incidentReports: JSON.stringify([]),
+    };
+
+    try {
+      await createMeetingReport(data, user?.organization);
+      setFiles([]);
+      setFileNames([]);
+      setSelectedValues([]);
+      setTeamMembers([]);
+      setAgendaItems([]);
+      setActionItems([]); // Reset action items
+      setFormData({
+        meetingType: '',
+        meetingTitle: '',
+        dateTime: null,
+        businessDepartment: '',
+        businessLocation: '',
+        meetingLocation: '',
+        meetingObjective: '',
+        note: '',
+      });
+      setChecked(false);
+      toast.success('Meeting Report created successfully');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to create Meeting Report');
+      console.error(error);
+    }
+  }, [formData, teamMembers, agendaItems, files, selectedValues, checked, actionItems, ]);
+
+  const dataHeaders = ['Status', 'Description', 'Assigned To', 'Priority', 'Due Date', 'Control Date', 'Efficiency Check'] as const;
 
   const inputStyles = { label: { marginBottom: '5px' }, input: { borderColor: '#ced4da', borderRadius: '4px', height: '38px' } };
   const textareaStyles = { label: { marginBottom: '5px' }, input: { borderColor: '#ced4da', borderRadius: '4px', minHeight: '80px' } };
+  const user = useAppSelector(selectConnectedUser);
 
   return (
     <Stack>
@@ -215,13 +288,36 @@ const AddlMeetingReport: React.FC = () => {
           <Text ff="'Roboto', sans-serif" fw={600} c="#6c757d" fz="12px">Visibility</Text>
           <Switch w="28%" checked={checked} onChange={handleSwitchChange} color="green" size="sm" label={<Text ff="'Roboto', sans-serif" fw={600} c="#6c757d" fz="12px">Customize Visibility</Text>}
             thumbIcon={checked ? <IconCheck size={12} color="var(--mantine-color-teal-5)" stroke={3} /> : <IconX size={12} color="var(--mantine-color-red-6)" stroke={3} />} />
-          <MultiSelect label={<Text ff="'Roboto', sans-serif" fw={600} c="#6c757d" fz="12px">Visible To</Text>} placeholder="Pick value" data={['React', 'Angular', 'Vue', 'Svelte']}
-            value={selectedValues} onChange={setSelectedValues} clearable w="50%" disabled={!checked} withCheckIcon={false} styles={inputStyles} />
-          <Textarea label={<Text ff="'Roboto', sans-serif" fw={600} c="#6c757d" fz="12px">Note</Text>} placeholder="Enter note" value={formData.note}
-            onChange={(e) => handleInputChange('note', e.target.value)} w="50%" styles={textareaStyles} />
+          <MultiSelect
+            label={<Text ff="'Roboto', sans-serif" fw={600} c="#6c757d" fz="12px">Visible To</Text>}
+            placeholder="Pick value"
+            data={usersList.map(user => ({ value: user._id, label: user.name }))}
+            value={selectedValues}
+            onChange={setSelectedValues}
+            clearable
+            w="50%"
+            disabled={!checked}
+            withCheckIcon={false}
+            styles={inputStyles}
+          />
+          <Textarea
+            label={<Text ff="'Roboto', sans-serif" fw={600} c="#6c757d" fz="12px">Note</Text>}
+            placeholder="Enter note"
+            value={formData.note}
+            onChange={(e) => handleInputChange('note', e.target.value)}
+            w="50%"
+            styles={textareaStyles}
+          />
           <Text ff="'Roboto', sans-serif" fw={600} c="#6c757d" fz="12px">Attach Files</Text>
-          <FileInput placeholder={fileNames.length > 0 ? fileNames.join(', ') : "No file chosen"} multiple value={files} onChange={handleFileChange}
-            rightSection={<Folder2 size="25" color="#868e96" variant="Bold" />} w="50%" styles={inputStyles} />
+          <FileInput
+            placeholder={fileNames.length > 0 ? fileNames.join(', ') : "No file chosen"}
+            multiple
+            value={files}
+            onChange={handleFileChange}
+            rightSection={<Folder2 size="25" color="#868e96" variant="Bold" />}
+            w="50%"
+            styles={inputStyles}
+          />
           <Table>
             <Table.Thead><Table.Tr><Table.Th fz="13px" c="#6c757d">Image</Table.Th><Table.Th fz="13px" c="#6c757d">File Name</Table.Th>
               <Table.Th fz="13px" c="#6c757d">Size</Table.Th><Table.Th fz="13px" c="#6c757d">Action</Table.Th></Table.Tr></Table.Thead>
@@ -232,7 +328,7 @@ const AddlMeetingReport: React.FC = () => {
                 <Table.Td><ActionIcon variant="filled" color="red" w="25px" h="25px" onClick={() => removeFile(index)}><Trash color="#fff" size="15" /></ActionIcon></Table.Td></Table.Tr>
             ))}</Table.Tbody>
           </Table>
-          <TableSection isAddItems={false} onSubmit={handleSubmit} data={data} />
+          <TableSection isAddItems={false} onSubmit={handleActionItemsSubmit} data={dataHeaders} />
         </Stack>
         <Flex justify="end"><Button bg="#0d6efd" onClick={handleFormSubmit}>Submit Meeting</Button></Flex>
       </Stack>

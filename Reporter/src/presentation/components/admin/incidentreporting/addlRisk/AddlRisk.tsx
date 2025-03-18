@@ -134,13 +134,13 @@ const AddlRisk = () => {
                        </Flex>
                      ))}
                      
-                                 <Button w={'8.5%'} bg={"#6c757d"} onClick={addTeamMember}>
+                                 <Button w={'10%'} bg={"#6c757d"} onClick={addTeamMember}>
                                    <Text fz={'11px'}>Add Member</Text>
                                  </Button>
                      
                  </Stack>
                  <RiskAssessmentTable onRowsChange={handleRowsChange}/>
-              <Flex align={'center'} justify={'space-between'} w={'100%'}>
+              <Flex align={'center'} gap='1em'w={'100%'}>
               <div className="file-input-wrapper" style={{width:'75%'}}>
       <label className="file-input-label">
         <input

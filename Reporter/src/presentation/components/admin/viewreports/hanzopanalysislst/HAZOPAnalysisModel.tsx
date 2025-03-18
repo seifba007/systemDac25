@@ -1,20 +1,17 @@
 import React, { useState } from 'react';
 import {
-  Modal,
+ 
   Stack,
   Flex,
   Text,
   TextInput,
   Button,
   ActionIcon,
-  Table,
-  BackgroundImage,
+  Modal,
+  Paper,
 } from '@mantine/core';
 import { IconTrash } from '@tabler/icons-react';
-import DynamicForm from '@/presentation/components/input/DynamicForm';
-import RiskAssessmentTable from '../../incidentreporting/addlRisk/RiskAssessmentTable';
-import { formFieldsHAZOP, formFieldsRisk } from '@/data/formCreate';
-import DetailedHAZOPAnalysis from './DetailedHAZOPAnalysis';
+import DetailedHAZOPAnalysis from './detalshazop/DetailedHAZOPAnalysis';
 
 interface TeamMember {
   name: string;
@@ -30,7 +27,7 @@ interface FormData {
 
 interface ModelHAZOPAnalysisProps {
   open: boolean;
-  onClose: () => void;
+  onClose: ()=> void;
   data?: FormData;
   isUpdte?: boolean;
 }
@@ -55,48 +52,45 @@ const HAZOPAnalysisModel: React.FC<ModelHAZOPAnalysisProps> = ({ open, onClose, 
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files; // Get the files
+    const files = event.target.files;
     if (files) {
-      setFiles((prev) => [...prev, ...Array.from(files)]); // Ensure files is non-null
+      setFiles((prev) => [...prev, ...Array.from(files)]);
     }
   };
-  
 
   const removeFile = (index: number) => {
     setFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
-
-
   return (
     <Modal
-    opened={open}
-    onClose={onClose}
-    title={
-      <Text
-        style={{
-          textOverflow: 'ellipsis',
-          overflow: 'hidden',
-          whiteSpace: 'nowrap',
-        }}
-        ff='"Roboto", sans-serif'
-        fw="700"
-        c="#6c757d"
-        fz="18px"
-      >
-        HAZOP Analysis
-      </Text>
-    }
-    fullScreen
-    radius={0}
-    styles={{
-      body: {
-        paddingTop:'1em',
-        backgroundColor: '#f2f2f7', // Set the desired background color
-      },
-    }}
-    transitionProps={{ transition: 'fade', duration: 200 }}
-  >
+      opened={open}
+      onClose={onClose}
+      title={
+        <Text
+          style={{
+            textOverflow: 'ellipsis',
+            overflow: 'hidden',
+            whiteSpace: 'nowrap',
+          }}
+          ff='"Roboto", sans-serif'
+          fw="700"
+          c="#6c757d"
+          fz="18px"
+        >
+          HAZOP Analysis
+        </Text>
+      }
+      fullScreen
+      radius={0}
+      styles={{
+        body: {
+          paddingTop: '1em',
+          backgroundColor: '#f2f2f7',
+        },
+      }}
+      transitionProps={{ transition: 'fade', duration: 200 }}
+    >
       <Stack>
         {/* Header */}
         <Flex justify="space-between" align="center" wrap="wrap">
@@ -116,145 +110,343 @@ const HAZOPAnalysisModel: React.FC<ModelHAZOPAnalysisProps> = ({ open, onClose, 
         </Flex>
 
         {/* Form Section */}
-        <Stack className="BoxTableForms" p="1em">
-          <DynamicForm
-            buttonanme={isUpdte ?'Update Information':''}
-            fields={formFieldsHAZOP}
-            onSubmit={handleFormSubmit}
-          >
-            <Stack>
-              {/* Team Members Section */}
-              <Text ff='"Roboto", sans-serif' fw="600" c="#6c757d" fz="13px">
-                Team Members
-              </Text>
-
-              {teamMembers.map((member, index) => (
-                <Flex align="center" justify="space-between" w="100%" key={index}>
-                  <TextInput
-                    variant="filled"
-                    placeholder="Team Member Name"
-                    w="25%"
-                    value={member.name}
-                    onChange={(e) =>
-                      setTeamMembers((prev) =>
-                        prev.map((m, i) =>
-                          i === index ? { ...m, name: e.target.value } : m
-                        )
-                      )
-                    }
-                  />
-                  <TextInput
-                    variant="filled"
-                    placeholder="Department"
-                    w="25%"
-                    value={member.department}
-                    onChange={(e) =>
-                      setTeamMembers((prev) =>
-                        prev.map((m, i) =>
-                          i === index ? { ...m, department: e.target.value } : m
-                        )
-                      )
-                    }
-                  />
-                  <TextInput
-                    variant="filled"
-                    placeholder="Role"
-                    w="10%"
-                    value={member.role}
-                    onChange={(e) =>
-                      setTeamMembers((prev) =>
-                        prev.map((m, i) =>
-                          i === index ? { ...m, role: e.target.value } : m
-                        )
-                      )
-                    }
-                  />
-                  <TextInput
-                    variant="filled"
-                    placeholder="Company Name"
-                    w="25%"
-                    value={member.companyName}
-                    onChange={(e) =>
-                      setTeamMembers((prev) =>
-                        prev.map((m, i) =>
-                          i === index ? { ...m, companyName: e.target.value } : m
-                        )
-                      )
-                    }
-                  />
-                  <ActionIcon
-                    variant="filled"
-                    color="red"
-                    w="25px"
-                    h="20px"
-                    onClick={() => removeTeamMember(index)}
-                  >
-                    <IconTrash size={15} />
-                  </ActionIcon>
-                </Flex>
-              ))}
-
-              {isUpdte && (
-                <Button w="8.5%" bg="#6c757d" onClick={addTeamMember}>
-                  <Text fz="11px">Add Member</Text>
-                </Button>
-              )}
-            </Stack>
-
-            {/* File Input and Table */}
-            <Flex mt={'2em'} gap={'3em'} w="100%" direction={'column'}>
-              <div className="file-input-wrapper" style={{ width: '70%' }}>
-                <label className="file-input-label">
-                  <input
-                    type="file"
-                    className="file-input"
-                    multiple
-                    onChange={handleFileChange}
-                  />
-                  Choose File
+        <Paper >
+          <div className="card p-4" style={{ backgroundColor: '#ffffff', borderRadius: '8px' }}>
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              handleFormSubmit({});
+            }}>
+              {/* System/Process Name */}
+              <div className="mb-3">
+                <label
+                  className="form-label"
+                  htmlFor="systemProcessName"
+                  style={{ fontSize: '13px', fontWeight: '600', color: '#6c757d' }}
+                >
+                  System/Process Name <span style={{ color: '#dc3545' }}>*</span>
                 </label>
-                <span className="file-name">{"fileName"}</span>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="systemProcessName"
+                  placeholder="Well Testing System"
+                  style={{ fontSize: '13px', padding: '8px', borderRadius: '4px' }}
+                  required
+                />
               </div>
 
-              <Table highlightOnHover withTableBorder withColumnBorders>
-              <Table.Thead>
-                  <Table.Tr>
-                    <Table.Th fz={'13px'}>Image</Table.Th>
-                    <Table.Th fz={'13px'}>File Name</Table.Th>
-                    <Table.Th fz={'13px'}>Size</Table.Th>
-                    <Table.Th fz={'13px'}>Action</Table.Th>
-                  </Table.Tr>
-                </Table.Thead>
-                <Table.Tbody>
-                  {files.map((file, index) => (
-                    <Table.Tr key={index}>
-                      <Table.Td>
-                        {file.type.startsWith('image/') && (
-                          <img
-                            src={URL.createObjectURL(file)}
-                            alt={file.name}
-                            style={{ width: '50px', height: '50px', objectFit: 'cover' }}
-                          />
-                        )}
-                      </Table.Td>
-                      <Table.Td fz={'13px'}>{file.name}</Table.Td>
-                      <Table.Td  fz={'13px'}>{(file.size / 1024).toFixed(2)} KB</Table.Td>
-                      <Table.Td>
-                        <Button
-                          variant="subtle"
-                          color="red"
-                          onClick={() => removeFile(index)}
-                        >
-                          Remove
-                        </Button>
-                      </Table.Td>
-                    </Table.Tr>
-                  ))}
-                </Table.Tbody>
-              </Table>
-            </Flex>
-          </DynamicForm>
-        </Stack>
+              {/* Objectives */}
+              <div className="mb-3">
+                <label
+                  className="form-label"
+                  htmlFor="objectives"
+                  style={{ fontSize: '13px', fontWeight: '600', color: '#6c757d' }}
+                >
+                  Objectives <span style={{ color: '#dc3545' }}>*</span>
+                </label>
+                <textarea
+                  className="form-control"
+                  id="objectives"
+                  rows={3}
+                  placeholder="Identify and mitigate potential risks during well testing operations."
+                  style={{ fontSize: '13px', padding: '8px', borderRadius: '4px', resize: 'none' }}
+                  required
+                ></textarea>
+              </div>
+
+              {/* Boundaries */}
+              <div className="mb-3">
+                <label
+                  className="form-label"
+                  htmlFor="boundaries"
+                  style={{ fontSize: '13px', fontWeight: '600', color: '#6c757d' }}
+                >
+                  Boundaries <span style={{ color: '#dc3545' }}>*</span>
+                </label>
+                <textarea
+                  className="form-control"
+                  id="boundaries"
+                  rows={3}
+                  placeholder="The HAZOP study focuses on the well testing equipment and operations including flowlines, separators, manifolds, and measurement instruments."
+                  style={{ fontSize: '13px', padding: '8px', borderRadius: '4px', resize: 'none' }}
+                  required
+                ></textarea>
+              </div>
+
+              {/* Dates and Review Frequency */}
+              <div className="row mb-4 " style={{gap:'0em'}}>
+                <div className="col-md-4">
+                  <label
+                    className="form-label"
+                    htmlFor="startDate"
+                    style={{ fontSize: '13px', fontWeight: '600', color: '#6c757d' }}
+                  >
+                    Start Date <span style={{ color: '#dc3545' }}>*</span>
+                  </label>
+                  <input
+                    type="date"
+                    className="form-control"
+                    id="startDate"
+                    defaultValue="2024-09-01"
+                    style={{ fontSize: '13px', padding: '8px', borderRadius: '4px' }}
+                    required
+                  />
+                </div>
+                <div className="col-md-4">
+                  <label
+                    className="form-label"
+                    htmlFor="endDate"
+                    style={{ fontSize: '13px', fontWeight: '600', color: '#6c757d' }}
+                  >
+                    End Date <span style={{ color: '#dc3545' }}>*</span>
+                  </label>
+                  <input
+                    type="date"
+                    className="form-control"
+                    id="endDate"
+                    defaultValue="2024-09-05"
+                    style={{ fontSize: '13px', padding: '8px', borderRadius: '4px' }}
+                    required
+                  />
+                </div>
+                <div className="col-md-4">
+                  <label
+                    className="form-label"
+                    htmlFor="reviewFrequency"
+                    style={{ fontSize: '13px', fontWeight: '600', color: '#6c757d' }}
+                  >
+                    Review Frequency <span style={{ color: '#dc3545' }}>*</span>
+                  </label>
+                  <select
+                    className="form-control"
+                    id="reviewFrequency"
+                    style={{ fontSize: '13px', padding: '8px', borderRadius: '4px' }}
+                    required
+                  >
+                    <option value="Annually">Annually</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Client, Project ID, Location */}
+              <div className="row mb-4"  style={{gap:'0em'}}>
+                <div className="col-md-4">
+                  <label
+                    className="form-label"
+                    htmlFor="client"
+                    style={{ fontSize: '13px', fontWeight: '600', color: '#6c757d' }}
+                  >
+                    Client <span style={{ color: '#dc3545' }}>*</span>
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="client"
+                    defaultValue="ABC Oil Company"
+                    style={{ fontSize: '13px', padding: '8px', borderRadius: '4px' }}
+                    required
+                  />
+                </div>
+                <div className="col-md-4">
+                  <label
+                    className="form-label"
+                    htmlFor="projectID"
+                    style={{ fontSize: '13px', fontWeight: '600', color: '#6c757d' }}
+                  >
+                    Project ID <span style={{ color: '#dc3545' }}>*</span>
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="projectID"
+                    defaultValue="WT-101"
+                    style={{ fontSize: '13px', padding: '8px', borderRadius: '4px' }}
+                    required
+                  />
+                </div>
+                <div className="col-md-4">
+                  <label
+                    className="form-label"
+                    htmlFor="location"
+                    style={{ fontSize: '13px', fontWeight: '600', color: '#6c757d' }}
+                  >
+                    Location <span style={{ color: '#dc3545' }}>*</span>
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="location"
+                    defaultValue="Offshore Platform A"
+                    style={{ fontSize: '13px', padding: '8px', borderRadius: '4px' }}
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Team Members Section */}
+              <div className="mb-4" >
+                <Text ff='"Roboto", sans-serif' fw="600" c="#6c757d" fz="13px">
+                  Team Members
+                </Text>
+                {teamMembers.map((member, index) => (
+                  <div className="row align-items-center mb-4" style={{gap:'0em'}} key={index}>
+                    <div className="col-md-3">
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Team Member Name"
+                        value={member.name}
+                        onChange={(e) =>
+                          setTeamMembers((prev) =>
+                            prev.map((m, i) =>
+                              i === index ? { ...m, name: e.target.value } : m
+                            )
+                          )
+                        }
+                        style={{ fontSize: '13px', padding: '8px', borderRadius: '4px' }}
+                      />
+                    </div>
+                    <div className="col-md-3">
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Department"
+                        value={member.department}
+                        onChange={(e) =>
+                          setTeamMembers((prev) =>
+                            prev.map((m, i) =>
+                              i === index ? { ...m, department: e.target.value } : m
+                            )
+                          )
+                        }
+                        style={{ fontSize: '13px', padding: '8px', borderRadius: '4px' }}
+                      />
+                    </div>
+                    <div className="col-md-2">
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Role"
+                        value={member.role}
+                        onChange={(e) =>
+                          setTeamMembers((prev) =>
+                            prev.map((m, i) =>
+                              i === index ? { ...m, role: e.target.value } : m
+                            )
+                          )
+                        }
+                        style={{ fontSize: '13px', padding: '8px', borderRadius: '4px' }}
+                      />
+                    </div>
+                    <div className="col-md-3">
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Company Name"
+                        value={member.companyName}
+                        onChange={(e) =>
+                          setTeamMembers((prev) =>
+                            prev.map((m, i) =>
+                              i === index ? { ...m, companyName: e.target.value } : m
+                            )
+                          )
+                        }
+                        style={{ fontSize: '13px', padding: '8px', borderRadius: '4px' }}
+                      />
+                    </div>
+                    <div className="col-md-1">
+                      <ActionIcon
+                        variant="filled"
+                        color="red"
+                        onClick={() => removeTeamMember(index)}
+                        style={{ width: '25px', height: '25px' }}
+                      >
+                        <IconTrash size={15} />
+                      </ActionIcon>
+                    </div>
+                  </div>
+                ))}
+                {isUpdte && (
+                  <Button
+                    onClick={addTeamMember}
+                    style={{
+                      fontSize: '11px',
+                      backgroundColor: '#6c757d',
+                      border: 'none',
+                      padding: '5px 10px',
+                      borderRadius: '4px',
+                      width: 'fit-content',
+                    }}
+                  >
+                    Add Member
+                  </Button>
+                )}
+              </div>
+
+              {/* File Input and Table */}
+              <div className="mb-3">
+                <div className="mb-3">
+                  <label className="form-label" style={{ fontSize: '13px', fontWeight: '600', color: '#6c757d' }}>
+                    Attach Files
+                  </label>
+                  <input
+                    type="file"
+                    className="form-control"
+                    multiple
+                    onChange={handleFileChange}
+                    style={{ fontSize: '13px', padding: '8px', borderRadius: '4px' }}
+                  />
+                </div>
+                <table className="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th style={{ fontSize: '13px' }}>File Name</th>
+                      <th style={{ fontSize: '13px' }}>File Size</th>
+                      <th style={{ fontSize: '13px' }}>Preview</th>
+                      <th style={{ fontSize: '13px' }}>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {files.map((file, index) => (
+                      <tr key={index}>
+                        <td style={{ fontSize: '13px' }}>{file.name}</td>
+                        <td style={{ fontSize: '13px' }}>{(file.size / 1024).toFixed(2)} KB</td>
+                        <td>
+                          {file.type.startsWith('image/') && (
+                            <img
+                              src={URL.createObjectURL(file)}
+                              alt={file.name}
+                              style={{ width: '50px', height: '50px', objectFit: 'cover' }}
+                            />
+                          )}
+                        </td>
+                        <td>
+                          <Button
+                            variant="outline"
+                            color="red"
+                            onClick={() => removeFile(index)}
+                            style={{ fontSize: '13px', padding: '2px 8px' }}
+                          >
+                            Remove
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <button
+                type="submit"
+                className="btn btn-primary"
+                style={{ fontSize: '13px', padding: '8px 16px', borderRadius: '4px' }}
+              >
+                Update Information
+              </button>
+            </form>
+          </div>
+        </Paper>
+
         <Flex justify="space-between" align="center" wrap="wrap">
           <Text
             style={{
@@ -267,19 +459,12 @@ const HAZOPAnalysisModel: React.FC<ModelHAZOPAnalysisProps> = ({ open, onClose, 
             c="#6c757d"
             fz="12px"
           >
-Detailed HAZOP Analysis
+            Detailed HAZOP Analysis
           </Text>
+          <DetailedHAZOPAnalysis />
         </Flex>
-    
 
-
-        <DetailedHAZOPAnalysis/>
-
-
-
-
-
-
+        
       </Stack>
     </Modal>
   );

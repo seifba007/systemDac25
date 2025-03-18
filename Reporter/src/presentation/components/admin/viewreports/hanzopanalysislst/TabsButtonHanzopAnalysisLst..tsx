@@ -122,8 +122,7 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 	const [isVisibilityOpen, { open: openVisibility, close: closeVisibility }] = useDisclosure(false);
 	const headerTabs = [
 		{ value: 'all', label: 'All' },
-		{ value: 'Active', label: 'Active' },
-		{ value: 'Blocked', label: 'Blocked' },
+	
 	];
 	const TableTh = [
 		{ label: 'HAZOP ID' },
@@ -219,7 +218,7 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 									  {/* Report Reference Column */}
 									  <Table.Td>
 										<Text className={'txttablename'}>
-										  {item?.systemProcessName ?? '..............'}
+										  {item?.systemName?.length!=0?item?.systemName: '..............'}
 										</Text>
 									  </Table.Td>
 							  
@@ -305,12 +304,16 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 					</Tabs>
 				</Flex>
 			</Flex>
-			<HAZOPAnalysisModel
-			isUpdte={isUpdt}
-			data={riskData}
-				open={vuemodalOpen}
-				onClose={() => setVuemodalOpen(false)}
-			/>	
+			{
+			isUpdt&& (	<HAZOPAnalysisModel
+				isUpdte={isUpdt}
+				data={riskData}
+					open={vuemodalOpen}
+					onClose={() => setVuemodalOpen(false)}
+				/>	)
+
+			}
+		
 			{modalOpen && (
 				<ModelFilter
 					opened={modalOpen}

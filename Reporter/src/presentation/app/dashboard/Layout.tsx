@@ -43,6 +43,7 @@ const SuperAdminPage = () => {
             email: data.user.email,
             avatar: data.user.picture,
             role: data.user.role,
+            organization: data.user.organization,
           })
         );
   

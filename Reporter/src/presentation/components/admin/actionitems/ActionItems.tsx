@@ -17,73 +17,7 @@ const ActionItems = () => {
 	const [sortValue, setSortValue] = useState<string>('');
 	const [searchQuery, setSearchQuery] = useState<string>('');
   const [user, setUser] = useState();
-  const tableData = [
-    {
-      id: 1,
-      status: 'Active',
-      description: 'Review quarterly budget',
-      createdBy: 'John Doe',
-      assignedPerson: 'Jane Smith',
-      priority: 'High',
-      targetDate: '2025-03-01',
-      reportReference: 'Q1-Budget-Report',
-      followUpDeadline: '2025-03-05',
-      active: 'Approved',
-      path: '/reports/Q1-Budget-Report',
-    },
-    {
-      id: 2,
-      status: 'Blocked',
-      description: 'Update client database',
-      createdBy: 'Emily Davis',
-      assignedPerson: 'Mike Johnson',
-      priority: 'Medium',
-      targetDate: '2025-03-15',
-      reportReference: 'Client-Update',
-      followUpDeadline: '2025-03-20',
-      active: 'Completed',
-      path: '/tasks/client-database-update',
-    },
-    {
-      id: 3,
-      status: 'Active',
-      description: 'Prepare presentation',
-      createdBy: 'Sarah Brown',
-      assignedPerson: 'Chris Green',
-      priority: 'Low',
-      targetDate: '2025-03-10',
-      reportReference: 'Presentation-Slides',
-      followUpDeadline: '2025-03-12',
-      active: 'In Progress',
-      path: '/docs/presentation-slides',
-    },
-    {
-      id: 4,
-      status: 'Active',
-      description: 'Conduct team meeting',
-      createdBy: 'Adam White',
-      assignedPerson: 'Sophia Wilson',
-      priority: 'High',
-      targetDate: '2025-03-05',
-      reportReference: 'Team-Meeting-Notes',
-      followUpDeadline: '2025-03-06',
-      active: 'Pending',
-      path: '/meetings/team-meeting-notes',
-    },
-    {
-      id: 5,
-      status: 'Blocked',
-      description: 'Draft policy update',
-      createdBy: 'Lucy Clark',
-      assignedPerson: 'Ethan Wright',
-      priority: 'Medium',
-      targetDate: '2025-03-20',
-      reportReference: 'Policy-Update-Draft',
-      followUpDeadline: '2025-03-25',
-      active: 'Completed',
-      path: '/drafts/policy-update',
-    },
-  ];
+
   const [totalCount, setTotalCount] = useState<number>(0);
 	const getaction = () => {
 		const options: ListOptions['options'] = {
@@ -144,9 +78,9 @@ const [isLoading, setIsLoading] = useState<boolean>(true);
       <BoxTableAdmin
 				isResponsive={isMobile ? isMobile : false}
 				Data={actiondata}
-				totalCount={50}
-				currentPage={2}
-				resultsPerPage={1}
+        totalCount={totalCount}
+				currentPage={currentPage}
+				resultsPerPage={resultsPerPage}
 				setCurrentPage={setCurrentPage}
 				setResultsPerPage={setResultsPerPage}
 				renderTableBody={() => (

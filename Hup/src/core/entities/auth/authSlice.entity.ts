@@ -43,6 +43,7 @@ export type UserEntity = {
 	avatar: string | null;
 	role: any;
 	apps: any;
+	organization?: any;
 };
 
 export type TokenSliceState = {
