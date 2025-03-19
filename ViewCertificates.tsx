@@ -39,16 +39,6 @@ const ViewCertificates: React.FC<ViewCertificatesProps> = ({
   const [hasQuiz, setHasQuiz] = useState<string>('false');
   const [questions, setQuestions] = useState<Question[]>([]);
 
-  // Sync state with props
-  useEffect(() => {
-    if (opened) {
-      setCertificateName(certificat.name || '');
-      setCertificateCategory(certificat.category || '');
-      setValidityPeriod(certificat.validityPeriod || 0);
-      setHasQuiz(certificat.hasQuiz || 'false');
-      setQuestions(initialQuestions);
-    }
-  }, [opened, certificat, initialQuestions]);
 
   const handleSaveChanges = () => {
     const updatedCertificate = {

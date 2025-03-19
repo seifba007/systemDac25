@@ -1,38 +1,47 @@
-import React, { useState } from 'react';
-import { Table, Button, TextInput, Select, Text, Box, Flex, ActionIcon, Center } from '@mantine/core';
+import React, { useState, useEffect } from 'react';
+import { Table, Button, TextInput, Select, Text, Flex, ActionIcon, Center, ScrollArea } from '@mantine/core';
 import { Trash } from 'iconsax-react';
 
-// Define the shape of each row
+// Define the shape of each row, matching backend expectations
 interface RiskAssessmentRow {
   activitySteps: string;
   hazardDescription: string;
   lossCategory: string;
-  initialLikelihood: string;
-  initialSeverity: string;
+  likelihood: string; // Initial Likelihood
+  severity: string;   // Initial Severity
   preventionMeasures: string;
   mitigationMeasures: string;
   residualLikelihood: string;
   residualSeverity: string;
 }
+
 interface RiskAssessmentTableProps {
-  onRowsChange?: (rows: RiskAssessmentRow[]) => void; // Callback function to pass rows to parent
+  onRowsChange?: (rows: RiskAssessmentRow[]) => void; // Callback to pass rows to parent
+  initialRows?: RiskAssessmentRow[]; // New prop to set initial rows from parent
 }
 
-const RiskAssessmentTable = ({ onRowsChange }: RiskAssessmentTableProps) => {
-  // Initialize the rows state with a default empty row
+const RiskAssessmentTable: React.FC<RiskAssessmentTableProps> = ({ onRowsChange, initialRows }) => {
+  // Initialize rows with an empty row or use initialRows if provided
   const [rows, setRows] = useState<RiskAssessmentRow[]>([
     {
       activitySteps: '',
       hazardDescription: '',
       lossCategory: '',
-      initialLikelihood: '',
-      initialSeverity: '',
+      likelihood: '',
+      severity: '',
       preventionMeasures: '',
       mitigationMeasures: '',
       residualLikelihood: '',
       residualSeverity: '',
     },
   ]);
+
+  // Sync rows with initialRows when it changes (e.g., after file upload)
+  useEffect(() => {
+    if (initialRows && initialRows.length > 0) {
+      setRows(initialRows);
+    }
+  }, [initialRows]);
 
   const likelihoodOptions = [
     { value: '1', label: '1' },
@@ -50,110 +59,128 @@ const RiskAssessmentTable = ({ onRowsChange }: RiskAssessmentTableProps) => {
     { value: '5', label: '5' },
   ];
 
-  // Handle input change in each field
+  // Handle input change for any field
   const handleInputChange = (
     index: number,
     field: keyof RiskAssessmentRow,
     value: string
   ) => {
     const updatedRows = [...rows];
-    updatedRows[index][field] = value;
+    updatedRows[index] = { ...updatedRows[index], [field]: value };
     setRows(updatedRows);
     if (onRowsChange) {
       onRowsChange(updatedRows);
     }
   };
 
-  // Add a new row to the table
+  // Add a new row
   const addNewRow = () => {
     const newRow: RiskAssessmentRow = {
       activitySteps: '',
       hazardDescription: '',
       lossCategory: '',
-      initialLikelihood: '',
-      initialSeverity: '',
+      likelihood: '',
+      severity: '',
       preventionMeasures: '',
       mitigationMeasures: '',
       residualLikelihood: '',
       residualSeverity: '',
     };
-
-    setRows([...rows, newRow]);
-
-    // Pass updated rows to parent component if onRowsChange function is provided
-    if (onRowsChange) {
-      onRowsChange([...rows, newRow]);
-    }
-  };
-  // Delete a specific row
-  const deleteRow = (index: number) => {
-    const updatedRows = rows.filter((_, i) => i !== index);
+    const updatedRows = [...rows, newRow];
     setRows(updatedRows);
-
-    // Pass updated rows to parent component if onRowsChange function is provided
     if (onRowsChange) {
       onRowsChange(updatedRows);
     }
   };
 
-  // Function to calculate Risk Label and Background Color based on Likelihood and Severity
-  const getRiskDetails = (likelihood: string, severity: string) => {
-    const likelihoodValue = parseInt(likelihood, 10);
-    const severityValue = parseInt(severity, 10);
-  
-    let totalRisk = likelihoodValue * severityValue;
-    if (isNaN(totalRisk)) {
-      totalRisk = 1;
+  // Delete a row
+  const deleteRow = (index: number) => {
+    const updatedRows = rows.filter((_, i) => i !== index);
+    setRows(updatedRows);
+    if (onRowsChange) {
+      onRowsChange(updatedRows);
     }
-    let riskLabel = '';
-    let backgroundColor = 'green'; // default color for L
-    if (severityValue === 1) {
-      riskLabel = `L (${totalRisk})`;
-    } else if (severityValue === 2) {
-      riskLabel = `L (${totalRisk})`;
-    } else if (severityValue === 3) {
-      riskLabel = `L (${totalRisk})`;
-    } else if (severityValue === 4) {
-      riskLabel = `L (${totalRisk})`;
-    } else if (severityValue === 5) {
-      riskLabel = `M (${totalRisk})`;
-      backgroundColor = '#f9d909';
-    }
-    // Determine risk level and background color
-    if (likelihoodValue === 1) {
-      riskLabel = `L (${totalRisk})`;
-    } else if (likelihoodValue === 2) {
-      riskLabel = `L (${totalRisk})`;
-    } else if (likelihoodValue === 3) {
-      riskLabel = `L (${totalRisk})`;
-    } else if (likelihoodValue === 4) {
-      riskLabel = `L (${totalRisk})`;
-    } else if (likelihoodValue === 5) {
-      riskLabel = `M (${totalRisk})`;
-      backgroundColor = '#f9d909';
-    }
+  };
 
-    // Check combined likelihood and severity for higher risk levels
-    if (totalRisk >= 5 && totalRisk < 10) {
+  // Calculate Risk Label and Background Color
+  const getRiskDetails = (likelihood: string, severity: string) => {
+    const likelihoodValue = parseInt(likelihood, 10) || 1;
+    const severityValue = parseInt(severity, 10) || 1;
+    const totalRisk = likelihoodValue * severityValue;
+
+    let riskLabel = '';
+    let backgroundColor = '#4c7c04'; // Green for Low (L)
+
+    if (totalRisk <= 4) {
+      riskLabel = `L (${totalRisk})`;
+    } else if (totalRisk <= 9) {
       riskLabel = `M (${totalRisk})`;
-      backgroundColor = '#f9d909'; // M color
-    } else if (totalRisk >= 10 && totalRisk < 15) {
+      backgroundColor = '#f9d909'; // Yellow for Medium (M)
+    } else if (totalRisk <= 14) {
       riskLabel = `H (${totalRisk})`;
-      backgroundColor = '#f99d09'; // H color
-    } else if (totalRisk >= 15) {
+      backgroundColor = '#f99d09'; // Orange for High (H)
+    } else {
       riskLabel = `VH (${totalRisk})`;
-      backgroundColor = '#f90909'; // VH color
+      backgroundColor = '#f90909'; // Red for Very High (VH)
     }
 
     return { riskLabel, backgroundColor };
+  };
+
+  // Custom styles for the Select component
+  const selectStyles = {
+    input: {
+      backgroundColor: '#f8f9fa',
+      border: '1px solid #ced4da',
+      borderRadius: '4px',
+      color: '#6c757d',
+      fontSize: '14px',
+      fontFamily: "'Roboto', sans-serif",
+      padding: '6px 10px',
+      height: '36px',
+      transition: 'border-color 0.3s, box-shadow 0.3s',
+      '&:hover': {
+        borderColor: '#6c757d',
+      },
+      '&:focus': {
+        borderColor: '#6c757d',
+        boxShadow: '0 0 0 2px rgba(108, 117, 125, 0.2)',
+        outline: 'none',
+      },
+    },
+    dropdown: {
+      border: '1px solid #ced4da',
+      borderRadius: '4px',
+      backgroundColor: '#fff',
+      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+    },
+    item: {
+      padding: '8px 12px',
+      fontSize: '14px',
+      color: '#6c757d',
+      fontFamily: "'Roboto', sans-serif",
+      '&:hover': {
+        backgroundColor: '#f1f3f5',
+      },
+      '&[data-selected]': {
+        backgroundColor: '#6c757d',
+        color: '#fff',
+        '&:hover': {
+          backgroundColor: '#5a6268',
+        },
+      },
+    },
+    rightSection: {
+      color: '#6c757d',
+    },
   };
 
   return (
     <div>
       <Text c={'#6c757d'} fz={'17px'} fw={'600'} pb={'1em'}>
         Risk Assessment
-      </Text>
-      <Table  withTableBorder withColumnBorders>
+      </Text>    <ScrollArea h={200} >
+      <Table withTableBorder withColumnBorders>
         <Table.Thead>
           <Table.Tr>
             <Table.Th rowSpan={2} c={'#6c757d'} fz={'12px'} style={{ textAlign: 'center' }}>
@@ -206,14 +233,13 @@ const RiskAssessmentTable = ({ onRowsChange }: RiskAssessmentTableProps) => {
             <Table.Th c={'#6c757d'} fz={'12px'} style={{ textAlign: 'center' }}>
               Risk Level
             </Table.Th>
-            <Table.Th></Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
           {rows.map((row, index) => {
             const { riskLabel: initialRiskLabel, backgroundColor: initialBackgroundColor } = getRiskDetails(
-              row.initialLikelihood,
-              row.initialSeverity
+              row.likelihood,
+              row.severity
             );
             const { riskLabel: residualRiskLabel, backgroundColor: residualBackgroundColor } = getRiskDetails(
               row.residualLikelihood,
@@ -247,20 +273,22 @@ const RiskAssessmentTable = ({ onRowsChange }: RiskAssessmentTableProps) => {
                   <Select
                     withCheckIcon={false}
                     data={likelihoodOptions}
-                    value={row.initialLikelihood}
-                    onChange={(value) => handleInputChange(index, 'initialLikelihood', value || '')}
+                    value={row.likelihood}
+                    onChange={(value) => handleInputChange(index, 'likelihood', value || '')}
+                    styles={selectStyles}
                   />
                 </Table.Td>
                 <Table.Td w={'5%'}>
                   <Select
                     withCheckIcon={false}
                     data={severityOptions}
-                    value={row.initialSeverity}
-                    onChange={(value) => handleInputChange(index, 'initialSeverity', value || '')}
+                    value={row.severity}
+                    onChange={(value) => handleInputChange(index, 'severity', value || '')}
+                    styles={selectStyles}
                   />
                 </Table.Td>
-                <Table.Td p={'0%'}>
-                  {initialRiskLabel ? (
+                <Table.Td p={'0'}>
+                  {initialRiskLabel && (
                     <Flex
                       justify={'center'}
                       align={'center'}
@@ -272,9 +300,11 @@ const RiskAssessmentTable = ({ onRowsChange }: RiskAssessmentTableProps) => {
                         height: '10vh',
                       }}
                     >
-                      <Text fz={'14px'} fw={'600'}>{initialRiskLabel}</Text>
+                      <Text fz={'14px'} fw={'600'}>
+                        {initialRiskLabel}
+                      </Text>
                     </Flex>
-                  ) : null}
+                  )}
                 </Table.Td>
                 <Table.Td>
                   <TextInput
@@ -296,6 +326,7 @@ const RiskAssessmentTable = ({ onRowsChange }: RiskAssessmentTableProps) => {
                     data={likelihoodOptions}
                     value={row.residualLikelihood}
                     onChange={(value) => handleInputChange(index, 'residualLikelihood', value || '')}
+                    styles={selectStyles}
                   />
                 </Table.Td>
                 <Table.Td w={'5%'}>
@@ -304,10 +335,11 @@ const RiskAssessmentTable = ({ onRowsChange }: RiskAssessmentTableProps) => {
                     data={severityOptions}
                     value={row.residualSeverity}
                     onChange={(value) => handleInputChange(index, 'residualSeverity', value || '')}
+                    styles={selectStyles}
                   />
                 </Table.Td>
-                <Table.Td p={'0%'}>
-                  {residualRiskLabel ? (
+                <Table.Td p={'0'}>
+                  {residualRiskLabel && (
                     <Flex
                       justify={'center'}
                       align={'center'}
@@ -319,14 +351,21 @@ const RiskAssessmentTable = ({ onRowsChange }: RiskAssessmentTableProps) => {
                         height: '10vh',
                       }}
                     >
-                     <Text fz={'14px'} fw={'600'}>{residualRiskLabel}</Text>
-
+                      <Text fz={'14px'} fw={'600'}>
+                        {residualRiskLabel}
+                      </Text>
                     </Flex>
-                  ) : null}
+                  )}
                 </Table.Td>
                 <Table.Td>
                   <Center>
-                    <ActionIcon variant="filled" color="red" w="25px" h="20px" onClick={() => deleteRow(index)}>
+                    <ActionIcon
+                      variant="filled"
+                      color="red"
+                      w="25px"
+                      h="20px"
+                      onClick={() => deleteRow(index)}
+                    >
                       <Trash color="#fff" size="15" />
                     </ActionIcon>
                   </Center>
@@ -335,9 +374,9 @@ const RiskAssessmentTable = ({ onRowsChange }: RiskAssessmentTableProps) => {
             );
           })}
         </Table.Tbody>
-      </Table>
+      </Table>    </ScrollArea>
       <Button onClick={addNewRow} style={{ marginTop: '16px' }}>
-         <Text fz={'11px'}> Add Risk</Text>
+        <Text fz={'11px'}>Add Risk</Text>
       </Button>
     </div>
   );
