@@ -17,13 +17,13 @@ export const updateRiskAssessment= <T extends Partial<any>>(data: T, id: string)
 	});
 };
 
-export const DeleteActionItems= ({ id }: { id: string }) => {
-	return RequestService.delete({ entity: ACTIONITEMS.ACTIONITEMSDELETE + `/${id}` });
+export const DeleteRiskAssessment= ({ id }: { id: string }) => {
+	return RequestService.delete({ entity: RISKASSESMENT.RISKASSESMENT_BASE_URL + `/delete/${id}` });
 };
 export const createRiskAssessment = (data: any, organization: string) => {
 	if (!organization) {
 	  throw new Error('Organization ID is required');
 	}
 	const urlWithOrg = `${RISKASSESMENT.RISKASSESMENT_ADD}?organization=${encodeURIComponent(organization)}`;
-	return RequestService.createAndUpload({ entity: urlWithOrg, data });
+	return RequestService.create({ entity: urlWithOrg, data });
   };

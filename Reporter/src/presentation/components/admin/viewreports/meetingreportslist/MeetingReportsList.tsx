@@ -1,12 +1,15 @@
 import useResponsive from '@/presentation/shared/mediaQuery';
 import { Flex, Stack, Text } from '@mantine/core';
-import React, { useState } from 'react'
-
-import { AddCircle } from 'iconsax-react';
+import React, { useEffect, useState } from 'react'
 import TabsButton from './TabsButtonMeetingReportsList.';
 import BoxTableAdmin from '@/presentation/components/boxtableglobal/BoxSuperAdmin';
 import SearchInput from '@/presentation/components/input/Searchinput';
-import { SkeletonLoader } from '@/presentation/components/availablity';
+import { ListOptions } from '@/core/entities/http.entity';
+import { getActionItems } from '@/core/services/modulesServices/actionitems.service';
+import SkeletonLoader from '@/presentation/components/boxtableglobal/skeletonLoader';
+import { getMeetingReport } from '@/core/services/modulesServices/meetingreport.service';
+import { useAppSelector } from '@/core/store/hooks';
+import { selectConnectedUser } from '@/core/store/modules/authSlice';
 
 const MeetingReportsList = () => {
   const { isMobile } = useResponsive();
@@ -16,117 +19,49 @@ const MeetingReportsList = () => {
 	const [selectedCategory, setSelectedCategory] = useState<string>('');
 	const [sortValue, setSortValue] = useState<string>('');
   const [openModel, setOpenModel] = useState<boolean>(false);
-
 	const [searchQuery, setSearchQuery] = useState<string>('');
-  const tableData = [
-    {
-      meetingType: 'Online',
-      reportReference: 'M12345',
-      meetingTitle: 'Team Sync',
-      dateTime: '2025-02-22 09:00',
-      businessDepartment: 'Marketing',
-      meetingLocation: 'Zoom',
-      createdBy: 'John Doe',
-      actions: 'View Details',
-    },
-    {
-      meetingType: 'In-person',
-      reportReference: 'M12346',
-      meetingTitle: 'Quarterly Review',
-      dateTime: '2025-02-23 11:00',
-      businessDepartment: 'Finance',
-      meetingLocation: 'Conference Room A',
-      createdBy: 'Jane Smith',
-      actions: 'View Details',
-    },
-    {
-      meetingType: 'Hybrid',
-      reportReference: 'M12347',
-      meetingTitle: 'Strategy Meeting',
-      dateTime: '2025-02-24 14:00',
-      businessDepartment: 'HR',
-      meetingLocation: 'Teams + Office',
-      createdBy: 'Mike Johnson',
-      actions: 'View Details',
-    },
-    {
-      meetingType: 'Online',
-      reportReference: 'M12345',
-      meetingTitle: 'Team Sync',
-      dateTime: '2025-02-22 09:00',
-      businessDepartment: 'Marketing',
-      meetingLocation: 'Zoom',
-      createdBy: 'John Doe',
-      actions: 'View Details',
-    },   {
-      meetingType: 'Online',
-      reportReference: 'M12345',
-      meetingTitle: 'Team Sync',
-      dateTime: '2025-02-22 09:00',
-      businessDepartment: 'Marketing',
-      meetingLocation: 'Zoom',
-      createdBy: 'John Doe',
-      actions: 'View Details',
-    },   {
-      meetingType: 'Online',
-      reportReference: 'M12345',
-      meetingTitle: 'Team Sync',
-      dateTime: '2025-02-22 09:00',
-      businessDepartment: 'Marketing',
-      meetingLocation: 'Zoom',
-      createdBy: 'John Doe',
-      actions: 'View Details',
-    },   {
-      meetingType: 'Online',
-      reportReference: 'M12345',
-      meetingTitle: 'Team Sync',
-      dateTime: '2025-02-22 09:00',
-      businessDepartment: 'Marketing',
-      meetingLocation: 'Zoom',
-      createdBy: 'John Doe',
-      actions: 'View Details',
-    },   {
-      meetingType: 'Online',
-      reportReference: 'M12345',
-      meetingTitle: 'Team Sync',
-      dateTime: '2025-02-22 09:00',
-      businessDepartment: 'Marketing',
-      meetingLocation: 'Zoom',
-      createdBy: 'John Doe',
-      actions: 'View Details',
-    },   {
-      meetingType: 'Online',
-      reportReference: 'M12345',
-      meetingTitle: 'Team Sync',
-      dateTime: '2025-02-22 09:00',
-      businessDepartment: 'Marketing',
-      meetingLocation: 'Zoom',
-      createdBy: 'John Doe',
-      actions: 'View Details',
-    },   {
-      meetingType: 'Online',
-      reportReference: 'M12345',
-      meetingTitle: 'Team Sync',
-      dateTime: '2025-02-22 09:00',
-      businessDepartment: 'Marketing',
-      meetingLocation: 'Zoom',
-      createdBy: 'John Doe',
-      actions: 'View Details',
-    },   {
-      meetingType: 'Online',
-      reportReference: 'M12345',
-      meetingTitle: 'Team Sync',
-      dateTime: '2025-02-22 09:00',
-      businessDepartment: 'Marketing',
-      meetingLocation: 'Zoom',
-      createdBy: 'John Doe',
-      actions: 'View Details',
-    },
-  ];
+  const [totalCount, setTotalCount] = useState<number>(0);
+  const user = useAppSelector(selectConnectedUser);
   
+  const getmetting = () => {
+    const options: ListOptions['options'] = {
+      ...(currentPage != null && { page: currentPage }),
+      ...(resultsPerPage != null && { limit: resultsPerPage }),
+      ...(sortValue &&
+        sortValue !== 'default' && {
+          ...(sortValue === 'createdAt desc' || sortValue === 'createdAt asc'
+            ? { sort: sortValue.split(' ')[1], sortKey: sortValue.split(' ')[0] }
+            : { sort: sortValue }),
+        }),
+      ...( user?.organization &&{ organization: user?.organization }),
+      ...(searchQuery && { search: searchQuery }),
+      ...(tabValue != null &&
+        (
+           tabValue === 'all'
+          ? null
+          : { filter_type: tabValue })),
+    };
+
+    getMeetingReport({ options })
+      .then((res) => {
+        setMetting(res.data.data.meetingReports);
+        setTotalCount(res.data.data.totalReports);
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        setIsLoading(false);
+        console.error('Error fetching connected user:', error);
+      });
+  };
+  const [metting, setMetting] = useState<any>();
+  useEffect(() => {
+    getmetting();
+  }, [currentPage, resultsPerPage, sortValue, tabValue, searchQuery, selectedCategory]);
+
+
 const [isLoading, setIsLoading] = useState<boolean>(true);
   return (
-    !isLoading ? (
+    isLoading ? (
       <SkeletonLoader />
     ) :(
     <Stack>
@@ -144,21 +79,22 @@ const [isLoading, setIsLoading] = useState<boolean>(true);
     </Flex>
       <BoxTableAdmin
 				isResponsive={isMobile ? isMobile : false}
-				Data={tableData}
-				totalCount={50}
-				currentPage={2}
-				resultsPerPage={1}
+				Data={metting}
+        totalCount={totalCount}
+				currentPage={currentPage}
+				resultsPerPage={resultsPerPage}
 				setCurrentPage={setCurrentPage}
 				setResultsPerPage={setResultsPerPage}
 				renderTableBody={() => (
 					<TabsButton
 						onTabChange={setTabValue}
-						data={tableData}
+						data={metting}
 						isResponsive={isMobile ? isMobile : false}
 						titrepage={'Apps'}
 						onCategoryChange={setSelectedCategory}
 						onSortChange={setSortValue}
 						search={searchQuery}
+            getmettingg={getmetting}
 					/>
 				)}
 			/>

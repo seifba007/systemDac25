@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { Avatar, Tabs, Flex, Text, Image, Select, Box, Table, ActionIcon } from '@mantine/core';
-import { ArrowSwapVertical, Edit, Eye, Scanner, Setting4, Trash } from 'iconsax-react';
+import {  Tabs, Flex, Text, Image, Select, Box, Table, ActionIcon } from '@mantine/core';
+import {  Edit, Eye, Scanner, Setting4, Trash } from 'iconsax-react';
 import BOX from '../../../../../assets/boxnodata.png';
 import { useDisclosure } from '@mantine/hooks';
 import TableComponent from '@/presentation/components/boxtableglobal/Table';
 import ModelFilter from '@/presentation/components/modal/ModelFilter';
 import HAZOPAnalysisModel from './HAZOPAnalysisModel';
+import DeleteModal from '@/presentation/components/modal/DeleteModal';
+import toast from 'react-hot-toast';
+import { DeleteHazopeAnalysis } from '@/core/services/modulesServices/hazop.service';
 
 
 
@@ -29,16 +32,6 @@ export const sortLabels = {
 	'createdAt desc': 'Added date (Oldest to Newest)',
 	'createdAt asc': 'Added date (Newest to Oldest)',
 };
-const RoleData = [
-
-	{
-		roles: [
-			{ key: 'default', label: 'Default' },
-			{ key: 'nameAsc', label: 'Administrator' },
-			{ key: 'nameDesc', label: 'Editor' },
-		],
-	},
-];
 
 interface TabsButtonProps {
 	data: any[];
@@ -48,6 +41,7 @@ interface TabsButtonProps {
 	titrepage: string;
 	onSortChange: (sortValue: string) => void;
 	search: string;
+	gethazop: () => void;
 }
 
 const TabsButton: React.FC<TabsButtonProps> = ({
@@ -56,6 +50,7 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 	isResponsive,
 	search,
 	titrepage,
+	gethazop,
 	onCategoryChange,
 	onSortChange,
 }) => {
@@ -63,7 +58,6 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 	const [modalOpen, setModalOpen] = useState<boolean>(false);
 	const [modalOpen2, setModalOpen2] = useState<boolean>(false);
 	const [isUpdt, setIsUpdt] = useState<boolean>(false);
-	const [dataOrganization, setdataOrganization] = useState<any>([]);
 	const [selectedCategory, setSelectedCategory] = useState<string>('');
 	useEffect(() => {
 		onTabChange(activeTab);
@@ -116,8 +110,9 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 		],
 	  };	const closeModal = () => setModalOpen(false);
 	const openModal2 = () => setModalOpen2(true);
-	const closeModal2 = () => setModalOpen2(false);
 
+	const [idaction, setIdaction] = useState('');
+	
 	const handleSortChange = (sortValue: string) => onSortChange(sortValue);
 	const [isVisibilityOpen, { open: openVisibility, close: closeVisibility }] = useDisclosure(false);
 	const headerTabs = [
@@ -258,7 +253,7 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 										  style={{ maxWidth: '250px' }}
 										  lineClamp={1}
 										>
-										  {item?.reviewFrequency ?? '..............'}
+										  {item?.reviewFrequency.length?item?.reviewFrequency: '..............'}
 										</Text>
 									  </Table.Td>
 								
@@ -275,7 +270,7 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 																	  <ActionIcon variant="filled" color="#17a497" w="25px" h="20px" >
 																		<Scanner color="#fff" size="15" variant="Bold" />
 																	  </ActionIcon>
-																	  <ActionIcon variant="filled" color="red" w="25px" h="20px" onClick={openVisibility}>
+																	  <ActionIcon variant="filled" color="red" w="25px" h="20px" onClick={()=>{setIdaction(item.id),openVisibility()}}>
 																		<Trash color="#fff" size="15" />
 																	  </ActionIcon>
 									</Flex>
@@ -314,16 +309,36 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 
 			}
 		
-			{modalOpen && (
+			{modalOpen2 && (
 				<ModelFilter
-					opened={modalOpen}
+					opened={modalOpen2}
 					onClose={closeModal}
 					onSortChange={handleSortChange}
 					titrepage={titrepage}
 					sortLabels={sortLabels}
 				/>
 			)}
-
+<DeleteModal
+        title="Confirm Deletion"
+        deleteText="Delete permanently"
+        subtitle="Are you sure you want to delete the HAZOP Analysis Report"
+        opened={isVisibilityOpen}
+        close={closeVisibility}
+		handleDelete={() => {
+			if (idaction) {
+				DeleteHazopeAnalysis({ id: idaction })
+					.then(() => {
+						toast.success('HAZOP Analysis deleted');
+						closeVisibility();
+						gethazop()
+					})
+					.catch((err) => {
+						console.log(err);
+						toast.error('' + err.data.message);
+					});
+			}
+		}}
+      />
 		</>
 	);
 };

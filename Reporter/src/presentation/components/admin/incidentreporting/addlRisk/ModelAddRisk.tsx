@@ -28,7 +28,7 @@ interface FormData {
 interface ModelAddRiskProps {
   open: boolean;
   onClose: () => void;
-  data: FormData;
+  data: any;
 }
 
 const ModelAddRisk: React.FC<ModelAddRiskProps> = ({ open, onClose, data }) => {

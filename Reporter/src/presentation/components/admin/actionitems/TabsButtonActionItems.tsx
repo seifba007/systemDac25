@@ -86,7 +86,6 @@ const TabsButton: React.FC<TabsButtonProps> = ({
   const [modalOpenDelegate, setModalOpenDelegate] = useState<boolean>(false);
   const [modalOpenApproveiteam, setModalOpenApproveiteam] = useState<boolean>(false);
   const [editModal, setEditModal] = useState<boolean>(false);
-console.log(idaction)
   const [edit, setEdit] = useState<boolean>(false);
   const [reject, setReject] = useState<boolean>(false);
   const [dataveiw, setDataveiw] = useState([]);

@@ -1,12 +1,17 @@
 import useResponsive from '@/presentation/shared/mediaQuery';
 import { Flex, Stack, Text } from '@mantine/core';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { AddCircle } from 'iconsax-react';
 import TabsButton from './TabsButtonRiskAssessmentsList.';
 import BoxTableAdmin from '@/presentation/components/boxtableglobal/BoxSuperAdmin';
 import SearchInput from '@/presentation/components/input/Searchinput';
+import { ListOptions } from '@/core/entities/http.entity';
+import { selectConnectedUser } from '@/core/store/modules/authSlice';
+import { useAppSelector } from '@/core/store/hooks';
+import { getMeetingReport } from '@/core/services/modulesServices/meetingreport.service';
 import { SkeletonLoader } from '@/presentation/components/availablity';
+import { getRiskAssessment } from '@/core/services/modulesServices/riskassessment.service';
 
 const RiskAssessmentsList = () => {
   const { isMobile } = useResponsive();
@@ -15,66 +20,50 @@ const RiskAssessmentsList = () => {
 	const [tabValue, setTabValue] = useState<string>('all');
 	const [selectedCategory, setSelectedCategory] = useState<string>('');
 	const [sortValue, setSortValue] = useState<string>('');
-  const [openModel, setOpenModel] = useState<boolean>(false);
-
+  const user = useAppSelector(selectConnectedUser);
 	const [searchQuery, setSearchQuery] = useState<string>('');
+   const [totalCount, setTotalCount] = useState<number>(0);
  
-  const tableData = [
-    {
-      reportReference: 'RR123456',
-      assessmentTitle: 'Quarterly Risk Assessment',
-      projectId: 'PID001',
-      date: '2025-02-22',
-      businessDepartment: 'Finance',
-      location: 'New York Office',
-      reportStatus: 'Completed',
-      actions: 'View/Edit/Delete',
-    },
-    {
-      reportReference: 'RR123457',
-      assessmentTitle: 'Environmental Compliance Audit',
-      projectId: 'PID002',
-      date: '2025-02-15',
-      businessDepartment: 'Operations',
-      location: 'Los Angeles Office',
-      reportStatus: 'Pending Review',
-      actions: 'View/Edit/Delete',
-    },
-    {
-      reportReference: 'RR123458',
-      assessmentTitle: 'IT Security Vulnerability Report',
-      projectId: 'PID003',
-      date: '2025-01-30',
-      businessDepartment: 'IT',
-      location: 'San Francisco Office',
-      reportStatus: 'In Progress',
-      actions: 'View/Edit/Delete',
-    },
-    {
-      reportReference: 'RR123459',
-      assessmentTitle: 'Annual Health and Safety Review',
-      projectId: 'PID004',
-      date: '2025-02-10',
-      businessDepartment: 'HR',
-      location: 'Chicago Office',
-      reportStatus: 'Completed',
-      actions: 'View/Edit/Delete',
-    },
-    {
-      reportReference: 'RR123460',
-      assessmentTitle: 'Market Analysis Report',
-      projectId: 'PID005',
-      date: '2025-02-18',
-      businessDepartment: 'Marketing',
-      location: 'Boston Office',
-      reportStatus: 'Not Started',
-      actions: 'View/Edit/Delete',
-    },
-  ];
+
+  
+    const getRiskAssessments = () => {
+      const options: ListOptions['options'] = {
+        ...(currentPage != null && { page: currentPage }),
+        ...(resultsPerPage != null && { limit: resultsPerPage }),
+        ...(sortValue &&
+          sortValue !== 'default' && {
+            ...(sortValue === 'createdAt desc' || sortValue === 'createdAt asc'
+              ? { sort: sortValue.split(' ')[1], sortKey: sortValue.split(' ')[0] }
+              : { sort: sortValue }),
+          }),
+        ...( user?.organization &&{ organization: user?.organization }),
+        ...(searchQuery && { search: searchQuery }),
+        ...(tabValue != null &&
+          (
+             tabValue === 'all'
+            ? null
+            : { filter_type: tabValue })),
+      };
+  
+      getRiskAssessment({ options })
+        .then((res) => {
+          setrisk(res.data.data.riskAssessments);
+          setTotalCount(res.data.data.pagination.totalPages);
+          setIsLoading(false);
+        })
+        .catch((error) => {
+          setIsLoading(false);
+          console.error('Error fetching connected user:', error);
+        });
+    };
+    const [risk, setrisk] = useState<any>();
+    useEffect(() => {
+      getRiskAssessments();
+    }, [currentPage, resultsPerPage, sortValue, tabValue, searchQuery, selectedCategory]);
   
 const [isLoading, setIsLoading] = useState<boolean>(true);
   return (
-    !isLoading ? (
+    isLoading ? (
       <SkeletonLoader />
     ) :(
     <Stack>
@@ -92,21 +81,22 @@ const [isLoading, setIsLoading] = useState<boolean>(true);
     </Flex>
       <BoxTableAdmin
 				isResponsive={isMobile ? isMobile : false}
-				Data={tableData}
-				totalCount={50}
-				currentPage={2}
-				resultsPerPage={1}
+				Data={risk}
+				totalCount={totalCount}
+				currentPage={currentPage}
+				resultsPerPage={resultsPerPage}
 				setCurrentPage={setCurrentPage}
 				setResultsPerPage={setResultsPerPage}
 				renderTableBody={() => (
 					<TabsButton
 						onTabChange={setTabValue}
-						data={tableData}
+						data={risk}
 						isResponsive={isMobile ? isMobile : false}
 						titrepage={'Apps'}
 						onCategoryChange={setSelectedCategory}
 						onSortChange={setSortValue}
 						search={searchQuery}
+            getRiskAssessment={getRiskAssessments}
 					/>
 				)}
 			/>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, TextInput, Button, Flex, Box, Title, FileInput, Text, Select } from '@mantine/core';
+import { Modal, TextInput, Button, Flex, Box, Title, FileInput, Text, Select, PasswordInput } from '@mantine/core';
 import '../../../sass/components/SuperAdminGlobal.scss';
 import { Folder } from 'iconsax-react';
 import { getConnectedUser, updateUser } from '@/core/services/modulesServices/user.service';
@@ -14,10 +14,12 @@ interface UserData {
 	email: string;
 	organization: any; // Can be string or object
 	fullName: string;
+	password: string;
 	picture: string;
 	role: string;
 	createdAt: string;
 	action: string;
+	confirmpassword: string;
 	id: any;
 }
 
@@ -63,6 +65,8 @@ const EditUserModel: React.FC<EditUserModelProps> = ({ opened, onClose, userdata
 		updateFormData.append('email', formData.email);
 		updateFormData.append('organization', formData.organization); // This is the organization ID
 		updateFormData.append('role', formData.role);
+		updateFormData.append('password', formData.password);
+		updateFormData.append('confirmpassword', formData.confirmpassword);
 		if (fileUploaded) {
 			updateFormData.append('picture', fileUploaded);
 		}
@@ -162,6 +166,16 @@ const EditUserModel: React.FC<EditUserModelProps> = ({ opened, onClose, userdata
 					}
 					value={formData.email}
 					onChange={(e) => handleInputChange('email', e.target.value)}
+				/>
+							<PasswordInput
+				value={formData.password}
+				onChange={(e) => handleInputChange('password', e.target.value)}
+				label={<Text  pb={'0.5em'} c={'#868e96'}> Password</Text>}
+				/>
+				<PasswordInput
+				onChange={(e) => handleInputChange('confirmpassword', e.target.value)}
+				label={<Text  pb={'0.5em'} c={'#868e96'}>Confirm Password</Text>}
+				value={formData.confirmpassword}
 				/>
 				<Select
 					label={

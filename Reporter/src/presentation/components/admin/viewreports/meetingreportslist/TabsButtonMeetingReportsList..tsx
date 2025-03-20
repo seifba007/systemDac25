@@ -1,10 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { Avatar, Tabs, Flex, Text, Image, Select, Box, Table, ActionIcon } from '@mantine/core';
-import { ArrowSwapVertical, Edit, Setting4, Trash } from 'iconsax-react';
+import { ArrowSwapVertical, Edit, Eye, Setting4, Trash } from 'iconsax-react';
 import BOX from '../../../../../assets/boxnodata.png';
 import { useDisclosure } from '@mantine/hooks';
 import TableComponent from '@/presentation/components/boxtableglobal/Table';
 import ModelFilter from '@/presentation/components/modal/ModelFilter';
+import VueandEditModel from './modeles/VueandEditModel';
+import DeleteModal from '@/presentation/components/modal/DeleteModal';
+import { DeleteActionItems } from '@/core/services/modulesServices/actionitems.service';
+import toast from 'react-hot-toast';
+import { DeleteMeetingReport } from '@/core/services/modulesServices/meetingreport.service';
 
 
 
@@ -28,16 +33,6 @@ export const sortLabels = {
 	'createdAt desc': 'Added date (Oldest to Newest)',
 	'createdAt asc': 'Added date (Newest to Oldest)',
 };
-const RoleData = [
-
-	{
-		roles: [
-			{ key: 'default', label: 'Default' },
-			{ key: 'nameAsc', label: 'Administrator' },
-			{ key: 'nameDesc', label: 'Editor' },
-		],
-	},
-];
 
 interface TabsButtonProps {
 	data: any[];
@@ -47,6 +42,7 @@ interface TabsButtonProps {
 	titrepage: string;
 	onSortChange: (sortValue: string) => void;
 	search: string;
+	getmettingg: () => void;
 }
 
 const TabsButton: React.FC<TabsButtonProps> = ({
@@ -55,19 +51,16 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 	isResponsive,
 	search,
 	titrepage,
-	onCategoryChange,
+	getmettingg,
 	onSortChange,
 }) => {
 	const [activeTab, setActiveTab] = useState<string>('all');
 	const [modalOpen, setModalOpen] = useState<boolean>(false);
 	const [modalOpen2, setModalOpen2] = useState<boolean>(false);
-	const [editmodalOpen, setEditmodalOpen] = useState<boolean>(false);
-	const [dataOrganization, setdataOrganization] = useState<any>([]);
-	const [selectedCategory, setSelectedCategory] = useState<string>('');
+	const [isEditt, setIsEditt] = useState(false);
 	useEffect(() => {
 		onTabChange(activeTab);
-		onCategoryChange(selectedCategory);
-	}, [activeTab, selectedCategory, onTabChange]);
+	}, [activeTab, , onTabChange]);
 	const handleTabChange = (value: string | null) => {
 		if (value) {
 			setActiveTab(value);
@@ -78,17 +71,14 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 			setActiveTab(value);
 		}
 	};
-	const openModal = () => setModalOpen(true);
 	const closeModal = () => setModalOpen(false);
 	const openModal2 = () => setModalOpen2(true);
-	const closeModal2 = () => setModalOpen2(false);
+  const [idaction, setIdaction] = useState('');
 
 	const handleSortChange = (sortValue: string) => onSortChange(sortValue);
-	const [isVisibilityOpen, { open: openVisibility, close: closeVisibility }] = useDisclosure(false);
 	const headerTabs = [
 		{ value: 'all', label: 'All' },
-		{ value: 'Active', label: 'Active' },
-		{ value: 'Blocked', label: 'Blocked' },
+
 	];
 	const TableTh = [
 		{ label: 'Meeting Type' },
@@ -99,14 +89,11 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 		{ label: 'Meeting Location' },
 		{ label: 'Created By' },
 		{ label: 'Actions' },
-	  ];
-	  
-	  
-	type ActivityStatus = 'Active' | 'Blocked';
-	const statusClassMap: Record<ActivityStatus, string> = {
-		Active: 'Active',
-		Blocked: 'Blocked',
-	};
+	];
+
+	const [isVisibilityOpen, { open: openVisibility, close: closeVisibility }] = useDisclosure(false);
+	const [vuemodalOpen, setVuemodalOpen] = useState(false);
+
 	return (
 		<>
 			<Flex direction='column'>
@@ -166,86 +153,95 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 										<Setting4 size='14' color='var(--Grey-2, #686F7C)' />
 										{isResponsive ? null : <Text className={'txtFilter'}>Filter by</Text>}
 									</button>
-									
+
 								</Box>
 							</Flex>
 
 							{data?.length ? (
 								<TableComponent TableTh={TableTh}>
-								<Table.Tbody className={'tbody'}>
-								  {data.map((item, index) => (
-									<Table.Tr key={index}>
-									  {/* Severity Column */}
-									  <Table.Td>
-										<Text
-										  className="txttablename"
-										
-										>
-										  {item?.meetingType ?? '..............'}
-										</Text>
-									  </Table.Td>
-							  
-									  {/* Report Reference Column */}
-									  <Table.Td>
-										<Text className={'txttablename'}>
-										  {item?.reportReference ?? '..............'}
-										</Text>
-									  </Table.Td>
-							  
-									  {/* Report Type/Status Column */}
-									  <Table.Td>
-										<Text className={'txttablename'}>
-										  {item.meetingTitle }
-										</Text>
-									  </Table.Td>
-							  
-									  {/* Report Title Column */}
-									  <Table.Td>
-										<Text
-										  className={'txttablename'}
-										  style={{ maxWidth: '250px' }}
-										  lineClamp={1}
-										>
-										  {item?.dateTime ?? '..............'}
-										</Text>
-									  </Table.Td>
-							  
-									  {/* Report Type Column */}
-									  <Table.Td>
-										<Text
-										  className={'txttablename'}
-										  style={{ maxWidth: '250px' }}
-										  lineClamp={1}
-										>
-										  {item?.businessDepartment ?? '..............'}
-										</Text>
-									  </Table.Td>
-							  
-									  {/* Date and Time Column */}
-									  <Table.Td>
-										<Text
-										  className={'txttablename'}
-										  style={{ maxWidth: '250px' }}
-										  lineClamp={1}
-										>
-										  {item?.dateTime ?? '..............'}
-										</Text>
-									  </Table.Td>
-									  <Table.Td>
-										<Flex gap={'0.5em'} className="txttablename">
-										  {item?.createdBy ?? '..............'}
-										</Flex>
-									  </Table.Td>
-									  {/* Actions Column */}
-									  <Table.Td>
-										<Flex gap={'0.5em'} className="txttablename">
-										  {item?.actions ?? '..............'}
-										</Flex>
-									  </Table.Td>
-									</Table.Tr>
-								  ))}
-								</Table.Tbody>
-							  </TableComponent>
+									<Table.Tbody className={'tbody'}>
+										{data.map((item, index) => (
+											<Table.Tr key={index}>
+												{/* Severity Column */}
+												<Table.Td>
+													<Text
+														className="txttablename"
+
+													>
+														{item?.meetingType?.length ? item?.meetingType : '..............'}
+													</Text>
+												</Table.Td>
+
+												{/* Report Reference Column */}
+												<Table.Td>
+													<Text className={'txttablename'}>
+														{item?.reportReference ?? '........'}
+													</Text>
+												</Table.Td>
+
+												{/* Report Type/Status Column */}
+												<Table.Td>
+													<Text className={'txttablename'}>
+														{item.meetingTitle?.length ? item.meetingTitle : '.......'}
+													</Text>
+												</Table.Td>
+
+												{/* Report Title Column */}
+												<Table.Td>
+													<Text
+														className={'txttablename'}
+														style={{ maxWidth: '250px' }}
+														lineClamp={1}
+													>
+														{item?.dateTime?.length ? item.dateTime : '.......'}
+													</Text>
+												</Table.Td>
+
+												{/* Report Type Column */}
+												<Table.Td>
+													<Text
+														className={'txttablename'}
+														style={{ maxWidth: '250px' }}
+														lineClamp={1}
+													>
+														{item?.businessDepartment?.length ? item.businessDepartment : '.......'}
+													</Text>
+												</Table.Td>
+
+												{/* Date and Time Column */}
+												<Table.Td>
+													<Text
+														className={'txttablename'}
+														style={{ maxWidth: '250px' }}
+														lineClamp={1}
+													>
+														{item?.dateTime ?? '..............'}
+													</Text>
+												</Table.Td>
+												<Table.Td>
+													<Flex gap={'0.5em'} className="txttablename">
+														{item?.createdBy ?? '..............'}
+													</Flex>
+												</Table.Td>
+												{/* Actions Column */}
+												<Table.Td>
+													<Flex gap={'0.5em'}>
+														<ActionIcon variant="filled" color="#4254ba" w="25px" h="20px" onClick={() => { setVuemodalOpen(true);setIsEditt(false) }} >
+															<Eye color="#fff" size="15" variant="Bold" />
+														</ActionIcon>
+														<ActionIcon variant="filled" color="yellow" w="25px" h="20px" onClick={() => { setVuemodalOpen(true);setIsEditt(true) }}>
+															<Edit color="#fff" size="15" variant="Bold"  />
+														</ActionIcon>
+
+														<ActionIcon variant="filled" color="red" w="25px" h="20px" onClick={()=>{setIdaction(item.id),openVisibility()}}>
+															<Trash color="#fff" size="15" />
+														</ActionIcon>
+													</Flex>
+												</Table.Td>
+											</Table.Tr>
+										))}
+									</Table.Tbody>
+								</TableComponent>
 							) : (
 								<Flex
 									direction='column'
@@ -266,7 +262,11 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 					</Tabs>
 				</Flex>
 			</Flex>
-		
+			<VueandEditModel
+        open={vuemodalOpen}
+        onClose={() => setVuemodalOpen(false)}
+		isEdit={isEditt}
+      />		
 			{modalOpen && (
 				<ModelFilter
 					opened={modalOpen}
@@ -276,6 +276,27 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 					sortLabels={sortLabels}
 				/>
 			)}
+			      <DeleteModal
+        title="Confirm Deletion"
+        deleteText="Delete permanently"
+        subtitle="Are you sure you want to delete the Meeting Report"
+        opened={isVisibilityOpen}
+        close={closeVisibility}
+		handleDelete={() => {
+			if (idaction) {
+				DeleteMeetingReport({ id: idaction })
+					.then(() => {
+						toast.success('Meeting Report deleted');
+						closeVisibility();
+						getmettingg()
+					})
+					.catch((err) => {
+						console.log(err);
+						toast.error('' + err.data.message);
+					});
+			}
+		}}
+      />
 
 		</>
 	);

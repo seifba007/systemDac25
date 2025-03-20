@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Avatar, Tabs, Flex, Text, Image, Select, Box, Table, ActionIcon } from '@mantine/core';
-import { ArrowSwapVertical, Edit, Eye, Setting4, Trash } from 'iconsax-react';
+import {  Tabs, Flex, Text, Image, Select, Box, Table, ActionIcon } from '@mantine/core';
+import {  Edit, Eye, Setting4, Trash } from 'iconsax-react';
 import BOX from '../../../../../assets/boxnodata.png';
 import { useDisclosure } from '@mantine/hooks';
 import TableComponent from '@/presentation/components/boxtableglobal/Table';
 import ModelFilter from '@/presentation/components/modal/ModelFilter';
 import ModelAddRisk from '../../incidentreporting/addlRisk/ModelAddRisk';
+import DeleteModal from '@/presentation/components/modal/DeleteModal';
+import { DeleteMeetingReport } from '@/core/services/modulesServices/meetingreport.service';
+import toast from 'react-hot-toast';
+import { DeleteRiskAssessment } from '@/core/services/modulesServices/riskassessment.service';
 
 
 
@@ -38,27 +42,25 @@ interface TabsButtonProps {
 	titrepage: string;
 	onSortChange: (sortValue: string) => void;
 	search: string;
+	getRiskAssessment: () => void;
 }
 
 const TabsButton: React.FC<TabsButtonProps> = ({
 	data,
 	onTabChange,
+	getRiskAssessment,
 	isResponsive,
 	search,
 	titrepage,
 	onCategoryChange,
 	onSortChange,
 }) => {
-	const [activeTab, setActiveTab] = useState<string>('all');
-	const [modalOpen, setModalOpen] = useState<boolean>(false);
 	const [modalOpen2, setModalOpen2] = useState<boolean>(false);
-	const [editmodalOpen, setEditmodalOpen] = useState<boolean>(false);
+	const [activeTab, setActiveTab] = useState<string>('all');
 	const [vuemodalOpen, setVuemodalOpen] = useState(false);
-	const [selectedCategory, setSelectedCategory] = useState<string>('');
 	useEffect(() => {
 		onTabChange(activeTab);
-		onCategoryChange(selectedCategory);
-	}, [activeTab, selectedCategory, onTabChange]);
+	}, [activeTab, onTabChange]);
 	const handleTabChange = (value: string | null) => {
 		if (value) {
 			setActiveTab(value);
@@ -69,45 +71,8 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 			setActiveTab(value);
 		}
 	};
-	const openModal = () => setModalOpen(true);
-	const closeModal = () => setModalOpen(false);
-	const openModal2 = () => setModalOpen2(true);
-	const riskData = {
-		assessmentTitle: 'Safety Assessment - Alpha Project',
-		projectId: 'PRJ-12345',
-		client: 'Acme Corporation',
-		date: '02/23/2025',
-		location: 'New York Office',
-		businessDepartment: 'Operations',
-		assessmentOverview: 'This assessment reviews safety risks and mitigations for the Alpha Project rollout.',
-		teamMembers: [
-		  { name: 'John Doe', department: 'Engineering', role: 'Developer', companyName: 'TechCorp' },
-		  { name: 'Jane Smith', department: 'Marketing', role: 'Manager', companyName: 'MarketInc' },
-		],
-		tableRows: [
-		  {
-			activitySteps: 'Server installation',
-			hazard: 'Electrical shock',
-			initialRisk: {
-			  description: 'Exposed wires might cause shock',
-			  lossCategory: 'Health',
-			  likelihood: 'High',
-			  severity: 'Severe',
-			  riskLevel: 'High',
-			},
-			controlMeasures: {
-			  preventionMeasures: 'Ensure all wires are insulated',
-			  mitigationMeasures: 'Provide insulated gloves',
-			},
-			residualRisk: {
-			  likelihood: 'Low',
-			  severity: 'Moderate',
-			  riskLevel: 'Medium',
-			},
-			actions: 'Supervise installations closely',
-		  },
-		],
-	  };
+  const [idaction, setIdaction] = useState('');
+
 	
 	const handleSortChange = (sortValue: string) => onSortChange(sortValue);
 	const [isVisibilityOpen, { open: openVisibility, close: closeVisibility }] = useDisclosure(false);
@@ -184,7 +149,7 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 											: { marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px' }
 									}
 								>
-									<button className={'bntFilter'} onClick={openModal2}>
+									<button className={'bntFilter'} onClick={()=>{setModalOpen2(true)}}>
 										<Setting4 size='14' color='var(--Grey-2, #686F7C)' />
 										{isResponsive ? null : <Text className={'txtFilter'}>Filter by</Text>}
 									</button>
@@ -203,21 +168,21 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 										  className="txttablename"
 										
 										>
-										  {item?.reportReference ?? '..............'}
+										  {item?.riskAssessmentReference ?? '..............'}
 										</Text>
 									  </Table.Td>
 							  
 									  {/* Report Reference Column */}
 									  <Table.Td>
 										<Text className={'txttablename'}>
-										  {item?.assessmentTitle ?? '..............'}
+										  {item?.assessmentTitle ?? '......'}
 										</Text>
 									  </Table.Td>
 							  
 									  {/* Report Type/Status Column */}
 									  <Table.Td>
 										<Text className={'txttablename'}>
-										  {item.projectId }
+										  {item?.projectID?.length?item.projectID:'......' }
 										</Text>
 									  </Table.Td>
 							  
@@ -228,7 +193,7 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 										  style={{ maxWidth: '250px' }}
 										  lineClamp={1}
 										>
-										  {item?.date ?? '..............'}
+										  {item?.assessmentDate ?? '......'}
 										</Text>
 									  </Table.Td>
 							  
@@ -255,7 +220,7 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 									  </Table.Td>
 									  <Table.Td>
 										<Flex gap={'0.5em'} className="txttablename">
-										  {item?.reportStatus ?? '..............'}
+										  {item?.assessmentStatus ?? '..............'}
 										</Flex>
 									  </Table.Td>
 									  {/* Actions Column */}
@@ -268,7 +233,7 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 																		<Edit color="#fff" size="15" variant="Bold" onClick={()=>{setVuemodalOpen(true)}}/>
 																	  </ActionIcon>
 																	
-																	  <ActionIcon variant="filled" color="red" w="25px" h="20px" onClick={openVisibility}>
+																	  <ActionIcon variant="filled" color="red" w="25px" h="20px" onClick={()=>{setIdaction(item.id),openVisibility()}}>
 																		<Trash color="#fff" size="15" />
 																	  </ActionIcon>
 									</Flex>
@@ -297,20 +262,43 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 					</Tabs>
 				</Flex>
 			</Flex>
-			<ModelAddRisk
-        open={vuemodalOpen}
-        onClose={() => setVuemodalOpen(false)}
-        data={riskData}
-      />			{modalOpen && (
+			{
+				vuemodalOpen&&(<ModelAddRisk
+					open={vuemodalOpen}
+					onClose={() => setVuemodalOpen(false)}
+					data={data}
+				  />	)
+			}
+					{modalOpen2 && (
 				<ModelFilter
-					opened={modalOpen}
-					onClose={closeModal}
+					opened={modalOpen2}
+					onClose={()=>{setModalOpen2(false)}}
 					onSortChange={handleSortChange}
 					titrepage={titrepage}
 					sortLabels={sortLabels}
 				/>
 			)}
-
+<DeleteModal
+        title="Confirm Deletion"
+        deleteText="Delete permanently"
+        subtitle="Are you sure you want to delete the Risk Assessment Report"
+        opened={isVisibilityOpen}
+        close={closeVisibility}
+		handleDelete={() => {
+			if (idaction) {
+				DeleteRiskAssessment({ id: idaction })
+					.then(() => {
+						toast.success('Risk Assessment deleted');
+						closeVisibility();
+						getRiskAssessment()
+					})
+					.catch((err) => {
+						console.log(err);
+						toast.error('' + err.data.message);
+					});
+			}
+		}}
+      />
 		</>
 	);
 };

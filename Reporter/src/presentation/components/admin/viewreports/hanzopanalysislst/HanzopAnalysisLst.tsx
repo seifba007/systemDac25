@@ -94,7 +94,7 @@ const HanzopAnalysisLst = () => {
 			.then((res) => {
 				setHazopeAnalysis(res.data.data.hazops);
 
-				setTotalCount(res.data.data.total_pages);
+				setTotalCount(res.data.data.total);
 				setIsLoading(false);
 			})
 			.catch((error) => {
@@ -106,7 +106,6 @@ const HanzopAnalysisLst = () => {
 	useEffect(() => {
 		gethazopeAnalysis();
 	}, [currentPage, resultsPerPage, sortValue, tabValue, searchQuery, selectedCategory]);
-  console.log(hazopeAnalysis)
 const [isLoading, setIsLoading] = useState<boolean>(true);
   return (
     isLoading ? (
@@ -135,6 +134,7 @@ const [isLoading, setIsLoading] = useState<boolean>(true);
 				setResultsPerPage={setResultsPerPage}
 				renderTableBody={() => (
 					<TabsButton
+            gethazop={gethazopeAnalysis}
 						onTabChange={setTabValue}
 						data={hazopeAnalysis}
 						isResponsive={isMobile ? isMobile : false}

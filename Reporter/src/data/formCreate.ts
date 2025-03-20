@@ -547,6 +547,9 @@ export const formFieldsAssets: FormField[] = [
       name: 'businessDepartment',
       options: [
         { label: 'Administration', value: 'administration' },
+        { label: 'Operation', value: 'Operation' },
+        { label: 'Developement', value: 'Developement' },
+        { label: 'Management', value: 'Management' },
       ],
       required: true,
     },

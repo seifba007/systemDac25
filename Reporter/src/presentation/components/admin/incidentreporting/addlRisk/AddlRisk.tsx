@@ -44,7 +44,7 @@ interface FormData {
 
 interface RiskAssessmentPayload {
   assessmentTitle: string;
-  projectID: string;
+  projectID: any;
   client: string;
   assessmentDate: string;
   location: string;
@@ -68,26 +68,26 @@ const AddlRisk: React.FC = () => {
   const user = useAppSelector(selectConnectedUser);
 
   const handleFormSubmit = async (formData: FormData) => {
-    const payload: RiskAssessmentPayload = {
-      assessmentTitle: formData.assessmentTitle || '',
-      projectID: formData.projectID || '',
-      client: formData.client || '',
-      assessmentDate: formData.assessmentDate || new Date().toISOString(),
-      location: formData.location || '',
-      businessDepartment: formData.businessDepartment || '',
-      assessmentOverview: formData.assessmentOverview || '',
-      assessmentStatus: formData.assessmentStatus || 'Draft',
-      assessmentTeam: teamMembers.map((member) => ({
-        name: member.name,
-        memberID: null,
-        department: member.department,
-        role: member.role,
-        company: member.companyName,
-      })),
-      riskAssessment: riskAssessmentRows,
-    };
-
-    toast.success('Form Submitted Data:');
+      const payload: RiskAssessmentPayload = {
+        assessmentTitle: formData.assessmentTitle || '',
+        projectID: formData.projectId || '',
+        client: formData.client || '',
+        assessmentDate: formData.assessmentDate || new Date().toISOString(),
+        location: formData.location || '',
+        businessDepartment: formData.businessDepartment || '',
+        assessmentOverview: formData.assessmentOverview || '',
+        assessmentStatus: formData.assessmentStatus || 'Draft',
+        assessmentTeam: teamMembers.map((member) => ({
+          name: member.name,
+          memberID: null,
+          department: member.department,
+          role: member.role,
+          company: member.companyName,
+        })),
+        riskAssessment: riskAssessmentRows,
+      };
+  
+      toast.success('Form Submitted Data:');
 
     try {
       if (!user?.organization) throw new Error('User organization is not available');
