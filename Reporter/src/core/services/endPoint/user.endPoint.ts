@@ -9,9 +9,11 @@ const DELETE_USER = `${USER_BASE_URL}/:id`;
 const UPDATE_USER = `${USER_BASE_URL}/:id`;
 const ADD_USER_AVATAR = `${USER_BASE_URL}/avatar`;
 const VERIF = `${BASE_URL}/auth/verify-token`;
+const USERURL = `${BASE_URL}/users`;
 
 export const USER = {
 	USER_BASE_URL,
+	USERURL,
 	GET_ME,
 	SEND_CODE,
 	VERIF,

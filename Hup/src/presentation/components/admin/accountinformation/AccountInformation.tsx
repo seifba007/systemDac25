@@ -153,6 +153,7 @@ const AccountInformation = () => {
 						p='10px'
 					>
 						<InfoItem
+						   
 							icon={<Call size='20' color='#222' />}
 							label='Phone number'
 							value={userData?.phone ? userData?.phone : '--'}
@@ -167,6 +168,7 @@ const AccountInformation = () => {
 			</Flex>
 
 			<UpdateContactProfileModal
+			 getdta={fetchData}
 				data={currentUser}
 				opened={openedcontact}
 				close={closeUpdateC}

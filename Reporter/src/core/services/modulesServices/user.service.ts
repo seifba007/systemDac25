@@ -3,6 +3,7 @@ import { ResetPasswordEntity, SendCodeEntity } from '@/core/entities/user/user.e
 import { CLIENT, EDUCATOR, EXPERT, TALENT, USER } from '../endPoint/user.endPoint';
 import HttpService from '../httpServices/http.service';
 import RequestService from '../requestServices/request';
+import { ListOptions } from '@/core/entities/http.entity';
 
 export const getConnectedUser = () => {
 	return HttpService.getInstance().executeRequest({
@@ -10,7 +11,9 @@ export const getConnectedUser = () => {
 		endPoint: USER.GET_ME,
 	});
 };
-
+export const getUsers = ({ options = {} }: ListOptions) => {
+	return RequestService.list({ entity: USER.USERURL, options });
+};
 export const updateUser = <T extends Partial<UserEntity>>(data: T) => {
 	return RequestService.update({ entity: USER.USER_BASE_URL, data, method: 'patch' });
 };

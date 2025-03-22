@@ -37,7 +37,6 @@ const UpdateProfileModal = ({ opened, close, data, getuserinfo }: UpdateProfileP
 		[],
 	);
 	const dispatch = useAppDispatch();
-  console.log(data)
 	const handleSave = async () => {
 	
 			const formData = new FormData();
@@ -45,6 +44,7 @@ const UpdateProfileModal = ({ opened, close, data, getuserinfo }: UpdateProfileP
 			updateUser(formData,data?.id)
 				.then(() => {
 					toast.success('photo profile successfully updated');
+					getuserinfo()
 							getConnectedUser().then((userData) => {
 											const user = userData.data.user;
 											dispatch(

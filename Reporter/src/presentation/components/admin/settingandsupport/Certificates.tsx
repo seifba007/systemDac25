@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ActionIcon,
   Button,
@@ -13,19 +13,34 @@ import {
 import { DocumentDownload, Eye, ProfileAdd, TickCircle, Trash } from 'iconsax-react';
 import * as XLSX from 'xlsx';
 import SkeletonLoader from '../../boxtableglobal/skeletonLoader';
-import useResponsive from '@/presentation/shared/mediaQuery';
 import ViewCertificates from './ViewCertificates';
 import AssignCertificate from './AssignCertificate';
 import ApproveItem from './ApproveItem';
+import { ListOptions } from '@/core/entities/http.entity';
+import { createCertificates, DeleteCertificates, getCertificates } from '@/core/services/modulesServices/Certificates.service';
+import { getUsers } from '@/core/services/modulesServices/user.service';
+import toast from 'react-hot-toast';
+import DeleteModal from '../../modal/DeleteModal';
+import { useDisclosure } from '@mantine/hooks';
 
 interface Certificate {
   name: string;
   category: string;
   hasQuiz: string;
   validityPeriod: number;
+  _id?:any;
+  questions?: StoredQuestion[]; // Adjusted to use StoredQuestion
 }
 
 interface Question {
+  certificateName: string; // Used for parsing from Excel
+  question: string;
+  type: string;
+  options: string;
+  correctAnswer: string;
+}
+
+interface StoredQuestion {
   question: string;
   type: string;
   options: string;
@@ -33,55 +48,85 @@ interface Question {
 }
 
 const Certificates = () => {
-  const { isMobile } = useResponsive();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [file, setFile] = useState<File | null>(null);
-  const [certificates, setCertificates] = useState<Certificate[]>([]);
+  const [certificates, setCertificates] = useState<any[]>([]);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [modalOpenVu, setModalOpenVu] = useState<boolean>(false);
   const [modalOpenIteam, setModalOpenIteam] = useState<boolean>(false);
   const [modalOpenAssign, setModalOpenAssign] = useState<boolean>(false);
-
   const [selectedCertificate, setSelectedCertificate] = useState<Certificate | null>(null);
-  const [selectedQuestions, setSelectedQuestions] = useState<Question[]>([]);
-
-
-  const parseFile = async () => {
-    if (!file) return;
-
+  const [selectedQuestions, setSelectedQuestions] = useState<StoredQuestion[]>([]);
+  const [userdata, setUserdata] = useState<any>([]);
+  const [certificatedataone, setCertificatedataone] = useState<any>([]);
+  const [isVisibilityOpen, { open: openVisibility, close: closeVisibility }] = useDisclosure(false);
+  const [idcertificate , setCertificate ] = useState('');
+  const parseAndUploadCertificates = async () => {
+    if (!file) {
+      toast.error('Please select a file first');
+      return;
+    }
     try {
+      setIsLoading(true);
+      // Parse Excel file
       const data = await file.arrayBuffer();
       const workbook = XLSX.read(data, { type: 'array' });
-
+      // Parse certificates
       const certificateSheet = workbook.Sheets[workbook.SheetNames[0]];
       const parsedCertificates = XLSX.utils.sheet_to_json<any>(certificateSheet);
-
-      const mappedCertificates = parsedCertificates.map((row: any) => ({
+      const mappedCertificates: Certificate[] = parsedCertificates.map((row: any) => ({
         name: row['Certificate Name'] || '',
         category: row['Category'] || '',
-        hasQuiz: row['Has Quiz'] || 'No',
+        hasQuiz: row['Has Quiz (True/False)']?"Yes":"no",
         validityPeriod: row['Validity Period (Months)'] || 0,
+        questions: []
       }));
+      console.log(parsedCertificates)
 
-      setCertificates(mappedCertificates);
-
+      // Parse questions
       const questionSheet = workbook.Sheets['Questions'];
+      let mappedQuestions: Question[] = [];
       if (questionSheet) {
         const parsedQuestions = XLSX.utils.sheet_to_json<any>(questionSheet);
-
-        const mappedQuestions = parsedQuestions.map((row: any) => ({
+        mappedQuestions = parsedQuestions.map((row: any) => ({
+          certificateName: row['Certificate Name'] || '',
           question: row['Question'] || '',
           type: row['Type (multiple-choice/yes-no)'] || '',
           options: row['Options (comma-separated)'] || '',
           correctAnswer: row['Correct Answer'] || '',
         }));
 
+        // Associate questions with certificates
+        mappedQuestions.forEach((question) => {
+          const cert = mappedCertificates.find((c) => c.name === question.certificateName);
+          if (cert) {
+            cert.questions!.push({
+              question: question.question,
+              type: question.type,
+              options: question.options,
+              correctAnswer: question.correctAnswer
+            });
+          } else {
+            console.warn(`No certificate found for question: ${question.question}`);
+          }
+        });
         setQuestions(mappedQuestions);
-      } else {
-        console.warn('Questions sheet not found in the uploaded file.');
       }
+
+      // Send the array directly to the backend
+      const response = await createCertificates({'certificates':mappedCertificates});
+
+      // Assuming response.data contains the array of created certificates
+      setCertificates(response.data || []);
+      toast.success('Certificates created successfully!');
+      getcertificate(); // Refresh the certificate list
+
     } catch (error) {
-      console.error('Error reading the file:', error);
+      console.error('Error processing and uploading certificates:', error);
+      toast.error('Failed to create certificates');
+    } finally {
+      setIsLoading(false);
+      setFile(null); // Clear file input
     }
   };
 
@@ -95,15 +140,19 @@ const Certificates = () => {
   };
 
   const handleViewCertificate = (certificate: Certificate) => {
-    // Filter questions related to the selected certificate
-    const relatedQuestions = questions.filter(
-      (q) => q.question.startsWith(certificate.name) // Adjust condition as needed
-    );
-
+    const relatedQuestions = certificate.questions || questions
+      .filter((q) => q.certificateName === certificate.name)
+      .map((q) => ({
+        question: q.question,
+        type: q.type,
+        options: q.options,
+        correctAnswer: q.correctAnswer
+      }));
     setSelectedCertificate(certificate);
     setSelectedQuestions(relatedQuestions);
     setModalOpenVu(true);
   };
+
   const certificateAssignment = [
     {
       userId: '1',
@@ -112,7 +161,7 @@ const Certificates = () => {
           certificateId: { _id: '12345' },
           isValid: true,
           validationDate: '2025-03-03',
-          updatedby: '2', // User ID of the one who updated
+          updatedby: '2',
           status: 'Active',
           expirationDate: '2025-12-31',
         },
@@ -125,7 +174,7 @@ const Certificates = () => {
           certificateId: { _id: '12345' },
           isValid: false,
           validationDate: '2024-11-15',
-          updatedby: '1', // User ID of the one who updated
+          updatedby: '1',
           status: 'Inactive',
           expirationDate: '2024-11-15',
         },
@@ -145,27 +194,40 @@ const Certificates = () => {
       ],
     },
   ];
-  const certificateId = '12345'; // Simulated certificate ID
+
+  const certificateId = '12345';
   const updateUserCertificate = (userId: string, certificateId: string, certificateValidity: boolean) => {
     console.log(`Updating user ${userId} with certificate ${certificateId} and validity ${certificateValidity}`);
   };
 
-  const usersList = [
-    {
-      _id: '1',
-      username: 'John Doe',
-    },
-    {
-      _id: '2',
-      username: 'Jane Smith',
-    },
-    {
-      _id: '3',
-      username: 'Chris Johnson',
-    },
-  ];
+  useEffect(() => {
+    getcertificate();
+    getuser();
+  }, []);
 
-  return !isLoading ? (
+  const getuser = async () => {
+    const options: ListOptions['options'] = { limit: '50' };
+    try {
+      const res = await getUsers({ options });
+      setUserdata(res.data.users || []);
+      setIsLoading(false);
+    } catch (error) {
+      setIsLoading(false);
+      console.error('Error fetching users:', error);
+    }
+  };
+
+  const getcertificate = async () => {
+    try {
+      const res = await getCertificates();
+      setCertificates(res.data.certificates);
+      setIsLoading(false);
+    } catch (error) {
+      setIsLoading(false);
+      console.error('Error fetching certificates:', error);
+    }
+  };
+  return isLoading ? (
     <SkeletonLoader />
   ) : (
     <Stack>
@@ -185,39 +247,21 @@ const Certificates = () => {
         <Table highlightOnHover withTableBorder withColumnBorders>
           <Table.Thead>
             <Table.Tr>
-              <Table.Th fz={'13px'} pl={'1em'} c={'#6c757d'}>
-                Certificate Name
-              </Table.Th>
-              <Table.Th fz={'13px'} pl={'1em'} c={'#6c757d'}>
-                Category
-              </Table.Th>
-              <Table.Th fz={'13px'} pl={'1em'} c={'#6c757d'}>
-                Has Quiz
-              </Table.Th>
-              <Table.Th fz={'13px'} pl={'1em'} c={'#6c757d'}>
-                Validity Period (Months)
-              </Table.Th>
-              <Table.Th fz={'13px'} c={'#6c757d'} pl={'1em'}>
-                Actions
-              </Table.Th>
+              <Table.Th fz={'13px'} pl={'1em'} c={'#6c757d'}>Certificate Name</Table.Th>
+              <Table.Th fz={'13px'} pl={'1em'} c={'#6c757d'}>Category</Table.Th>
+              <Table.Th fz={'13px'} pl={'1em'} c={'#6c757d'}>Has Quiz</Table.Th>
+              <Table.Th fz={'13px'} pl={'1em'} c={'#6c757d'}>Validity Period (Months)</Table.Th>
+              <Table.Th fz={'13px'} c={'#6c757d'} pl={'1em'}>Actions</Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
             {certificates.length > 0 ? (
               certificates.map((certificate, index) => (
                 <Table.Tr key={index}>
-                  <Table.Td pl={'1em'} fz={'13px'} c={'#6c757d'}>
-                    {certificate.name}
-                  </Table.Td>
-                  <Table.Td pl={'1em'} fz={'13px'} c={'#6c757d'}>
-                    {certificate.category}
-                  </Table.Td>
-                  <Table.Td pl={'1em'} fz={'13px'} c={'#6c757d'}>
-                    {certificate.hasQuiz}
-                  </Table.Td>
-                  <Table.Td pl={'1em'} fz={'13px'} c={'#6c757d'}>
-                    {certificate.validityPeriod}
-                  </Table.Td>
+                  <Table.Td pl={'1em'} fz={'13px'} c={'#6c757d'}>{certificate.name}</Table.Td>
+                  <Table.Td pl={'1em'} fz={'13px'} c={'#6c757d'}>{certificate.category}</Table.Td>
+                  <Table.Td pl={'1em'} fz={'13px'} c={'#6c757d'}>{certificate.hasQuiz?'Yes':'No'}</Table.Td>
+                  <Table.Td pl={'1em'} fz={'13px'} c={'#6c757d'}>{certificate.validityPeriod}</Table.Td>
                   <Table.Td pl={'1em'}>
                     <Flex gap="0.5em">
                       <ActionIcon
@@ -229,13 +273,25 @@ const Certificates = () => {
                       >
                         <Eye color="#fff" size="15" variant="Bold" />
                       </ActionIcon>
-                      <ActionIcon variant="filled" color="#6c757d" w="25px" h="20px" onClick={()=>{setModalOpenAssign(true)}}>
+                      <ActionIcon
+                        variant="filled"
+                        color="#6c757d"
+                        w="25px"
+                        h="20px"
+                        onClick={() =>{setCertificatedataone(certificate) ;setModalOpenAssign(true)}}
+                      >
                         <ProfileAdd color="#fff" size="15" variant="Bold" />
                       </ActionIcon>
-                      <ActionIcon variant="filled" color="#dcce0c" w="25px" h="20px" onClick={()=>{setModalOpenIteam(true)}}>
+                      <ActionIcon
+                        variant="filled"
+                        color="#dcce0c"
+                        w="25px"
+                        h="20px"
+                        onClick={() => setModalOpenIteam(true)}
+                      >
                         <TickCircle color="#fff" size="15" variant="Bold" />
                       </ActionIcon>
-                      <ActionIcon variant="filled" color="red" w="25px" h="20px">
+                      <ActionIcon variant="filled" color="red" w="25px" h="20px"onClick={()=>{openVisibility();setCertificate(certificate?._id)}}>
                         <Trash color="#fff" size="15" />
                       </ActionIcon>
                     </Flex>
@@ -267,9 +323,15 @@ const Certificates = () => {
               </Text>
             }
             placeholder="No file chosen"
+            value={file}
             onChange={setFile}
           />
-          <Button w={'20%'} bg={'#4254ba'} onClick={parseFile}>
+          <Button
+            w={'20%'}
+            bg={'#4254ba'}
+            onClick={parseAndUploadCertificates}
+            loading={isLoading}
+          >
             <Text fz={'12px'}>Upload and Create Certificates</Text>
           </Button>
           <Divider my="xs" />
@@ -284,17 +346,41 @@ const Certificates = () => {
         onClose={() => setModalOpenVu(false)}
         questions={selectedQuestions}
       />
-         <AssignCertificate
+      <AssignCertificate
+        certificateone={certificatedataone}
+        usersList={userdata}
         opened={modalOpenAssign}
         onClose={() => setModalOpenAssign(false)}
       />
-          <ApproveItem
-          opened={modalOpenIteam} // Set the modal opened state to true for demonstration
-          onClose={() => setModalOpenIteam(false)}
-          certificateId={certificateId}
-          certificateAssignment={certificateAssignment}
-          usersList={usersList}
-          updateUserCertificate={updateUserCertificate}    />
+      <ApproveItem
+        opened={modalOpenIteam}
+        onClose={() => setModalOpenIteam(false)}
+        certificateId={certificateId}
+        certificateAssignment={certificateAssignment}
+        usersList={userdata}
+        updateUserCertificate={updateUserCertificate}
+      />
+      <DeleteModal
+        title="Confirm Deletion"
+        deleteText="Delete permanently"
+        subtitle="Are you sure you want to delete the Certificate Report"
+        opened={isVisibilityOpen}
+        close={closeVisibility}
+		    handleDelete={() => {
+			  if (idcertificate) {
+				DeleteCertificates({ id: idcertificate })
+					.then(() => {
+						toast.success('Certificate deleted');
+            getcertificate()
+						closeVisibility();
+					})
+					.catch((err) => {
+						console.log(err);
+						toast.error('' + err.data.message);
+					});
+			}
+		}}
+      />
     </Stack>
   );
 };

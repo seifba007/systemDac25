@@ -261,11 +261,14 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 					</Tabs>
 				</Flex>
 			</Flex>
-			<VueandEditModel
-        open={vuemodalOpen}
-        onClose={() => setVuemodalOpen(false)}
-		isEdit={isEditt}
-      />		
+			{
+				modalOpen&&(<VueandEditModel
+					open={vuemodalOpen}
+					onClose={() => setVuemodalOpen(false)}
+					isEdit={isEditt}
+				  />		)
+			}
+			
 			{modalOpen && (
 				<ModelFilter
 					opened={modalOpen}

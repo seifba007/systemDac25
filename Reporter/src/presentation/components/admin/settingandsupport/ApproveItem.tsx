@@ -48,7 +48,7 @@ const ApproveItem: React.FC<ModelFilterProps> = ({
     const filteredAssignments = certificateAssignment
       .map((assignment) =>
         assignment.assignedCertificates.filter(
-          (assignedCertificate) => assignedCertificate.certificateId._id.toString() === certificateId.toString()
+          (assignedCertificate) => assignedCertificate.certificateId._id?.toString() === certificateId?.toString()
         )
       )
       .flat();
@@ -89,9 +89,9 @@ const ApproveItem: React.FC<ModelFilterProps> = ({
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
-              {assignedUsers.map((assignedCertificate, index) => {
-                const user = usersList.find((u) => u._id.toString() === assignedCertificate.certificateId._id.toString());
-                const updatedByUser = usersList.find((u) => u._id.toString() === assignedCertificate.updatedby?.toString());
+              {assignedUsers?.map((assignedCertificate, index) => {
+                const user = usersList.find((u) => u._id?.toString() === assignedCertificate?.certificateId._id.toString());
+                const updatedByUser = usersList.find((u) => u._id?.toString() === assignedCertificate?.updatedby?.toString());
 
                 return (
                   <Table.Tr key={index}>
@@ -113,20 +113,20 @@ const ApproveItem: React.FC<ModelFilterProps> = ({
                         className="form-control"
                         defaultValue={
                           assignedCertificate.validationDate
-                            ? new Date(assignedCertificate.validationDate).toISOString().split('T')[0]
+                            ? new Date(assignedCertificate?.validationDate)?.toISOString()?.split('T')[0]
                             : ''
                         }
                       />
                     </Table.Td>
 
                     {/* Updated By (Display Only) */}
-                    <Table.Td fz={'12px'}>{updatedByUser ? updatedByUser.username : 'N/A'}</Table.Td>
+                    <Table.Td fz={'12px'}>{updatedByUser ? updatedByUser?.username : 'N/A'}</Table.Td>
 
                     {/* Status (Display Only) */}
-                    <Table.Td fz={'12px'}>  {assignedCertificate.status}</Table.Td>
+                    <Table.Td fz={'12px'}>  {assignedCertificate?.status}</Table.Td>
 
                     {/* Expiration Date (Display Only) */}
-                    <Table.Td fz={'12px'}>{assignedCertificate.expirationDate ? new Date(assignedCertificate.expirationDate).toLocaleDateString() : 'N/A'}</Table.Td>
+                    <Table.Td fz={'12px'}>{assignedCertificate?.expirationDate ? new Date(assignedCertificate.expirationDate).toLocaleDateString() : 'N/A'}</Table.Td>
 
                     {/* Update Button */}
                     <Table.Td >

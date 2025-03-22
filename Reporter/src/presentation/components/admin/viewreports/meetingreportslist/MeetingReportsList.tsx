@@ -45,7 +45,7 @@ const MeetingReportsList = () => {
     getMeetingReport({ options })
       .then((res) => {
         setMetting(res.data.data.meetingReports);
-        setTotalCount(res.data.data.totalReports);
+        setTotalCount(res.data.data.pagination.totalReports);
         setIsLoading(false);
       })
       .catch((error) => {

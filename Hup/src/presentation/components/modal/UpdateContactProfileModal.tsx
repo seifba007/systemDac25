@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Flex, Input, Modal, Text, Title, rem } from '@mantine/core';
 import { DateValue } from '@mantine/dates';
-import { useAppSelector } from '@/core/store/hooks';
-import countries from '@/data/countries';
-import toast from 'react-hot-toast';
 
 type UpdateContactProps = {
 	width: string;
@@ -11,9 +8,10 @@ type UpdateContactProps = {
 	opened: boolean;
 	close: () => void;
 	data?: any;
+	getdta: () => void;
 };
 
-const UpdateContactProfileModal = ({ opened, close, data }: UpdateContactProps) => {
+const UpdateContactProfileModal = ({ opened, close, data ,getdta}: UpdateContactProps) => {
 	const [profileInfo, setProfileInfo] = useState({
 		Phone: data?.Phone || '',
 		Address: data?.Addresss || null,
