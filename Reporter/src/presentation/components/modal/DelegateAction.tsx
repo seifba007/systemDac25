@@ -1,22 +1,23 @@
 import React, { ReactNode, useState } from 'react';
 import { Modal, Text, Flex, Box, Stack, Button, Autocomplete } from '@mantine/core';
 import '../../../sass/components/SuperAdminGlobal.scss';
-import { updateDelegateAction } from '@/core/services/modulesServices/actionitems.service';
+import { DelegateActionApi, updateDelegateAction } from '@/core/services/modulesServices/actionitems.service';
 import toast from 'react-hot-toast';
 
 interface ModelFilterProps {
   opened: boolean;
   onClose: () => void;
+  getaction: () => void;
   idAction:any;
   userdat: any[]; // Array of user objects
   bnt?: ReactNode;
   roleData?: { roles: { key: string; label: string }[] }[]; // Optional prop
 }
 
-const DelegateAction: React.FC<ModelFilterProps> = ({ opened, onClose,idAction, userdat }) => {
+const DelegateAction: React.FC<ModelFilterProps> = ({ opened,getaction, onClose,idAction, userdat }) => {
   // State to store the selected user's ID
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
-
+ console.log(userdat)
   // Map userdat to Autocomplete data format: { value: fullName, id: userId }
   const autocompleteData = userdat?.map((user) => ({
     value: user.fullName, // Display fullName in Autocomplete
@@ -36,14 +37,15 @@ const submit=()=>{
     const formData = {
       assignedPerson: selectedUserId, // Only include if not rejecting
     };
-    updateDelegateAction(formData,idAction)
+    DelegateActionApi(formData,idAction)
     .then(() => {
-      toast.success('User updated successfully!');
+      toast.success('Delegate Action successfully!');
+      getaction()
       onClose();
     })
     .catch((error) => {
-      console.error('Error updating user:', error);
-      toast.error('Failed to update user');
+      console.error('Error updating Delegate Action:', error);
+      toast.error('Failed to Delegate Action');
     });
   }
 

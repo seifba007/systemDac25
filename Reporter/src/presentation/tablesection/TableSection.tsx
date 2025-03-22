@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Button, Text, Input, Table, Flex, ActionIcon, Badge } from '@mantine/core';
+import { Box, Button, Text, Input, Table, Flex, ActionIcon, Badge, Select } from '@mantine/core';
 import { Add, Trash } from 'iconsax-react';
 
 interface TableSectionProps {
@@ -34,7 +34,7 @@ const TableSection = ({ isAddItems, onSubmit, data }: TableSectionProps) => {
               items: [
                 ...section.items,
                 data.reduce((acc: any, header: any) => {
-                  acc[header] = '';
+                  acc[header] = header === 'Priority' ? 'Low' : ''; // Default "Priority" to "Low"
                   return acc;
                 }, {} as { [key: string]: string }),
               ],
@@ -69,8 +69,8 @@ const TableSection = ({ isAddItems, onSubmit, data }: TableSectionProps) => {
     field: string,
     value: string
   ) => {
-    setSections((prevSections) =>
-      prevSections.map((section) =>
+    setSections((prevSections) => {
+      const updatedSections = prevSections.map((section) =>
         section.id === sectionId
           ? {
               ...section,
@@ -79,18 +79,21 @@ const TableSection = ({ isAddItems, onSubmit, data }: TableSectionProps) => {
               ),
             }
           : section
-      )
-    );
+      );
 
-    const formData = sections.map((section) => ({
-      sectionId: section.id,
-      items: section.items,
-    }));
-    onSubmit(formData); 
+      // Pass the updated data to the parent component
+      const formData = updatedSections.map((section) => ({
+        sectionId: section.id,
+        items: section.items,
+      }));
+      onSubmit(formData);
+
+      return updatedSections;
+    });
   };
 
   const renderInputField = (header: string, value: string, sectionId: number, itemId: number) => {
-    if (header === "Due Date" || header == "Control Date"|| header == "Efficiency Check") {
+    if (header === 'Due Date' || header === 'Control Date' || header === 'Efficiency Check') {
       return (
         <Input
           type="date"
@@ -99,11 +102,30 @@ const TableSection = ({ isAddItems, onSubmit, data }: TableSectionProps) => {
         />
       );
     }
-    if (header === "Status") {
+    if (header === 'Status') {
       return (
-        <Badge bg='#6c757d'>
+        <Badge bg="#6c757d">
           <Text fz={'12px'}>Pending</Text>
         </Badge>
+      );
+    }
+    if (header === 'Priority') {
+      return (
+        <Select
+          value={value || 'Low'} // Ensure a default value
+          onChange={(val) => handleItemChange(sectionId, itemId, 'Priority', val || 'Low')}
+          placeholder="Select priority"
+          data={['Low', 'Medium', 'High']}
+          styles={{
+            input: {
+              fontSize: '13px',
+              height: '30px',
+            },
+            dropdown: {
+              fontSize: '13px',
+            },
+          }}
+        />
       );
     }
     return (

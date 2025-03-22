@@ -210,8 +210,10 @@ const TabsButton: React.FC<TabsButtonProps> = ({
                               item?.status === 'Pending'
                                 ? 'Pending'
                                 : item?.status === 'Completed' || item?.status === 'Approved'
-                                ? 'Validated'
-                                : 'Tovalidate'
+                                ? 'Validated':
+                                item?.status === 'Rejected'
+                                ? 'Rejected':
+                                 'Tovalidate'
                             }
                           >
                             {item?.status || 'N/A'}
@@ -255,7 +257,7 @@ const TabsButton: React.FC<TabsButtonProps> = ({
                         <Table.Td>
                           <Flex gap="0.2em">
                             <Clock color="var(--Grey-2, #686F7C)" size="15" variant="Bold" />
-                            <Text className="txttablename">{formatDate(item?.targetDate.$date)}</Text>
+                            <Text className="txttablename">{formatDate(item?.targetDate?.$date)}</Text>
                           </Flex>
                         </Table.Td>
                         <Table.Td>
@@ -354,7 +356,7 @@ const TabsButton: React.FC<TabsButtonProps> = ({
       </Flex>
       <ApproveItem
 			  isReject={reject}
-
+        getaction={getactions}  
 			  opened={modalOpenApproveiteam}
 			  onClose={() => {
 				  setModalOpenApproveiteam(false);
@@ -368,18 +370,22 @@ const TabsButton: React.FC<TabsButtonProps> = ({
           setModalOpenDelegate(false);
         }}
         roleData={RoleData}
+        getaction={getactions}  
         idAction={idaction}  
       />
       {
         modalOpenVue&&(
           <VueActionItems
+            getaction={getactions}  
             opened={modalOpenVue}
             onClose={() => {
               setModalOpenVue(false);
             } }
             roleData={RoleData}
             isUpdate={edit}
-            data={dataveiw} isEdit={editModal}        />
+            data={dataveiw} isEdit={editModal}      
+           
+            />
         )
       }
   

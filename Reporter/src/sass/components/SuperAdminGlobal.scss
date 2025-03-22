@@ -207,6 +207,7 @@ letter-spacing: -0.5px;
 .statusBadge,
 .Pending,
 .Tovalidate,
+.Rejected,
 .Blocked,
 .Active,
 
@@ -243,7 +244,13 @@ letter-spacing: -0.5px;
   color: #2C74FF;
   gap: 0.5em;
 }
-
+.Rejected{
+  width: 75px;
+  height: 20px;
+  background: #ffe5e0;
+  color: #ff482c;
+  gap: 0.5em;
+}
 .Tovalidate {
   width: 91px;
   height: 20px;

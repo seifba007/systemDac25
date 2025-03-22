@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Avatar, Tabs, Flex, Text, Image, Select, Box, Table, ActionIcon } from '@mantine/core';
-import { ArrowSwapVertical, Edit, Eye, Setting4, Trash } from 'iconsax-react';
+import {  Tabs, Flex, Text, Image, Select, Box, Table, ActionIcon } from '@mantine/core';
+import { Edit, Eye, Setting4, Trash } from 'iconsax-react';
 import BOX from '../../../../../assets/boxnodata.png';
 import { useDisclosure } from '@mantine/hooks';
 import TableComponent from '@/presentation/components/boxtableglobal/Table';
 import ModelFilter from '@/presentation/components/modal/ModelFilter';
 import VueandEditModel from './modeles/VueandEditModel';
 import DeleteModal from '@/presentation/components/modal/DeleteModal';
-import { DeleteActionItems } from '@/core/services/modulesServices/actionitems.service';
 import toast from 'react-hot-toast';
 import { DeleteMeetingReport } from '@/core/services/modulesServices/meetingreport.service';
 
@@ -131,7 +130,7 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 									/>
 								) : (
 									<Tabs.List style={{ display: 'flex', gap: '16px' }}>
-										{headerTabs.map((tab) => (
+										{headerTabs?.map((tab) => (
 											<Tabs.Tab
 												key={tab.value}
 												value={tab.value}
@@ -160,7 +159,7 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 							{data?.length ? (
 								<TableComponent TableTh={TableTh}>
 									<Table.Tbody className={'tbody'}>
-										{data.map((item, index) => (
+										{data?.map((item, index) => (
 											<Table.Tr key={index}>
 												{/* Severity Column */}
 												<Table.Td>
@@ -193,7 +192,7 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 														style={{ maxWidth: '250px' }}
 														lineClamp={1}
 													>
-														{item?.dateTime?.length ? item.dateTime : '.......'}
+														{item?.dateTime?.length ? item?.dateTime : '.......'}
 													</Text>
 												</Table.Td>
 

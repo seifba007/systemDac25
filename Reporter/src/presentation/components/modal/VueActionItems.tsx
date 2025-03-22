@@ -1,14 +1,17 @@
 import React, { ReactNode, useState, useEffect } from 'react';
-import { Modal, Text, Flex, Box, Tabs, Stack, TextInput, Textarea, Table, Image, Button, ActionIcon, ScrollArea } from '@mantine/core';
+import { Modal, Text, Flex, Stack, Tabs, Textarea, Table, Image, Button, ActionIcon, ScrollArea } from '@mantine/core';
 import '../../../sass/components/SuperAdminGlobal.scss';
 import classes from '../../../sass/components/taps/Tabs.module.scss';
 import { DateInput } from '@mantine/dates';
 import { TickCircle, Trash } from 'iconsax-react';
+import toast from 'react-hot-toast';
+import { updateAction } from '@/core/services/modulesServices/actionitems.service';
 
 interface ModelFilterProps {
   opened: boolean;
   data: any;
   isEdit: boolean;
+  getaction: () => void;
   isUpdate?: boolean;
   onClose: () => void;
   bnt?: ReactNode;
@@ -22,54 +25,43 @@ const VueActionItems: React.FC<ModelFilterProps> = ({
   isUpdate,
   data,
   onClose,
-  isEdit
+  isEdit,
+  getaction,
 }) => {
   const [activeTab, setActiveTab] = useState<string>('1');
   const [formData, setFormData] = useState<any>({});
-
+console.log(data)
   // Update formData when data prop changes and initialize missing follow-ups
   useEffect(() => {
     const initializeFormData = () => {
       const initialData = data || {};
       const followUps = initialData.followUps || [];
 
-      // Ensure main, control, and efficiency follow-ups exist
       const mainFollowUp = followUps.find((f: any) => f.followUpType === 'main') || {
         followUpType: 'main',
         followUpDescription: '',
         followUpTargetDate: null,
-        attachedFiles: []
+        attachedFiles: [],
       };
       const controlFollowUp = followUps.find((f: any) => f.followUpType === 'control') || {
         followUpType: 'control',
         followUpDescription: '',
         followUpTargetDate: null,
-        attachedFiles: []
+        attachedFiles: [],
       };
       const efficiencyFollowUp = followUps.find((f: any) => f.followUpType === 'efficiency') || {
         followUpType: 'efficiency',
         followUpDescription: '',
         followUpTargetDate: null,
-        attachedFiles: []
+        attachedFiles: [],
       };
 
-      // Create updated followUps array
-      const updatedFollowUps = [
-        mainFollowUp,
-        controlFollowUp,
-        efficiencyFollowUp
-      ].filter(f => f);
-
-      setFormData({
-        ...initialData,
-        followUps: updatedFollowUps
-      });
+      const updatedFollowUps = [mainFollowUp, controlFollowUp, efficiencyFollowUp].filter(f => f);
+      setFormData({ ...initialData, followUps: updatedFollowUps });
     };
 
     initializeFormData();
   }, [data]);
-
-  console.log('Form Data:', formData);
 
   const mainFollowUp = formData?.followUps?.find((f: any) => f.followUpType === 'main') || {};
   const controlFollowUp = formData?.followUps?.find((f: any) => f.followUpType === 'control') || {};
@@ -84,29 +76,24 @@ const VueActionItems: React.FC<ModelFilterProps> = ({
 
       let updatedFollowUps;
       if (existingFollowUpIndex !== -1) {
-        // Update existing follow-up
         updatedFollowUps = followUps.map((f: any, index: number) =>
           index === existingFollowUpIndex ? { ...f, [field]: value } : f
         );
       } else {
-        // Create new follow-up if it doesn't exist
         const newFollowUp = {
           followUpType,
           followUpDescription: field === 'followUpDescription' ? value : '',
           followUpTargetDate: field === 'followUpTargetDate' ? value : null,
-          attachedFiles: []
+          attachedFiles: [],
         };
         updatedFollowUps = [...followUps, newFollowUp];
       }
 
       const updatedData = { ...prevData, followUps: updatedFollowUps };
-      console.log(`Updated ${followUpType} ${field}:`, value);
-      console.log('Updated Form Data:', updatedData);
       return updatedData;
     });
   };
 
-  // Handle file input changes for multiple files
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>, followUpType: string) => {
     if (!isEdit || !event.target.files) return;
 
@@ -117,31 +104,29 @@ const VueActionItems: React.FC<ModelFilterProps> = ({
 
       let updatedFollowUps;
       if (existingFollowUpIndex !== -1) {
-        // Append new files to existing attachedFiles
         const existingFollowUp = followUps[existingFollowUpIndex];
         const newAttachedFiles = [
           ...existingFollowUp.attachedFiles,
           ...files.map(file => ({
             fileName: file.name,
             fileSize: file.size,
-            fileUrl: URL.createObjectURL(file) // Temporary URL for preview
-          }))
+            fileUrl: URL.createObjectURL(file),
+          })),
         ];
         updatedFollowUps = followUps.map((f: any, index: number) =>
           index === existingFollowUpIndex ? { ...f, attachedFiles: newAttachedFiles } : f
         );
       } else {
-        // Create new follow-up with uploaded files
         const newAttachedFiles = files.map(file => ({
           fileName: file.name,
           fileSize: file.size,
-          fileUrl: URL.createObjectURL(file)
+          fileUrl: URL.createObjectURL(file),
         }));
         const newFollowUp = {
           followUpType,
           followUpDescription: '',
           followUpTargetDate: null,
-          attachedFiles: newAttachedFiles
+          attachedFiles: newAttachedFiles,
         };
         updatedFollowUps = [...followUps, newFollowUp];
       }
@@ -153,7 +138,31 @@ const VueActionItems: React.FC<ModelFilterProps> = ({
     });
   };
 
-  // Helper function to parse date safely from $date object
+  // New function to remove a file from attachedFiles
+  const handleRemoveFile = (followUpType: string, fileIndex: number) => {
+    if (!isEdit) return;
+
+    setFormData((prevData: any) => {
+      const followUps = prevData.followUps || [];
+      const existingFollowUpIndex = followUps.findIndex((f: any) => f.followUpType === followUpType);
+
+      if (existingFollowUpIndex === -1) return prevData; // No follow-up to modify
+
+      const updatedFollowUps = followUps.map((f: any, index: number) => {
+        if (index === existingFollowUpIndex) {
+          const updatedFiles = f.attachedFiles.filter((_: any, i: number) => i !== fileIndex);
+          return { ...f, attachedFiles: updatedFiles };
+        }
+        return f;
+      });
+
+      const updatedData = { ...prevData, followUps: updatedFollowUps };
+      console.log(`Removed file at index ${fileIndex} from ${followUpType}`);
+      console.log('Updated Form Data:', updatedData);
+      return updatedData;
+    });
+  };
+
   const parseDate = (dateValue: any): Date | null => {
     if (!dateValue) return null;
     const dateStr = typeof dateValue === 'object' && dateValue.$date ? dateValue.$date : dateValue;
@@ -162,8 +171,16 @@ const VueActionItems: React.FC<ModelFilterProps> = ({
   };
 
   const handleSubmit = () => {
-    console.log('Submitting Form Data:', formData);
-    onClose(); // Close the modal after logging the data
+    updateAction(formData, data._id)
+      .then(() => {
+        toast.success('User updated successfully!');
+        onClose();
+        getaction();
+      })
+      .catch((error) => {
+        console.error('Error updating user:', error);
+        toast.error('Failed to update user');
+      });
   };
 
   return (
@@ -223,58 +240,54 @@ const VueActionItems: React.FC<ModelFilterProps> = ({
                 <>
                   <Text fw="600" fz="14px" c="rgb(34 34 34 / 58%)">Attach Files</Text>
                   <div className="file-input-wrapper">
-                    <label className="file-input-label">
-                      <input
-                        type="file"
-                        className="file-input"
-                        multiple
-                        onChange={(e) => handleFileChange(e, 'main')}
-                      />
-                      Choose Files
-                    </label>
-                    <span className="file-name">
-                      {mainFollowUp?.attachedFiles?.length > 0
-                        ? mainFollowUp.attachedFiles.map((f: any) => f.fileName).join(', ')
-                        : 'No files chosen'}
-                    </span>
+                    <input
+                      type="file"
+                      className="form-control"
+                      multiple
+                      onChange={(e) => handleFileChange(e, 'main')}
+                    />
                   </div>
                 </>
               )}
-              <Text fw="600" fz="14px" c="rgb(34 34 34 / 58%)">Attached Files</Text><ScrollArea h={150}>
-              <Table>
-                <Table.Thead>
-                  <Table.Tr>
-                    <Table.Th fz="13px" c="rgb(34 34 34 / 58%)">Image</Table.Th>
-                    <Table.Th fz="13px" c="rgb(34 34 34 / 58%)">File Name</Table.Th>
-                    <Table.Th fz="13px" c="rgb(34 34 34 / 58%)">Size</Table.Th>
-                    <Table.Th fz="13px" c="rgb(34 34 34 / 58%)">Action</Table.Th>
-                  </Table.Tr>
-                </Table.Thead>
-                
-                <Table.Tbody> 
-               
-                  {mainFollowUp?.attachedFiles?.map((file: any, index: number) => (
-                    <Table.Tr key={index}>
-                      <Table.Td>
-                        <Image
-                          src={file?.fileUrl || '/default-image.jpg'}
-                          style={{ width: '50px', height: '50px', objectFit: 'cover' }}
-                        />
-                      </Table.Td>
-                      <Table.Td fz="13px">{file?.fileName || 'No file'}</Table.Td>
-                      <Table.Td fz="13px">{file?.fileSize ? (file.fileSize / 1024).toFixed(2) : '0'} KB</Table.Td>
-                      <Table.Td>
-                        {isEdit && (
-                          <ActionIcon variant="filled" color="red" w="25px" h="20px">
-                            <Trash color="#fff" size="15" variant="Bold" />
-                          </ActionIcon>
-                        )}
-                      </Table.Td>
+              <Text fw="600" fz="14px" c="rgb(34 34 34 / 58%)">Attached Files</Text>
+              <ScrollArea h={150}>
+                <Table>
+                  <Table.Thead>
+                    <Table.Tr>
+                      <Table.Th fz="13px" c="rgb(34 34 34 / 58%)">Image</Table.Th>
+                      <Table.Th fz="13px" c="rgb(34 34 34 / 58%)">File Name</Table.Th>
+                      <Table.Th fz="13px" c="rgb(34 34 34 / 58%)">Size</Table.Th>
+                      <Table.Th fz="13px" c="rgb(34 34 34 / 58%)">Action</Table.Th>
                     </Table.Tr>
-                  ))}
-                   
-                </Table.Tbody>
-              </Table>
+                  </Table.Thead>
+                  <Table.Tbody>
+                    {mainFollowUp?.attachedFiles?.map((file: any, index: number) => (
+                      <Table.Tr key={index}>
+                        <Table.Td>
+                          <Image
+                            src={file?.fileUrl || '/default-image.jpg'}
+                            style={{ width: '50px', height: '50px', objectFit: 'cover' }}
+                          />
+                        </Table.Td>
+                        <Table.Td fz="13px">{file?.fileName || 'No file'}</Table.Td>
+                        <Table.Td fz="13px">{file?.fileSize ? (file.fileSize / 1024).toFixed(2) : '0'} KB</Table.Td>
+                        <Table.Td>
+                          {isEdit && (
+                            <ActionIcon
+                              variant="filled"
+                              color="red"
+                              w="25px"
+                              h="20px"
+                              onClick={() => handleRemoveFile('main', index)}
+                            >
+                              <Trash color="#fff" size="15" variant="Bold" />
+                            </ActionIcon>
+                          )}
+                        </Table.Td>
+                      </Table.Tr>
+                    ))}
+                  </Table.Tbody>
+                </Table>
               </ScrollArea>
             </Stack>
           </Tabs.Panel>
@@ -301,55 +314,55 @@ const VueActionItems: React.FC<ModelFilterProps> = ({
                 <>
                   <Text fw="600" fz="14px" c="rgb(34 34 34 / 58%)">Attach Files</Text>
                   <div className="file-input-wrapper">
-                    <label className="file-input-label">
-                      <input
-                        type="file"
-                        className="file-input"
-                        multiple
-                        onChange={(e) => handleFileChange(e, 'control')}
-                      />
-                      Choose Files
-                    </label>
-                    <span className="file-name">
-                      {controlFollowUp?.attachedFiles?.length > 0
-                        ? controlFollowUp.attachedFiles.map((f: any) => f.fileName).join(', ')
-                        : 'No files chosen'}
-                    </span>
+                    <input
+                      type="file"
+                      className="form-control"
+                      multiple
+                      onChange={(e) => handleFileChange(e, 'control')}
+                    />
                   </div>
                 </>
               )}
-              <Text fw="600" fz="14px" c="rgb(34 34 34 / 58%)">Attached Files</Text><ScrollArea h={150}>
-              <Table>
-                <Table.Thead>
-                  <Table.Tr>
-                    <Table.Th fz="13px" c="rgb(34 34 34 / 58%)">Image</Table.Th>
-                    <Table.Th fz="13px" c="rgb(34 34 34 / 58%)">File Name</Table.Th>
-                    <Table.Th fz="13px" c="rgb(34 34 34 / 58%)">Size</Table.Th>
-                    <Table.Th fz="13px" c="rgb(34 34 34 / 58%)">Action</Table.Th>
-                  </Table.Tr>
-                </Table.Thead>
-                <Table.Tbody>
-                  {controlFollowUp?.attachedFiles?.map((file: any, index: number) => (
-                    <Table.Tr key={index}>
-                      <Table.Td>
-                        <Image
-                          src={file?.fileUrl || '/default-image.jpg'}
-                          style={{ width: '50px', height: '50px', objectFit: 'cover' }}
-                        />
-                      </Table.Td>
-                      <Table.Td fz="13px">{file?.fileName || 'No file'}</Table.Td>
-                      <Table.Td fz="13px">{file?.fileSize ? (file.fileSize / 1024).toFixed(2) : '0'} KB</Table.Td>
-                      <Table.Td>
-                        {isEdit && (
-                          <ActionIcon variant="filled" color="red" w="25px" h="20px">
-                            <Trash color="#fff" size="15" variant="Bold" />
-                          </ActionIcon>
-                        )}
-                      </Table.Td>
+              <Text fw="600" fz="14px" c="rgb(34 34 34 / 58%)">Attached Files</Text>
+              <ScrollArea h={150}>
+                <Table>
+                  <Table.Thead>
+                    <Table.Tr>
+                      <Table.Th fz="13px" c="rgb(34 34 34 / 58%)">Image</Table.Th>
+                      <Table.Th fz="13px" c="rgb(34 34 34 / 58%)">File Name</Table.Th>
+                      <Table.Th fz="13px" c="rgb(34 34 34 / 58%)">Size</Table.Th>
+                      <Table.Th fz="13px" c="rgb(34 34 34 / 58%)">Action</Table.Th>
                     </Table.Tr>
-                  ))}
-                </Table.Tbody>
-              </Table></ScrollArea>
+                  </Table.Thead>
+                  <Table.Tbody>
+                    {controlFollowUp?.attachedFiles?.map((file: any, index: number) => (
+                      <Table.Tr key={index}>
+                        <Table.Td>
+                          <Image
+                            src={file?.fileUrl || '/default-image.jpg'}
+                            style={{ width: '50px', height: '50px', objectFit: 'cover' }}
+                          />
+                        </Table.Td>
+                        <Table.Td fz="13px">{file?.fileName || 'No file'}</Table.Td>
+                        <Table.Td fz="13px">{file?.fileSize ? (file.fileSize / 1024).toFixed(2) : '0'} KB</Table.Td>
+                        <Table.Td>
+                          {isEdit && (
+                            <ActionIcon
+                              variant="filled"
+                              color="red"
+                              w="25px"
+                              h="20px"
+                              onClick={() => handleRemoveFile('control', index)}
+                            >
+                              <Trash color="#fff" size="15" variant="Bold" />
+                            </ActionIcon>
+                          )}
+                        </Table.Td>
+                      </Table.Tr>
+                    ))}
+                  </Table.Tbody>
+                </Table>
+              </ScrollArea>
             </Stack>
           </Tabs.Panel>
 
@@ -375,55 +388,55 @@ const VueActionItems: React.FC<ModelFilterProps> = ({
                 <>
                   <Text fw="600" fz="14px" c="rgb(34 34 34 / 58%)">Attach Files</Text>
                   <div className="file-input-wrapper">
-                    <label className="file-input-label">
-                      <input
-                        type="file"
-                        className="file-input"
-                        multiple
-                        onChange={(e) => handleFileChange(e, 'efficiency')}
-                      />
-                      Choose Files
-                    </label>
-                    <span className="file-name">
-                      {efficiencyFollowUp?.attachedFiles?.length > 0
-                        ? efficiencyFollowUp.attachedFiles.map((f: any) => f.fileName).join(', ')
-                        : 'No files chosen'}
-                    </span>
+                    <input
+                      type="file"
+                      className="form-control"
+                      multiple
+                      onChange={(e) => handleFileChange(e, 'efficiency')}
+                    />
                   </div>
                 </>
               )}
-              <Text fw="600" fz="14px" c="rgb(34 34 34 / 58%)">Attached Files</Text><ScrollArea h={150}>
-              <Table>
-                <Table.Thead>
-                  <Table.Tr>
-                    <Table.Th fz="13px" c="rgb(34 34 34 / 58%)">Image</Table.Th>
-                    <Table.Th fz="13px" c="rgb(34 34 34 / 58%)">File Name</Table.Th>
-                    <Table.Th fz="13px" c="rgb(34 34 34 / 58%)">Size</Table.Th>
-                    <Table.Th fz="13px" c="rgb(34 34 34 / 58%)">Action</Table.Th>
-                  </Table.Tr>
-                </Table.Thead>
-                <Table.Tbody>
-                  {efficiencyFollowUp?.attachedFiles?.map((file: any, index: number) => (
-                    <Table.Tr key={index}>
-                      <Table.Td>
-                        <Image
-                          src={file?.fileUrl || '/default-image.jpg'}
-                          style={{ width: '50px', height: '50px', objectFit: 'cover' }}
-                        />
-                      </Table.Td>
-                      <Table.Td fz="13px">{file?.fileName || 'No file'}</Table.Td>
-                      <Table.Td fz="13px">{file?.fileSize ? (file.fileSize / 1024).toFixed(2) : '0'} KB</Table.Td>
-                      <Table.Td>
-                        {isEdit && (
-                          <ActionIcon variant="filled" color="red" w="25px" h="20px">
-                            <Trash color="#fff" size="15" variant="Bold" />
-                          </ActionIcon>
-                        )}
-                      </Table.Td>
+              <Text fw="600" fz="14px" c="rgb(34 34 34 / 58%)">Attached Files</Text>
+              <ScrollArea h={150}>
+                <Table>
+                  <Table.Thead>
+                    <Table.Tr>
+                      <Table.Th fz="13px" c="rgb(34 34 34 / 58%)">Image</Table.Th>
+                      <Table.Th fz="13px" c="rgb(34 34 34 / 58%)">File Name</Table.Th>
+                      <Table.Th fz="13px" c="rgb(34 34 34 / 58%)">Size</Table.Th>
+                      <Table.Th fz="13px" c="rgb(34 34 34 / 58%)">Action</Table.Th>
                     </Table.Tr>
-                  ))}
-                </Table.Tbody>
-              </Table></ScrollArea>
+                  </Table.Thead>
+                  <Table.Tbody>
+                    {efficiencyFollowUp?.attachedFiles?.map((file: any, index: number) => (
+                      <Table.Tr key={index}>
+                        <Table.Td>
+                          <Image
+                            src={file?.fileUrl || '/default-image.jpg'}
+                            style={{ width: '50px', height: '50px', objectFit: 'cover' }}
+                          />
+                        </Table.Td>
+                        <Table.Td fz="13px">{file?.fileName || 'No file'}</Table.Td>
+                        <Table.Td fz="13px">{file?.fileSize ? (file.fileSize / 1024).toFixed(2) : '0'} KB</Table.Td>
+                        <Table.Td>
+                          {isEdit && (
+                            <ActionIcon
+                              variant="filled"
+                              color="red"
+                              w="25px"
+                              h="20px"
+                              onClick={() => handleRemoveFile('efficiency', index)}
+                            >
+                              <Trash color="#fff" size="15" variant="Bold" />
+                            </ActionIcon>
+                          )}
+                        </Table.Td>
+                      </Table.Tr>
+                    ))}
+                  </Table.Tbody>
+                </Table>
+              </ScrollArea>
             </Stack>
           </Tabs.Panel>
         </Tabs>

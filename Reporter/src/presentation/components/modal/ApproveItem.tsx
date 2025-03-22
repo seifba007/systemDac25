@@ -1,13 +1,14 @@
 import React, { ReactNode, useState } from 'react';
-import { Modal, Text, Flex, Box, Stack, Button, Select, Textarea } from '@mantine/core'; // Changed Autocomplete to Select
+import { Modal, Text, Flex, Box, Stack, Button, Select, Textarea } from '@mantine/core';
 import '../../../sass/components/SuperAdminGlobal.scss';
 import { ArrowDown2 } from 'iconsax-react';
 import toast from 'react-hot-toast';
-import { RejectDelegateAction, updateDelegateAction } from '@/core/services/modulesServices/actionitems.service';
+import {  updateDelegateAction } from '@/core/services/modulesServices/actionitems.service';
 
 interface ModelFilterProps {
   opened: boolean;
-  idaction:any
+  idaction: any;
+  getaction: () => void;
   isReject?: boolean;
   onClose: () => void;
   bnt?: ReactNode;
@@ -19,7 +20,7 @@ interface ModelFilterProps {
     email: string;
     id: string;
     fullName: string;
-    [key: string]: any; // For other properties
+    [key: string]: any;
   }[];
 }
 
@@ -28,10 +29,14 @@ const ApproveItem: React.FC<ModelFilterProps> = ({
   onClose,
   isReject,
   datauser,
-  idaction
+  getaction,
+  idaction,
 }) => {
-  // Extract fullName values from datauser
-  const userNames = datauser?.map((user: any) => user.fullName) || [];
+  // Prepare options for Select with unique IDs as values and fullName as labels
+  const userOptions = datauser?.map((user) => ({
+    value: user.id, // Unique ID as the value
+    label: user.fullName, // Display name in the dropdown
+  })) || [];
 
   // State for Select and Textarea
   const [selectedApprover, setSelectedApprover] = useState<string | null>(null);
@@ -40,30 +45,23 @@ const ApproveItem: React.FC<ModelFilterProps> = ({
   // Handler for Save Changes button
   const handleSaveChanges = () => {
     const formData = {
-      assignedPerson: isReject ? null : selectedApprover, // Only include if not rejecting
+      ...(idaction&&{itemId:idaction}),
+      ...(!isReject&&{assignedPerson:selectedApprover}),
+      ...(!isReject&&{approvalType: "finalApproval" }),
       comments,
+      actionType: isReject ? "rejected" : "approved",
     };
-    if(isReject){
-      updateDelegateAction(formData, idaction)
-			.then(() => {
-				toast.success('User updated successfully!');
-				onClose();
-			})
-			.catch((error) => {
-				console.error('Error updating user:', error);
-				toast.error('Failed to update user');
-			});
-    }else{
-      RejectDelegateAction(formData, idaction)
-			.then(() => {
-				toast.success('User updated successfully!');
-				onClose();
-			})
-			.catch((error) => {
-				console.error('Error updating user:', error);
-				toast.error('Failed to update user');
-			});
-    }
+
+      updateDelegateAction(formData)
+        .then(() => {
+          toast.success('ApproveItemsuccessfully!');
+          getaction()
+          onClose();
+        })
+        .catch((error) => {
+          console.error('Error  ApproveItem:', error);
+          toast.error('Failed to ApproveItem');
+        });
  
   };
 
@@ -72,7 +70,7 @@ const ApproveItem: React.FC<ModelFilterProps> = ({
       size="35em"
       opened={opened}
       onClose={onClose}
-      title={<Text c={'#fff'}>{isReject ? 'Reject Item' : 'Delegate Action'}</Text>}
+      title={<Text c={'#fff'}>{isReject ? 'Reject Item' : 'Approve Item'}</Text>}
       styles={{
         header: {
           gap: '6em',
@@ -89,22 +87,22 @@ const ApproveItem: React.FC<ModelFilterProps> = ({
             : 'Confirm your approval for the initial stage. Please select the final approver:'}
           {isReject ? null : (
             <Select
-            withCheckIcon={false}
+              withCheckIcon={false}
               rightSection={<ArrowDown2 size="16" color="#6c757d" />}
               rightSectionPointerEvents="none"
               label={<Text pb={'0.5em'} c={'#868e96'}>Final Approver</Text>}
-              data={userNames} // Use mapped fullName values here
+              data={userOptions} // Use the array with { value, label }
               placeholder="Select a user"
-              value={selectedApprover} // Controlled value
-              onChange={setSelectedApprover} // Update state on change
+              value={selectedApprover} // Controlled value (ID)
+              onChange={setSelectedApprover} // Update state with selected ID
             />
           )}
         </Text>
 
         <Textarea
           label={<Text pb={'0.3em'} c={'#868e96'}>Comments</Text>}
-          value={comments} // Controlled value
-          onChange={(event) => setComments(event.currentTarget.value)} // Update state on change
+          value={comments}
+          onChange={(event) => setComments(event.currentTarget.value)}
         />
         <Box
           style={{
@@ -128,7 +126,7 @@ const ApproveItem: React.FC<ModelFilterProps> = ({
             size="md"
             color={isReject ? '#f7473a' : '#159488'}
             loading={false}
-            onClick={handleSaveChanges} // Call handler on click
+            onClick={handleSaveChanges}
             radius={10}
           >
             Save Changes

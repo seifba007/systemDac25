@@ -115,7 +115,7 @@ const AddlMeetingReport: React.FC<{ user?: { organization: string } }> = () => {
     const flattenedActionItems = data.flatMap((section: { items: ActionItem[] }) => section.items);
     setActionItems(flattenedActionItems);
   }, []);
-
+  console.log(actionItems)
   const handleFormSubmit = useCallback(async () => {
     // Map action items to match backend expected format
     const formattedActionItems = actionItems.map(item => ({
