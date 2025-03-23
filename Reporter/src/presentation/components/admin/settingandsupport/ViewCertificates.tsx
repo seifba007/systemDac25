@@ -115,7 +115,7 @@ const ViewCertificates: React.FC<ViewCertificatesProps> = ({
             <Table.Tr>
               <Table.Th fz="13px">Name</Table.Th>
               <Table.Td>
-                <TextInput
+                <TextInput disabled
                   value={certificateName}
                   onChange={(e) => setCertificateName(e.currentTarget.value)}
                   placeholder="Certificate Name"
@@ -125,7 +125,7 @@ const ViewCertificates: React.FC<ViewCertificatesProps> = ({
             <Table.Tr>
               <Table.Th fz="13px">Category</Table.Th>
               <Table.Td>
-                <TextInput
+                <TextInput disabled
                   value={certificateCategory}
                   onChange={(e) => setCertificateCategory(e.currentTarget.value)}
                   placeholder="Certificate Category"
@@ -135,7 +135,7 @@ const ViewCertificates: React.FC<ViewCertificatesProps> = ({
             <Table.Tr>
               <Table.Th fz="13px">Validity Period (Months)</Table.Th>
               <Table.Td>
-                <NumberInput
+                <NumberInput disabled
                   value={validityPeriod}
                   onChange={(value) => setValidityPeriod(Number(value) || 0)}
                   placeholder="Validity Period"
@@ -146,7 +146,7 @@ const ViewCertificates: React.FC<ViewCertificatesProps> = ({
             <Table.Tr>
               <Table.Th fz="13px">Has Quiz</Table.Th>
               <Table.Td>
-                <Select
+                <Select disabled
                   value={hasQuiz}
                   onChange={(value) => setHasQuiz(value || 'false')}
                   data={[
@@ -171,14 +171,13 @@ const ViewCertificates: React.FC<ViewCertificatesProps> = ({
                 <Table.Th fz="13px">Type</Table.Th>
                 <Table.Th fz="13px">Options (comma-separated)</Table.Th>
                 <Table.Th fz="13px">Correct Answer</Table.Th>
-                <Table.Th fz="13px">Actions</Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
               {questions.map((question, index) => (
                 <Table.Tr key={index}>
                   <Table.Td>
-                    <TextInput
+                    <TextInput disabled
                       value={question.question}
                       onChange={(e) =>
                         handleQuestionChange(index, 'question', e.currentTarget.value)
@@ -187,14 +186,14 @@ const ViewCertificates: React.FC<ViewCertificatesProps> = ({
                     />
                   </Table.Td>
                   <Table.Td>
-                    <TextInput
+                    <TextInput disabled
                       value={question.type}
                       onChange={(e) => handleQuestionChange(index, 'type', e.currentTarget.value)}
                       placeholder="Type"
                     />
                   </Table.Td>
                   <Table.Td>
-                    <TextInput
+                    <TextInput disabled
                       value={question.options}
                       onChange={(e) =>
                         handleQuestionChange(index, 'options', e.currentTarget.value)
@@ -203,7 +202,7 @@ const ViewCertificates: React.FC<ViewCertificatesProps> = ({
                     />
                   </Table.Td>
                   <Table.Td>
-                    <TextInput
+                    <TextInput disabled
                       value={question.correctAnswer}
                       onChange={(e) =>
                         handleQuestionChange(index, 'correctAnswer', e.currentTarget.value)
@@ -211,16 +210,7 @@ const ViewCertificates: React.FC<ViewCertificatesProps> = ({
                       placeholder="Correct Answer"
                     />
                   </Table.Td>
-                  <Table.Td>
-                    <Button
-                      color="red"
-                      variant="outline"
-                      size="xs"
-                      onClick={() => handleDeleteQuestion(index)}
-                    >
-                      Delete
-                    </Button>
-                  </Table.Td>
+          
                 </Table.Tr>
               ))}
             </Table.Tbody>
@@ -232,15 +222,7 @@ const ViewCertificates: React.FC<ViewCertificatesProps> = ({
       </Stack>
 
 <Divider my="md" />
-      {/* Modal Footer */}
-      <Group   mb="1em" justify='end'>
-        <Button variant="outline" color="gray" onClick={onClose}>
-          Close
-        </Button>
-        <Button color="blue" onClick={handleSaveChanges}>
-          Save Changes
-        </Button>
-      </Group>
+
       </ScrollArea>
     </Modal>
   );

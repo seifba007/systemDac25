@@ -17,7 +17,7 @@ import ViewCertificates from './ViewCertificates';
 import AssignCertificate from './AssignCertificate';
 import ApproveItem from './ApproveItem';
 import { ListOptions } from '@/core/entities/http.entity';
-import { createCertificates, DeleteCertificates, getCertificates } from '@/core/services/modulesServices/Certificates.service';
+import { createCertificates, DeleteCertificates, getCertificates, getUserAssignmentsbyCertificates } from '@/core/services/modulesServices/Certificates.service';
 import { getUsers } from '@/core/services/modulesServices/user.service';
 import toast from 'react-hot-toast';
 import DeleteModal from '../../modal/DeleteModal';
@@ -58,6 +58,7 @@ const Certificates = () => {
   const [selectedCertificate, setSelectedCertificate] = useState<Certificate | null>(null);
   const [selectedQuestions, setSelectedQuestions] = useState<StoredQuestion[]>([]);
   const [userdata, setUserdata] = useState<any>([]);
+  const [userAssdata, setUserAssdata] = useState<any>([]);
   const [certificatedataone, setCertificatedataone] = useState<any>([]);
   const [isVisibilityOpen, { open: openVisibility, close: closeVisibility }] = useDisclosure(false);
   const [idcertificate , setCertificate ] = useState('');
@@ -81,7 +82,6 @@ const Certificates = () => {
         validityPeriod: row['Validity Period (Months)'] || 0,
         questions: []
       }));
-      console.log(parsedCertificates)
 
       // Parse questions
       const questionSheet = workbook.Sheets['Questions'];
@@ -204,6 +204,16 @@ const Certificates = () => {
     getcertificate();
     getuser();
   }, []);
+  const getUserAssignments= async (id:any) => {
+    try {
+      const res = await getUserAssignmentsbyCertificates(id);
+      setUserAssdata(res.data.data)
+      setIsLoading(false);
+    } catch (error) {
+      setIsLoading(false);
+      console.error('Error fetching users:', error);
+    }
+  };
 
   const getuser = async () => {
     const options: ListOptions['options'] = { limit: '50' };
@@ -287,7 +297,7 @@ const Certificates = () => {
                         color="#dcce0c"
                         w="25px"
                         h="20px"
-                        onClick={() => setModalOpenIteam(true)}
+                        onClick={() => {getUserAssignments(certificate._id);setModalOpenIteam(true)}}
                       >
                         <TickCircle color="#fff" size="15" variant="Bold" />
                       </ActionIcon>
@@ -356,8 +366,7 @@ const Certificates = () => {
         opened={modalOpenIteam}
         onClose={() => setModalOpenIteam(false)}
         certificateId={certificateId}
-        certificateAssignment={certificateAssignment}
-        usersList={userdata}
+        usersList={userAssdata}
         updateUserCertificate={updateUserCertificate}
       />
       <DeleteModal

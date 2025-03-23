@@ -5,7 +5,6 @@ import TabsButton from './TabsButtonMeetingReportsList.';
 import BoxTableAdmin from '@/presentation/components/boxtableglobal/BoxSuperAdmin';
 import SearchInput from '@/presentation/components/input/Searchinput';
 import { ListOptions } from '@/core/entities/http.entity';
-import { getActionItems } from '@/core/services/modulesServices/actionitems.service';
 import SkeletonLoader from '@/presentation/components/boxtableglobal/skeletonLoader';
 import { getMeetingReport } from '@/core/services/modulesServices/meetingreport.service';
 import { useAppSelector } from '@/core/store/hooks';
@@ -18,7 +17,6 @@ const MeetingReportsList = () => {
 	const [tabValue, setTabValue] = useState<string>('all');
 	const [selectedCategory, setSelectedCategory] = useState<string>('');
 	const [sortValue, setSortValue] = useState<string>('');
-  const [openModel, setOpenModel] = useState<boolean>(false);
 	const [searchQuery, setSearchQuery] = useState<string>('');
   const [totalCount, setTotalCount] = useState<number>(0);
   const user = useAppSelector(selectConnectedUser);

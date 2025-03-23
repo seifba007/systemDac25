@@ -36,7 +36,7 @@ const Login = () => {
         // Dispatch the user data to the Redux store
         dispatch(
           setConnectedUser({
-            id: data.user.id,
+            id: data.user._id.$oid,
             organization: data.user.organization,
             fullName: data.user.fullName,
             email: data.user.email,

@@ -1,9 +1,6 @@
 
 import RequestService from '../requestServices/request';
-import { ACTIONITEMS } from '../endPoint/actionitems.endPoint';
 import { ListOptions } from '@/core/entities/http.entity';
-import { HAZOPS } from '../endPoint/hazop.endPoint';
-import { MeetingReport } from '../endPoint/meetingreport.endPoint';
 import { RISKASSESMENT } from '../endPoint/riskassessment.endPoint';
 
 export const getRiskAssessment = ({ options = {} }: ListOptions) => {

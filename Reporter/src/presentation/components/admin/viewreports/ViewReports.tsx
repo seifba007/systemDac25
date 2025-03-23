@@ -1,6 +1,6 @@
 import useResponsive from '@/presentation/shared/mediaQuery';
 import { Flex, Stack, Text } from '@mantine/core';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import SearchInput from '../../input/Searchinput';
 import BoxTableAdmin from '../../boxtableglobal/BoxSuperAdmin';
 import SkeletonLoader from '../../boxtableglobal/skeletonLoader';
@@ -8,6 +8,11 @@ import CreateButton from '../../button/CreateTalentButton';
 import { AddCircle } from 'iconsax-react';
 import TabsButton from './TabsButtonViewReports';
 import CreationApps from '../../modal/CreationApps';
+import { ListOptions } from '@/core/entities/http.entity';
+import { useAppSelector } from '@/core/store/hooks';
+import { selectConnectedUser } from '@/core/store/modules/authSlice';
+import { getMeetingReport } from '@/core/services/modulesServices/meetingreport.service';
+import { getincident } from '@/core/services/modulesServices/incidentreporting.service';
 
 const ViewReports = () => {
   const { isMobile } = useResponsive();
@@ -137,10 +142,47 @@ const ViewReports = () => {
       actions: 'Restricted',
     },
   ];
+  const user = useAppSelector(selectConnectedUser);
+  const [totalCount, setTotalCount] = useState<number>(0);
+    const getIncident  = () => {
+      const options: ListOptions['options'] = {
+        ...(currentPage != null && { page: currentPage }),
+        ...(resultsPerPage != null && { limit: resultsPerPage }),
+        ...(sortValue &&
+          sortValue !== 'default' && {
+            ...(sortValue === 'createdAt desc' || sortValue === 'createdAt asc'
+              ? { sort: sortValue.split(' ')[1], sortKey: sortValue.split(' ')[0] }
+              : { sort: sortValue }),
+          }),
+        ...( user?.organization &&{ organization: user?.organization }),
+        ...(searchQuery && { search: searchQuery }),
+        ...(tabValue != null &&
+          (
+             tabValue === 'all'
+            ? null
+            : { filter_type: tabValue })),
+      };
+  
+      getincident({ options })
+        .then((res) => {
+          setIncident(res.data.reports);
+          setTotalCount(res.data.total_pages);
+          setIsLoading(false);
+        })
+        .catch((error) => {
+          setIsLoading(false);
+          console.error('Error fetching connected user:', error);
+        });
+    };
+    const [incident , setIncident ] = useState<any>();
+    useEffect(() => {
+      getIncident ();
+    }, [currentPage, resultsPerPage, sortValue, tabValue, searchQuery, selectedCategory]);
 
+  
 const [isLoading, setIsLoading] = useState<boolean>(true);
   return (
-    !isLoading ? (
+    isLoading ? (
       <SkeletonLoader />
     ) :(
     <Stack>
@@ -158,16 +200,16 @@ const [isLoading, setIsLoading] = useState<boolean>(true);
     </Flex>
       <BoxTableAdmin
 				isResponsive={isMobile ? isMobile : false}
-				Data={tableData}
-				totalCount={50}
-				currentPage={2}
-				resultsPerPage={1}
+				Data={incident}
+        totalCount={totalCount}
+				currentPage={currentPage}
+				resultsPerPage={resultsPerPage}
 				setCurrentPage={setCurrentPage}
 				setResultsPerPage={setResultsPerPage}
 				renderTableBody={() => (
 					<TabsButton
 						onTabChange={setTabValue}
-						data={tableData}
+						data={incident}
 						isResponsive={isMobile ? isMobile : false}
 						titrepage={'Apps'}
 						onCategoryChange={setSelectedCategory}

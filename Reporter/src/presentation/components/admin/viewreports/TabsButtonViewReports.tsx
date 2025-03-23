@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Avatar, Tabs, Flex, Text, Image, Select, Box, Table, ActionIcon } from '@mantine/core';
-import { ArrowSwapVertical, Edit, Setting4, Trash } from 'iconsax-react';
+import { ArrowSwapVertical, Edit, Eye, Setting4, Trash } from 'iconsax-react';
 import BOX from '../../../../assets/boxnodata.png';
 import TableComponent from '../../boxtableglobal/Table';
 import ModelFilter from '../../modal/ModelFilter';
@@ -69,10 +69,10 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 			setActiveTab(value);
 		}
 	};
-	const openModal = () => setModalOpen(true);
 	const closeModal = () => setModalOpen(false);
 	const openModal2 = () => setModalOpen2(true);
-	const closeModal2 = () => setModalOpen2(false);
+	const [vuemodalOpen, setVuemodalOpen] = useState(false);
+  const [idaction, setIdaction] = useState('');
 
 	const handleSortChange = (sortValue: string) => onSortChange(sortValue);
 	const [isVisibilityOpen, { open: openVisibility, close: closeVisibility }] = useDisclosure(false);
@@ -92,10 +92,8 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 	  ];
 	  
 	type ActivityStatus = 'Active' | 'Blocked';
-	const statusClassMap: Record<ActivityStatus, string> = {
-		Active: 'Active',
-		Blocked: 'Blocked',
-	};
+	const [isEditt, setIsEditt] = useState(false);
+
 	return (
 		<>
 			<Flex direction='column'>
@@ -189,7 +187,7 @@ const TabsButton: React.FC<TabsButtonProps> = ({
       <Table.Td>
         <Text className={'txttablename'}>
           
-            {item.reportType === 'Critical' ? 'Blocked' : 'Active'}
+            {item.reportClassification??'........'}
       
         </Text>
       </Table.Td>
@@ -220,14 +218,24 @@ const TabsButton: React.FC<TabsButtonProps> = ({
           style={{ maxWidth: '250px' }}
           lineClamp={1}
         >
-          {item?.dateTime ?? '..............'}
+          {item?.dateTime?.$date ?? '..............'}
         </Text>
       </Table.Td>
 
       <Table.Td>
         <Flex gap={'0.5em'} className='txttablename'>
-		  {item?.actions ?? '..............'}
-        </Flex>
+	<Flex gap={'0.5em'}>
+														<ActionIcon variant="filled" color="#4254ba" w="25px" h="20px" onClick={() => { setVuemodalOpen(true);setIsEditt(false) }} >
+															<Eye color="#fff" size="15" variant="Bold" />
+														</ActionIcon>
+														<ActionIcon variant="filled" color="yellow" w="25px" h="20px" onClick={() => { setVuemodalOpen(true);setIsEditt(true) }}>
+															<Edit color="#fff" size="15" variant="Bold"  />
+														</ActionIcon>
+
+														<ActionIcon variant="filled" color="red" w="25px" h="20px" onClick={()=>{setIdaction(item.id),openVisibility()}}>
+															<Trash color="#fff" size="15" />
+														</ActionIcon>
+													</Flex>        </Flex>
       </Table.Td>
     </Table.Tr>
   ))}

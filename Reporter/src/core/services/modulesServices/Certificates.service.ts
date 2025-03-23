@@ -1,23 +1,27 @@
 
 import RequestService from '../requestServices/request';
-import { CERTIFICATE_BASE_URL, CERTIFICATEGET } from '../endPoint/certificates.endPoint';
+import { CERTIFICATE_BASE_URL, CERTIFICATEGET, CERTIFICATEGETASSIGNMENT, CERTIFICATEGETASSIGNMENT2 } from '../endPoint/certificates.endPoint';
 
+export const getCertificatesUserAssignments = () => {
+	return RequestService.list({ entity:CERTIFICATEGETASSIGNMENT });
+};
+export const getUserAssignmentsbyCertificates = (id:string) => {
+	return RequestService.list({ entity:CERTIFICATEGETASSIGNMENT2+'/'+id });
+};
 export const getCertificates = () => {
 	return RequestService.list({ entity:CERTIFICATEGET });
 };
-export const updateCertificates= <T extends Partial<any>>(data: T,id:string) => {
-	return RequestService.update({
-		entity: `${CERTIFICATE_BASE_URL}delegate-action/`+id, // Append the ID to the base URL
-		data,
-		method: 'put',
-	});
+export const updateUserCertificate = <T extends Partial<any>>(data: T, userId: string,certId: string) => {
+    return RequestService.update({
+        entity: `${CERTIFICATE_BASE_URL}${userId}/update-user/${certId}`,
+        data,
+        method: 'put',
+    });
 };
-
 export const AssignCertificates= <T extends Partial<any>>(data: T) => {
-	return RequestService.update({
+	return RequestService.create({
 		entity: `${CERTIFICATE_BASE_URL}update-users-Assign`, // Append the ID to the base URL
 		data,
-		method: 'put',
 	});
 };
 export const DeleteCertificates= ({ id }: { id: string }) => {

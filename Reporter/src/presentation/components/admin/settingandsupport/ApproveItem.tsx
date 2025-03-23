@@ -1,24 +1,25 @@
-import React, { ReactNode, useEffect, useState } from 'react';
-import { Modal, Text, Flex, Box, Stack, Button, Autocomplete, Textarea, ScrollArea, Table } from '@mantine/core';
-import { ArrowDown2 } from 'iconsax-react';
+import React, { ReactNode, useState } from 'react';
+import { Modal, Text, Stack, ScrollArea, Table, Select, Input } from '@mantine/core';
 
 interface User {
-  _id: string;
-  username: string;
+  fullName: string;
+  email: string;
 }
 
-interface AssignedCertificate {
-  certificateId: { _id: string };
+interface Certificate {
+  certificateId: string;
   isValid: boolean;
   validationDate: string;
-  updatedby: string;
+  updatedBy: string;
   status: string;
   expirationDate: string;
+  assignmentDate: string;
 }
 
 interface CertificateAssignment {
   userId: string;
-  assignedCertificates: AssignedCertificate[];
+  user: User;
+  certificate: Certificate;
 }
 
 interface ModelFilterProps {
@@ -26,10 +27,8 @@ interface ModelFilterProps {
   isReject?: boolean;
   onClose: () => void;
   bnt?: ReactNode;
-
   certificateId: string;
-  certificateAssignment: CertificateAssignment[];
-  usersList: User[];
+  usersList: CertificateAssignment[];
   updateUserCertificate: (userId: string, certificateId: string, certificateValidity: boolean) => void;
 }
 
@@ -37,23 +36,35 @@ const ApproveItem: React.FC<ModelFilterProps> = ({
   opened,
   onClose,
   certificateId,
-  certificateAssignment,
   usersList,
   updateUserCertificate,
 }) => {
-  const [assignedUsers, setAssignedUsers] = useState<AssignedCertificate[]>([]);
+  // State to track editable fields for each user
+  const [assignments, setAssignments] = useState<CertificateAssignment[]>(usersList);
 
-  useEffect(() => {
-    // Filter the certificate assignments to find those matching the certificateId
-    const filteredAssignments = certificateAssignment
-      .map((assignment) =>
-        assignment.assignedCertificates.filter(
-          (assignedCertificate) => assignedCertificate.certificateId._id?.toString() === certificateId?.toString()
-        )
-      )
-      .flat();
-    setAssignedUsers(filteredAssignments);
-  }, [certificateId, certificateAssignment]);
+  // Sync assignments when usersList changes
+  React.useEffect(() => {
+    setAssignments(usersList);
+  }, [usersList]);
+
+  // Handle changes to isValid
+  const handleValidityChange = (index: number, value: string) => {
+    const updatedAssignments = [...assignments];
+    updatedAssignments[index].certificate.isValid = value === 'true';
+    setAssignments(updatedAssignments);
+  };
+
+  // Handle changes to validationDate
+  const handleValidationDateChange = (index: number, value: string) => {
+    const updatedAssignments = [...assignments];
+    updatedAssignments[index].certificate.validationDate = value;
+    setAssignments(updatedAssignments);
+  };
+
+  // Handle update button click
+  const handleUpdate = (userId: string, certId: string, isValid: boolean) => {
+    updateUserCertificate(userId, certId, isValid);
+  };
 
   return (
     <Modal
@@ -89,58 +100,68 @@ const ApproveItem: React.FC<ModelFilterProps> = ({
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
-              {assignedUsers?.map((assignedCertificate, index) => {
-                const user = usersList.find((u) => u._id?.toString() === assignedCertificate?.certificateId._id.toString());
-                const updatedByUser = usersList.find((u) => u._id?.toString() === assignedCertificate?.updatedby?.toString());
+              {assignments.map((assignment, index) => (
+                <Table.Tr key={index}>
+                  {/* Name */}
+                  <Table.Td fz={'12px'}>{assignment.user.fullName || 'Unknown'}</Table.Td>
 
-                return (
-                  <Table.Tr key={index}>
-                    {/* Name */}
-                    <Table.Td fz={'12px'}>{user ? user.username : 'Unknown'}</Table.Td>
+                  {/* Validity (Editable) */}
+                  <Table.Td>
+                    <Select
+                      size="xs"
+                      data={[
+                        { value: 'true', label: 'Valid' },
+                        { value: 'false', label: 'Invalid' },
+                      ]}
+                      value={assignment.certificate.isValid ? 'true' : 'false'}
+                      onChange={(value) => handleValidityChange(index, value as string)}
+                    />
+                  </Table.Td>
 
-                    {/* Validity (Editable) */}
-                    <Table.Td >
-                      <select style={{fontSize:'12px'}} className="form-select" defaultValue={assignedCertificate.isValid ? 'true' : 'false'}>
-                        <option style={{fontSize:'12px'}} value="true">Valid</option>
-                        <option style={{fontSize:'12px'}} value="false">Invalid</option>
-                      </select>
-                    </Table.Td>
+                  {/* Validation Date (Editable) */}
+                  <Table.Td>
+                    <Input
+                      size="xs"
+                      type="date"
+                      value={
+                        assignment.certificate.validationDate
+                          ? new Date(assignment.certificate.validationDate).toISOString().split('T')[0]
+                          : ''
+                      }
+                      onChange={(e) => handleValidationDateChange(index, e.currentTarget.value)}
+                    />
+                  </Table.Td>
 
-                    {/* Validation Date (Editable) */}
-                    <Table.Td>
-                      <input style={{fontSize:'12px'}}
-                        type="date"
-                        className="form-control"
-                        defaultValue={
-                          assignedCertificate.validationDate
-                            ? new Date(assignedCertificate?.validationDate)?.toISOString()?.split('T')[0]
-                            : ''
-                        }
-                      />
-                    </Table.Td>
+                  {/* Updated By (Display Only) */}
+                  <Table.Td fz={'12px'}>{assignment.certificate.updatedBy || 'N/A'}</Table.Td>
 
-                    {/* Updated By (Display Only) */}
-                    <Table.Td fz={'12px'}>{updatedByUser ? updatedByUser?.username : 'N/A'}</Table.Td>
+                  {/* Status (Display Only) */}
+                  <Table.Td fz={'12px'}>{assignment.certificate.status}</Table.Td>
 
-                    {/* Status (Display Only) */}
-                    <Table.Td fz={'12px'}>  {assignedCertificate?.status}</Table.Td>
+                  {/* Expiration Date (Display Only) */}
+                  <Table.Td fz={'12px'}>
+                    {assignment.certificate.expirationDate
+                      ? new Date(assignment.certificate.expirationDate).toLocaleDateString()
+                      : 'N/A'}
+                  </Table.Td>
 
-                    {/* Expiration Date (Display Only) */}
-                    <Table.Td fz={'12px'}>{assignedCertificate?.expirationDate ? new Date(assignedCertificate.expirationDate).toLocaleDateString() : 'N/A'}</Table.Td>
-
-                    {/* Update Button */}
-                    <Table.Td >
-                      <button
-                        className="btn btn-primary"
-                        onClick={() => updateUserCertificate(assignedCertificate.certificateId._id, certificateId, assignedCertificate.isValid)}
-                      >
-						<Text fz={'10px'}>  Update</Text>
-                      
-                      </button>
-                    </Table.Td>
-                  </Table.Tr>
-                );
-              })}
+                  {/* Update Button */}
+                  <Table.Td>
+                    <button
+                      className="btn btn-primary"
+                      onClick={() =>
+                        handleUpdate(
+                          assignment.userId,
+                          assignment.certificate.certificateId,
+                          assignment.certificate.isValid
+                        )
+                      }
+                    >
+                      <Text fz={'10px'}>Update</Text>
+                    </button>
+                  </Table.Td>
+                </Table.Tr>
+              ))}
             </Table.Tbody>
           </Table>
         </ScrollArea>

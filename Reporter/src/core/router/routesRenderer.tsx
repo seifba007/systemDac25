@@ -55,10 +55,9 @@ const RouteMiddleware = ({ _ }: Props) => {
 			} else if (!connectedUser && !!token) {
 				getConnectedUser()
 					.then((res) => {
-						const emailPreference = res.data.data.emailPreference;
 						dispatch(
 							setConnectedUser({
-								id: res.data.data.id,
+								id: res.data.data._id,
 								fullName: res.data.data.fullName,
 								avatar: res.data.data.avatar,
 								email: res.data.data.email,

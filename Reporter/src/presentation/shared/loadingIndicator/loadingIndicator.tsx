@@ -8,7 +8,7 @@ import Lottie from 'lottie-react';
 const LoadingIndicator = () => {
 	return (
 		<div className={'rootLoaderMainContainer'}>
-			<Lottie animationData={animationData} loop={true} />
+			<Lottie animationData={animationData} />
 		</div>
 	);
 };

@@ -38,7 +38,7 @@ const SuperAdminPage = () => {
         // Dispatch the user data to the Redux store
         dispatch(
           setConnectedUser({
-            id: data.user.id,
+            id: data.user._id.$oid,
             fullName: data.user.fullName,
             email: data.user.email,
             avatar: data.user.picture,

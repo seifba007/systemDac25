@@ -8,6 +8,9 @@ import { Incident } from '../endPoint/incidentreporting.endPoint';
 export const getHazopeAnalysis = ({ options = {} }: ListOptions) => {
 	return RequestService.list({ entity:HAZOPS.HAZOPS_BASE_URL, options });
 };
+export const getincident = ({ options = {} }: ListOptions) => {
+	return RequestService.list({ entity:Incident.IncidentReporting_BASE_URL, options });
+};
 export const updateDelegateAction= <T extends Partial<any>>(data: T, id: string) => {
 	return RequestService.update({
 		entity: `${ACTIONITEMS.ACTIONITEMSDELEGATE}/${id}`, // Append the ID to the base URL

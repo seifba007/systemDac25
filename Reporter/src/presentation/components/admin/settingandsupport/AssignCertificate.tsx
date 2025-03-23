@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { Modal, Button, Text, Stack, Divider, Group, TagsInput } from '@mantine/core';
-import { AssignCertificates } from '@/core/services/modulesServices/Certificates.service'; // Adjust import path
+import { AssignCertificates, updateUserCertificate } from '@/core/services/modulesServices/Certificates.service'; // Adjust import path
 import toast from 'react-hot-toast';
 
 interface User {
-  id: string; // Unique ID
+  id: string;
   fullName: string;
 }
 
 interface AssignCertificateProps {
   opened: boolean;
   onClose: () => void;
-  usersList: string[] | User[]; // Handles both cases
+  usersList: string[] | User[];
   certificateone: any;
 }
 
@@ -20,12 +20,15 @@ const AssignCertificate: React.FC<AssignCertificateProps> = ({ opened, onClose, 
   const [selectedUserNames, setSelectedUserNames] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
+  // Simulate a score (replace this with actual quiz score logic from your app)
+  const [score, setScore] = useState<number>(0); // For demo; remove if score comes from elsewhere
+
   // Map usersList to userOptions
   const userOptions = Array.isArray(usersList)
     ? usersList.map(user => {
         if (typeof user === 'string') {
           console.error('usersList contains usernames as strings. IDs are missing.');
-          return { value: user, label: user }; // Temporary use username
+          return { value: user, label: user };
         } else {
           return { value: user.id, label: user.fullName };
         }
@@ -37,15 +40,12 @@ const AssignCertificate: React.FC<AssignCertificateProps> = ({ opened, onClose, 
     const ids = selectedNames
       .map(name => {
         const user = userOptions.find(option => option.label === name);
-        return user?.value; // Get corresponding ID
+        return user?.value;
       })
-      .filter(Boolean) as string[]; // Filter out undefined values
+      .filter(Boolean) as string[];
 
     setSelectedUserNames(selectedNames);
     setSelectedUserIds(ids);
-
-    console.log('Selected User Names:', selectedNames);
-    console.log('Selected User IDs:', ids);
   };
 
   const handleAssign = async () => {
@@ -64,21 +64,17 @@ const AssignCertificate: React.FC<AssignCertificateProps> = ({ opened, onClose, 
     try {
       const assignmentData = {
         userIds: selectedUserIds,
-        isValid: true,
-        certId : certificateone._id,
-        validationDate: "2025-04-22T06:01:21.708Z",
+        isValid: false,
+        certId: certificateone._id,
+        validationDate: "2025-04-22T06:01:21.708Z", // Hardcoded for now; adjust as needed
         validityPeriod: certificateone.validityPeriod || 12,
       };
-
-      console.log('Sending assignment data:', assignmentData);
-
       await AssignCertificates(assignmentData);
-
       toast.success('Certificates assigned successfully');
       onClose();
     } catch (error) {
-      console.error('Error assigning certificates:', error);
-      toast.error('Failed to assign certificates');
+      console.error('Error assigning or updating certificates:', error);
+      toast.error('Failed to process certificates');
     } finally {
       setIsLoading(false);
     }
