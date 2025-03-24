@@ -3,7 +3,6 @@ import { Autocomplete, Flex, Stack, Text } from '@mantine/core';
 import React, { useEffect, useState } from 'react';
 import SkeletonLoader from '../../boxtableglobal/skeletonLoader';
 import { ArrowDown2 } from 'iconsax-react';
-import CreationApps from '../../modal/CreationApps';
 import BoxLicenses from './BoxLicenses';
 import { ListOptions } from '@/core/entities/http.entity';
 import { getOrganizations } from '@/core/services/modulesServices/organizations.service';
@@ -13,9 +12,6 @@ const Licenses = () => {
   const { isMobile } = useResponsive();
   const [resultsPerPage, setResultsPerPage] = useState<number>(10);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [tabValue, setTabValue] = useState<string>('all');
-  const [sortValue, setSortValue] = useState<string>('');
-  const [openModel, setOpenModel] = useState<boolean>(true);
 
   const getOrganization = () => {
     const options: ListOptions['options'] = {};
@@ -23,7 +19,7 @@ const Licenses = () => {
       .then((res) => {
         setOrganization(res.data.organizations);
         if (res.data.organizations && res.data.organizations.length > 0) {
-          setTitle(res.data.organizations[0].name);
+          setTitle(res?.data?.organizations[0]?.name);
         }
         setIsLoading(false);
       })
@@ -58,12 +54,12 @@ const Licenses = () => {
 
   const organizationOptions =
     organization?.map((org: { id: string; name: string }) => ({
-      value: org.name,
-      label: org.name,
+      value: org?.name,
+      label: org?.name,
     })) || [];
 
   // Find the selected organization based on title
-  const selectedOrg = organization?.find((org: { name: string }) => org.name === title);
+  const selectedOrg = organization?.find((org: { name: string }) => org?.name === title);
 
   return isLoading ? (
     <SkeletonLoader />

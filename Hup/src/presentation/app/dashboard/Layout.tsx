@@ -11,14 +11,14 @@ import { URLSOKIT } from '@/core/services/endpoints';
 import { store } from '@/core/store';
 import { logout } from '@/core/services/modulesServices/auth.service';
 
+
+const SuperAdminPage = () => {
 // Initialize Socket.IO client with BASE_URL
 const socket = io(URLSOKIT, { 
   withCredentials: true,
   transports: ['websocket', 'polling'],
   reconnection: true, // Enable reconnection
 });
-
-const SuperAdminPage = () => {
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isTokenExpired, setIsTokenExpired] = useState(false);
@@ -73,7 +73,7 @@ const SuperAdminPage = () => {
 
   // Don't render the page if token is expired
   if (isTokenExpired) {
-    return null; // Or a loading spinner while redirecting
+    return <></>; // Or a loading spinner while redirecting
   }
 
   return (
@@ -83,7 +83,7 @@ const SuperAdminPage = () => {
           adminName={'adminData?.fullName'} // Replace with actual admin name if available
           onClose={handleToggleSidebar} 
         />
-      ) : null}
+      ) : <></>}
       <div className={`${isSidebarOpen && isResponsive ? 'displnone' : 'contentWrapper'}`}>
         <SuperAdminNavbar onMenuClick={handleToggleSidebar} />
         <main

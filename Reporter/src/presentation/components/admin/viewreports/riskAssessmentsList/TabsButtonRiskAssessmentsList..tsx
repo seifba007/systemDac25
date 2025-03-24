@@ -1,17 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import {  Tabs, Flex, Text, Image, Select, Box, Table, ActionIcon } from '@mantine/core';
-import {  Edit, Eye, Setting4, Trash } from 'iconsax-react';
+import { Tabs, Flex, Text, Image, Select, Box, Table, ActionIcon } from '@mantine/core';
+import { Edit, Eye, Setting4, Trash } from 'iconsax-react';
 import BOX from '../../../../../assets/boxnodata.png';
 import { useDisclosure } from '@mantine/hooks';
 import TableComponent from '@/presentation/components/boxtableglobal/Table';
 import ModelFilter from '@/presentation/components/modal/ModelFilter';
 import ModelAddRisk from '../../incidentreporting/addlRisk/ModelAddRisk';
 import DeleteModal from '@/presentation/components/modal/DeleteModal';
-import { DeleteMeetingReport } from '@/core/services/modulesServices/meetingreport.service';
 import toast from 'react-hot-toast';
 import { DeleteRiskAssessment } from '@/core/services/modulesServices/riskassessment.service';
-
-
 
 const tabStyles = (isActive: boolean) => ({
 	height: '32px',
@@ -52,12 +49,14 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 	isResponsive,
 	search,
 	titrepage,
-	onCategoryChange,
 	onSortChange,
 }) => {
 	const [modalOpen2, setModalOpen2] = useState<boolean>(false);
 	const [activeTab, setActiveTab] = useState<string>('all');
 	const [vuemodalOpen, setVuemodalOpen] = useState(false);
+	const [dataRisk, setDataRisk] = useState();
+	const [issview, setIssview] = useState<boolean>(false);
+
 	useEffect(() => {
 		onTabChange(activeTab);
 	}, [activeTab, onTabChange]);
@@ -71,9 +70,8 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 			setActiveTab(value);
 		}
 	};
-  const [idaction, setIdaction] = useState('');
+	const [idaction, setIdaction] = useState('');
 
-	
 	const handleSortChange = (sortValue: string) => onSortChange(sortValue);
 	const [isVisibilityOpen, { open: openVisibility, close: closeVisibility }] = useDisclosure(false);
 	const headerTabs = [
@@ -90,9 +88,7 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 		{ label: 'Location' },
 		{ label: 'Report Status' },
 		{ label: 'Actions' },
-	  ];
-	  
-	  
+	];
 
 	return (
 		<>
@@ -125,7 +121,7 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 											input: {
 												borderRadius: '4px',
 												background: '#E3E3E3',
-												width: '100px'
+												width: '100px',
 											},
 										})}
 									/>
@@ -149,99 +145,129 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 											: { marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px' }
 									}
 								>
-									<button className={'bntFilter'} onClick={()=>{setModalOpen2(true)}}>
+									<button
+										className={'bntFilter'}
+										onClick={() => {
+											setModalOpen2(true);
+										}}
+									>
 										<Setting4 size='14' color='var(--Grey-2, #686F7C)' />
 										{isResponsive ? null : <Text className={'txtFilter'}>Filter by</Text>}
 									</button>
-									
 								</Box>
 							</Flex>
 
 							{data?.length ? (
 								<TableComponent TableTh={TableTh}>
-								<Table.Tbody className={'tbody'}>
-								  {data.map((item, index) => (
-									<Table.Tr key={index}>
-									  {/* Severity Column */}
-									  <Table.Td>
-										<Text
-										  className="txttablename"
-										
-										>
-										  {item?.riskAssessmentReference ?? '..............'}
-										</Text>
-									  </Table.Td>
-							  
-									  {/* Report Reference Column */}
-									  <Table.Td>
-										<Text className={'txttablename'}>
-										  {item?.assessmentTitle ?? '......'}
-										</Text>
-									  </Table.Td>
-							  
-									  {/* Report Type/Status Column */}
-									  <Table.Td>
-										<Text className={'txttablename'}>
-										  {item?.projectID?.length?item.projectID:'......' }
-										</Text>
-									  </Table.Td>
-							  
-									  {/* Report Title Column */}
-									  <Table.Td>
-										<Text
-										  className={'txttablename'}
-										  style={{ maxWidth: '250px' }}
-										  lineClamp={1}
-										>
-										  {item?.assessmentDate ?? '......'}
-										</Text>
-									  </Table.Td>
-							  
-									  {/* Report Type Column */}
-									  <Table.Td>
-										<Text
-										  className={'txttablename'}
-										  style={{ maxWidth: '250px' }}
-										  lineClamp={1}
-										>
-										  {item?.businessDepartment ?? '..............'}
-										</Text>
-									  </Table.Td>
-							  
-									  {/* Date and Time Column */}
-									  <Table.Td>
-										<Text
-										  className={'txttablename'}
-										  style={{ maxWidth: '250px' }}
-										  lineClamp={1}
-										>
-										  {item?.location ?? '..............'}
-										</Text>
-									  </Table.Td>
-									  <Table.Td>
-										<Flex gap={'0.5em'} className="txttablename">
-										  {item?.assessmentStatus ?? '..............'}
-										</Flex>
-									  </Table.Td>
-									  {/* Actions Column */}
-									  <Table.Td>
-									<Flex gap={'0.5em'}>
-									<ActionIcon variant="filled" color="#4254ba" w="25px" h="20px" onClick={()=>{setVuemodalOpen(true)}} >
-																		<Eye color="#fff" size="15" variant="Bold" />
-																	  </ActionIcon>
-									<ActionIcon variant="filled" color="yellow" w="25px" h="20px" >
-																		<Edit color="#fff" size="15" variant="Bold" onClick={()=>{setVuemodalOpen(true)}}/>
-																	  </ActionIcon>
-																	
-																	  <ActionIcon variant="filled" color="red" w="25px" h="20px" onClick={()=>{setIdaction(item.id),openVisibility()}}>
-																		<Trash color="#fff" size="15" />
-																	  </ActionIcon>
-									</Flex>
-									  </Table.Td>
-									</Table.Tr>
-								  ))}
-								</Table.Tbody>
-							  </TableComponent>
+									<Table.Tbody className={'tbody'}>
+										{data.map((item, index) => (
+											<Table.Tr key={index}>
+												{/* Severity Column */}
+												<Table.Td>
+													<Text className='txttablename'>
+														{item?.riskAssessmentReference ?? '..............'}
+													</Text>
+												</Table.Td>
+
+												{/* Report Reference Column */}
+												<Table.Td>
+													<Text className={'txttablename'}>
+														{item?.assessmentTitle ?? '......'}
+													</Text>
+												</Table.Td>
+
+												{/* Report Type/Status Column */}
+												<Table.Td>
+													<Text className={'txttablename'}>
+														{item?.projectID?.length ? item.projectID : '......'}
+													</Text>
+												</Table.Td>
+
+												{/* Report Title Column */}
+												<Table.Td>
+													<Text
+														className={'txttablename'}
+														style={{ maxWidth: '250px' }}
+														lineClamp={1}
+													>
+														{item?.assessmentDate?.$date
+															? item?.assessmentDate?.$date
+															: item?.assessmentDate}
+													</Text>
+												</Table.Td>
+
+												{/* Report Type Column */}
+												<Table.Td>
+													<Text
+														className={'txttablename'}
+														style={{ maxWidth: '250px' }}
+														lineClamp={1}
+													>
+														{item?.businessDepartment ?? '..............'}
+													</Text>
+												</Table.Td>
+
+												{/* Date and Time Column */}
+												<Table.Td>
+													<Text
+														className={'txttablename'}
+														style={{ maxWidth: '250px' }}
+														lineClamp={1}
+													>
+														{item?.location ?? '..............'}
+													</Text>
+												</Table.Td>
+												<Table.Td>
+													<Flex gap={'0.5em'} className='txttablename'>
+														{item?.assessmentStatus ?? '..............'}
+													</Flex>
+												</Table.Td>
+												{/* Actions Column */}
+												<Table.Td>
+													<Flex gap={'0.5em'}>
+														<ActionIcon
+															variant='filled'
+															color='#4254ba'
+															w='25px'
+															h='20px'
+															onClick={() => {
+																setDataRisk(item);
+																setVuemodalOpen(true);
+																setIssview(true);
+															}}
+														>
+															<Eye color='#fff' size='15' variant='Bold' />
+														</ActionIcon>
+														<ActionIcon variant='filled' color='yellow' w='25px' h='20px'>
+															<Edit
+																color='#fff'
+																size='15'
+																variant='Bold'
+																onClick={() => {
+																	setDataRisk(item);
+																	setVuemodalOpen(true);
+																	setIssview(false);
+																}}
+															/>
+														</ActionIcon>
+
+														<ActionIcon
+															variant='filled'
+															color='red'
+															w='25px'
+															h='20px'
+															onClick={() => {
+																setIdaction(item.id), openVisibility();
+															}}
+														>
+															<Trash color='#fff' size='15' />
+														</ActionIcon>
+													</Flex>
+												</Table.Td>
+											</Table.Tr>
+										))}
+									</Table.Tbody>
+								</TableComponent>
 							) : (
 								<Flex
 									direction='column'
@@ -262,43 +288,47 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 					</Tabs>
 				</Flex>
 			</Flex>
-			{
-				vuemodalOpen&&(<ModelAddRisk
+			{vuemodalOpen && (
+				<ModelAddRisk
+					isview={issview}
 					open={vuemodalOpen}
 					onClose={() => setVuemodalOpen(false)}
-					data={data}
-				  />	)
-			}
-					{modalOpen2 && (
+					data={dataRisk}
+					getdata={getRiskAssessment}
+				/>
+			)}
+			{modalOpen2 && (
 				<ModelFilter
 					opened={modalOpen2}
-					onClose={()=>{setModalOpen2(false)}}
+					onClose={() => {
+						setModalOpen2(false);
+					}}
 					onSortChange={handleSortChange}
 					titrepage={titrepage}
 					sortLabels={sortLabels}
 				/>
 			)}
-<DeleteModal
-        title="Confirm Deletion"
-        deleteText="Delete permanently"
-        subtitle="Are you sure you want to delete the Risk Assessment Report"
-        opened={isVisibilityOpen}
-        close={closeVisibility}
-		handleDelete={() => {
-			if (idaction) {
-				DeleteRiskAssessment({ id: idaction })
-					.then(() => {
-						toast.success('Risk Assessment deleted');
-						closeVisibility();
-						getRiskAssessment()
-					})
-					.catch((err) => {
-						console.log(err);
-						toast.error('' + err.data.message);
-					});
-			}
-		}}
-      />
+			<DeleteModal
+				title='Confirm Deletion'
+				deleteText='Delete permanently'
+				subtitle='Are you sure you want to delete the Risk Assessment Report'
+				opened={isVisibilityOpen}
+				close={closeVisibility}
+				handleDelete={() => {
+					if (idaction) {
+						DeleteRiskAssessment({ id: idaction })
+							.then(() => {
+								toast.success('Risk Assessment deleted');
+								closeVisibility();
+								getRiskAssessment();
+							})
+							.catch((err) => {
+								console.log(err);
+								toast.error('' + err.data.message);
+							});
+					}
+				}}
+			/>
 		</>
 	);
 };

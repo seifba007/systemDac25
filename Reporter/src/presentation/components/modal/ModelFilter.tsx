@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, Radio, Text, Title, Flex, Box } from '@mantine/core';
-import '../../../sass/components/SuperAdminGlobal.scss'
+import '../../../sass/components/SuperAdminGlobal.scss';
 
 interface ModelFilterProps {
 	opened: boolean;

@@ -2,9 +2,11 @@ import { RoutesType } from '@/core/entities/routes.entity';
 import React from 'react';
 import { ADMIN } from './paths';
 
-const Layout = React.lazy(() => import('@/presentation/app/dashboard/Layout'));
 const UsermangmentRoute = React.lazy(
 	() => import('@/presentation/components/admin/usermangment/UserMangment'),
+);
+const SuperAdminPage = React.lazy(
+	() => import('@/presentation/app/dashboard/Layout'),
 );
 const Organization = React.lazy(
 	() => import('@/presentation/components/admin/organization/Organization'),
@@ -22,7 +24,7 @@ const AccountInformation = React.lazy(
 const usermangmentRoutes: Array<RoutesType> = [
 	{
 		path: '/',
-		component: Layout,
+		component: SuperAdminPage,
 		displayType: 'ALL',
 		isPrivate: true,
 		role: '4',

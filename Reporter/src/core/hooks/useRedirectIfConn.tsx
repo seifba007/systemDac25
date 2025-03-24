@@ -8,7 +8,7 @@ const useRedirectIfConn = () => {
 	const navigate = useNavigate();
 
 	useEffect(() => {
-		if (!(user?.role) ) {
+		if (!user?.role) {
 			navigate('/404');
 		}
 	}, [user, navigate]);

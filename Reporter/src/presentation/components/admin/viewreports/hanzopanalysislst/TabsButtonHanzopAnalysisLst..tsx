@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import {  Tabs, Flex, Text, Image, Select, Box, Table, ActionIcon } from '@mantine/core';
-import {  Edit, Eye, Scanner, Setting4, Trash } from 'iconsax-react';
+import { Tabs, Flex, Text, Image, Select, Box, Table, ActionIcon } from '@mantine/core';
+import { Edit, Eye, Scanner, Setting4, Trash } from 'iconsax-react';
 import BOX from '../../../../../assets/boxnodata.png';
 import { useDisclosure } from '@mantine/hooks';
 import TableComponent from '@/presentation/components/boxtableglobal/Table';
@@ -9,8 +9,6 @@ import HAZOPAnalysisModel from './HAZOPAnalysisModel';
 import DeleteModal from '@/presentation/components/modal/DeleteModal';
 import toast from 'react-hot-toast';
 import { DeleteHazopeAnalysis } from '@/core/services/modulesServices/hazop.service';
-
-
 
 const tabStyles = (isActive: boolean) => ({
 	height: '32px',
@@ -55,14 +53,11 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 	onSortChange,
 }) => {
 	const [activeTab, setActiveTab] = useState<string>('all');
-	const [modalOpen, setModalOpen] = useState<boolean>(false);
 	const [modalOpen2, setModalOpen2] = useState<boolean>(false);
 	const [isUpdt, setIsUpdt] = useState<boolean>(false);
-	const [selectedCategory, setSelectedCategory] = useState<string>('');
 	useEffect(() => {
 		onTabChange(activeTab);
-		onCategoryChange(selectedCategory);
-	}, [activeTab, selectedCategory, onTabChange]);
+	}, [activeTab, onTabChange]);
 	const handleTabChange = (value: string | null) => {
 		if (value) {
 			setActiveTab(value);
@@ -80,45 +75,41 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 		date: '02/23/2025',
 		location: 'New York Office',
 		businessDepartment: 'Operations',
-		assessmentOverview: 'This assessment reviews safety risks and mitigations for the Alpha Project rollout.',
+		assessmentOverview:
+			'This assessment reviews safety risks and mitigations for the Alpha Project rollout.',
 		teamMembers: [
-		  { name: 'John Doe', department: 'Engineering', role: 'Developer', companyName: 'TechCorp' },
-		  { name: 'Jane Smith', department: 'Marketing', role: 'Manager', companyName: 'MarketInc' },
+			{ name: 'John Doe', department: 'Engineering', role: 'Developer', companyName: 'TechCorp' },
+			{ name: 'Jane Smith', department: 'Marketing', role: 'Manager', companyName: 'MarketInc' },
 		],
 		tableRows: [
-		  {
-			activitySteps: 'Server installation',
-			hazard: 'Electrical shock',
-			initialRisk: {
-			  description: 'Exposed wires might cause shock',
-			  lossCategory: 'Health',
-			  likelihood: 'High',
-			  severity: 'Severe',
-			  riskLevel: 'High',
+			{
+				activitySteps: 'Server installation',
+				hazard: 'Electrical shock',
+				initialRisk: {
+					description: 'Exposed wires might cause shock',
+					lossCategory: 'Health',
+					likelihood: 'High',
+					severity: 'Severe',
+					riskLevel: 'High',
+				},
+				controlMeasures: {
+					preventionMeasures: 'Ensure all wires are insulated',
+					mitigationMeasures: 'Provide insulated gloves',
+				},
+				residualRisk: {
+					likelihood: 'Low',
+					severity: 'Moderate',
+					riskLevel: 'Medium',
+				},
+				actions: 'Supervise installations closely',
 			},
-			controlMeasures: {
-			  preventionMeasures: 'Ensure all wires are insulated',
-			  mitigationMeasures: 'Provide insulated gloves',
-			},
-			residualRisk: {
-			  likelihood: 'Low',
-			  severity: 'Moderate',
-			  riskLevel: 'Medium',
-			},
-			actions: 'Supervise installations closely',
-		  },
 		],
-	  };	const closeModal = () => setModalOpen(false);
+	};
 	const openModal2 = () => setModalOpen2(true);
-
 	const [idaction, setIdaction] = useState('');
-	
 	const handleSortChange = (sortValue: string) => onSortChange(sortValue);
 	const [isVisibilityOpen, { open: openVisibility, close: closeVisibility }] = useDisclosure(false);
-	const headerTabs = [
-		{ value: 'all', label: 'All' },
-	
-	];
+	const headerTabs = [{ value: 'all', label: 'All' }];
 	const TableTh = [
 		{ label: 'HAZOP ID' },
 		{ label: 'System/Process Name' },
@@ -127,10 +118,9 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 		{ label: 'End Date' },
 		{ label: 'Review Frequency' },
 		{ label: 'Actions' },
-	  ];
-	  
-	  	const [vuemodalOpen, setVuemodalOpen] = useState(false);
-	  
+	];
+
+	const [vuemodalOpen, setVuemodalOpen] = useState(false);
 
 	return (
 		<>
@@ -163,7 +153,7 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 											input: {
 												borderRadius: '4px',
 												background: '#E3E3E3',
-												width: '100px'
+												width: '100px',
 											},
 										})}
 									/>
@@ -191,94 +181,110 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 										<Setting4 size='14' color='var(--Grey-2, #686F7C)' />
 										{isResponsive ? null : <Text className={'txtFilter'}>Filter by</Text>}
 									</button>
-									
 								</Box>
 							</Flex>
 
 							{data?.length ? (
 								<TableComponent TableTh={TableTh}>
-								<Table.Tbody className={'tbody'}>
-								  {data.map((item, index) => (
-									<Table.Tr key={index}>
-									  {/* Severity Column */}
-									  <Table.Td>
-										<Text
-										  className="txttablename"
-										
-										>
-										  {item?.hazopId ?? '..............'}
-										</Text>
-									  </Table.Td>
-							  
-									  {/* Report Reference Column */}
-									  <Table.Td>
-										<Text className={'txttablename'}>
-										  {item?.systemName?.length!=0?item?.systemName: '..............'}
-										</Text>
-									  </Table.Td>
-							  
-									  {/* Report Type/Status Column */}
-									  <Table.Td>
-										<Text className={'txttablename'}>
-										  {item.objectives }
-										</Text>
-									  </Table.Td>
-							  
-									  {/* Report Title Column */}
-									  <Table.Td>
-										<Text
-										  className={'txttablename'}
-										  style={{ maxWidth: '250px' }}
-										  lineClamp={1}
-										>
-										  {item?.startDate ?? '..............'}
-										</Text>
-									  </Table.Td>
-							  
-									  {/* Report Type Column */}
-									  <Table.Td>
-										<Text
-										  className={'txttablename'}
-										  style={{ maxWidth: '250px' }}
-										  lineClamp={1}
-										>
-										  {item?.endDate ?? '..............'}
-										</Text>
-									  </Table.Td>
-							  
-									  {/* Date and Time Column */}
-									  <Table.Td>
-										<Text
-										  className={'txttablename'}
-										  style={{ maxWidth: '250px' }}
-										  lineClamp={1}
-										>
-										  {item?.reviewFrequency.length?item?.reviewFrequency: '..............'}
-										</Text>
-									  </Table.Td>
-								
-									  {/* Actions Column */}
-									  <Table.Td>
-									<Flex gap={'0.5em'}>
-										
-									<ActionIcon variant="filled" color="#4254ba" w="25px" h="20px" onClick={()=>{setVuemodalOpen(true),setIsUpdt(false)}}>
-																		<Eye color="#fff" size="15" variant="Bold" />
-																	  </ActionIcon>
-									<ActionIcon variant="filled" color="yellow" w="25px" h="20px" >
-																		<Edit color="#fff" size="15" variant="Bold" onClick={()=>{setVuemodalOpen(true),setIsUpdt(true)}} />
-																	  </ActionIcon>
-																	  <ActionIcon variant="filled" color="#17a497" w="25px" h="20px" >
-																		<Scanner color="#fff" size="15" variant="Bold" />
-																	  </ActionIcon>
-																	  <ActionIcon variant="filled" color="red" w="25px" h="20px" onClick={()=>{setIdaction(item.id),openVisibility()}}>
-																		<Trash color="#fff" size="15" />
-																	  </ActionIcon>
-									</Flex>
-									  </Table.Td>
-									</Table.Tr>
-								  ))}
-								</Table.Tbody>
-							  </TableComponent>
+									<Table.Tbody className={'tbody'}>
+										{data.map((item, index) => (
+											<Table.Tr key={index}>
+												{/* Severity Column */}
+												<Table.Td>
+													<Text className='txttablename'>{item?.hazopId ?? '..............'}</Text>
+												</Table.Td>
+
+												{/* Report Reference Column */}
+												<Table.Td>
+													<Text className={'txttablename'}>
+														{item?.systemName?.length != 0 ? item?.systemName : '..............'}
+													</Text>
+												</Table.Td>
+
+												{/* Report Type/Status Column */}
+												<Table.Td>
+													<Text className={'txttablename'}>{item.objectives}</Text>
+												</Table.Td>
+
+												{/* Report Title Column */}
+												<Table.Td>
+													<Text
+														className={'txttablename'}
+														style={{ maxWidth: '250px' }}
+														lineClamp={1}
+													>
+														{item?.startDate ?? '..............'}
+													</Text>
+												</Table.Td>
+
+												{/* Report Type Column */}
+												<Table.Td>
+													<Text
+														className={'txttablename'}
+														style={{ maxWidth: '250px' }}
+														lineClamp={1}
+													>
+														{item?.endDate ?? '..............'}
+													</Text>
+												</Table.Td>
+
+												{/* Date and Time Column */}
+												<Table.Td>
+													<Text
+														className={'txttablename'}
+														style={{ maxWidth: '250px' }}
+														lineClamp={1}
+													>
+														{item?.reviewFrequency.length
+															? item?.reviewFrequency
+															: '..............'}
+													</Text>
+												</Table.Td>
+
+												{/* Actions Column */}
+												<Table.Td>
+													<Flex gap={'0.5em'}>
+														<ActionIcon
+															variant='filled'
+															color='#4254ba'
+															w='25px'
+															h='20px'
+															onClick={() => {
+																setVuemodalOpen(true), setIsUpdt(false);
+															}}
+														>
+															<Eye color='#fff' size='15' variant='Bold' />
+														</ActionIcon>
+														<ActionIcon variant='filled' color='yellow' w='25px' h='20px'>
+															<Edit
+																color='#fff'
+																size='15'
+																variant='Bold'
+																onClick={() => {
+																	setVuemodalOpen(true), setIsUpdt(true);
+																}}
+															/>
+														</ActionIcon>
+														<ActionIcon variant='filled' color='#17a497' w='25px' h='20px'>
+															<Scanner color='#fff' size='15' variant='Bold' />
+														</ActionIcon>
+														<ActionIcon
+															variant='filled'
+															color='red'
+															w='25px'
+															h='20px'
+															onClick={() => {
+																setIdaction(item.id), openVisibility();
+															}}
+														>
+															<Trash color='#fff' size='15' />
+														</ActionIcon>
+													</Flex>
+												</Table.Td>
+											</Table.Tr>
+										))}
+									</Table.Tbody>
+								</TableComponent>
 							) : (
 								<Flex
 									direction='column'
@@ -299,46 +305,47 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 					</Tabs>
 				</Flex>
 			</Flex>
-			{
-			isUpdt&& (	<HAZOPAnalysisModel
-				isUpdte={isUpdt}
-				data={riskData}
+			{isUpdt && (
+				<HAZOPAnalysisModel
+					isUpdte={isUpdt}
+					data={riskData}
 					open={vuemodalOpen}
 					onClose={() => setVuemodalOpen(false)}
-				/>	)
+				/>
+			)}
 
-			}
-		
 			{modalOpen2 && (
 				<ModelFilter
 					opened={modalOpen2}
-					onClose={closeModal}
+					onClose={() => {
+						setModalOpen2(false);
+					}}
 					onSortChange={handleSortChange}
 					titrepage={titrepage}
 					sortLabels={sortLabels}
 				/>
 			)}
-<DeleteModal
-        title="Confirm Deletion"
-        deleteText="Delete permanently"
-        subtitle="Are you sure you want to delete the HAZOP Analysis Report"
-        opened={isVisibilityOpen}
-        close={closeVisibility}
-		handleDelete={() => {
-			if (idaction) {
-				DeleteHazopeAnalysis({ id: idaction })
-					.then(() => {
-						toast.success('HAZOP Analysis deleted');
-						closeVisibility();
-						gethazop()
-					})
-					.catch((err) => {
-						console.log(err);
-						toast.error('' + err.data.message);
-					});
-			}
-		}}
-      />
+			<DeleteModal
+				title='Confirm Deletion'
+				deleteText='Delete permanently'
+				subtitle='Are you sure you want to delete the HAZOP Analysis Report'
+				opened={isVisibilityOpen}
+				close={closeVisibility}
+				handleDelete={() => {
+					if (idaction) {
+						DeleteHazopeAnalysis({ id: idaction })
+							.then(() => {
+								toast.success('HAZOP Analysis deleted');
+								closeVisibility();
+								gethazop();
+							})
+							.catch((err) => {
+								console.log(err);
+								toast.error('' + err.data.message);
+							});
+					}
+				}}
+			/>
 		</>
 	);
 };

@@ -12,16 +12,16 @@ import './index.scss';
 import './core/i18n';
 import './sass/global.scss';
 import '@fortawesome/fontawesome-free/css/all.min.css';
-
 import { MantineProvider } from '@mantine/core';
 import theme from './theme';
 
-ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-	<Provider store={store}>
-		<PersistGate loading={null} persistor={persistor}>
-			<MantineProvider theme={theme}>
-				<EntryPoint />
-			</MantineProvider>
-		</PersistGate>
-	</Provider>,
+const root = ReactDOM.createRoot(document.getElementById('root')!);
+root.render(
+  <Provider store={store}>
+    <PersistGate loading={null} persistor={persistor}>
+	<MantineProvider theme={theme}>
+	<EntryPoint />
+	</MantineProvider>
+    </PersistGate>
+  </Provider>,
 );

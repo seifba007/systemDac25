@@ -1,489 +1,521 @@
-import { Modal, Text, TextInput, Group, Button, Checkbox, Table, Box, Divider, Flex, ActionIcon, Stack, Textarea, FileInput, MultiSelect } from '@mantine/core';
-import React, { useCallback, useState } from 'react';
-import { IconPlus, IconPrinter, IconTrash } from '@tabler/icons-react';
-import { Folder2, Trash } from 'iconsax-react';
+import React, { useState, useCallback, useEffect } from 'react';
+import {
+	Modal,
+	Stack,
+	Flex,
+	Text,
+	Select,
+	TextInput,
+	Textarea,
+	Switch,
+	MultiSelect,
+	FileInput,
+	Table,
+	Button,
+	ActionIcon,
+} from '@mantine/core';
+import { IconCheck, IconX } from '@tabler/icons-react';
+import { Folder2, FolderOpen, Trash } from 'iconsax-react';
+import TableSection from '@/presentation/tablesection/TableSection';
+import toast from 'react-hot-toast';
+import { updateMeetingReport } from '@/core/services/modulesServices/meetingreport.service';
+import { useAppSelector } from '@/core/store/hooks';
+import { selectConnectedUser } from '@/core/store/modules/authSlice';
+import { DateTimePicker } from '@mantine/dates';
 
-// Define interfaces for the agenda item, user, and component props
-interface AgendaItem {
-  agendaItem: string;
-  presenter: string;
-  timeAllocated: string;
-}
+// Types
+type FormData = {
+	meetingType: string;
+	meetingTitle: string;
+	dateTime: Date | null;
+	businessDepartment: string;
+	businessLocation: string;
+	meetingLocation: string;
+	meetingObjective: string;
+	note: string;
+};
 
-interface User {
-  _id: string;
-  name: string;
-}
+type TeamMember = { name: string; department: string; role: string; companyName: string };
+type AgendaItem = { agendaItem: string; presenter: string; timeAllocated: string };
+type ActionItem = {
+	Status: string;
+	Description: string;
+	'Assigned To': string;
+	Priority: string;
+	'Due Date': string;
+	'Control Date': string;
+	'Efficiency Check': string;
+};
+type AttachedFile = { name: string; size: number }; // Type for attachedFiles from dataMeeting
+type VueandEditModelProps = {
+	issView: boolean;
+	open: boolean;
+	onClose: () => void;
+	isEdit: boolean;
+	dataMeeting: any;
+	getdata: () => void;
+};
 
-interface FormData {
-  meetingType: string;
-  meetingTitle: string;
-  dateAndTime: string;
-  businessDepartment: string;
-  meetingLocation: string;
-  meetingObjective: string;
-  agendaItems: AgendaItem[];
-  visibleTo: string[];
-  notes: string;
-  attachedFiles: File[];
-}
+// Constants
+const INPUT_STYLES = {
+	label: { marginBottom: '5px' },
+	input: { borderColor: '#ced4da', borderRadius: '4px', height: '38px' },
+};
+const TEXTAREA_STYLES = { ...INPUT_STYLES, input: { ...INPUT_STYLES.input, minHeight: '80px' } };
+const DATA_HEADERS = [
+	'Status',
+	'Description',
+	'Assigned To',
+	'Priority',
+	'Due Date',
+	'Control Date',
+	'Efficiency Check',
+] as const;
 
-interface VueandEditModelProps {
-  open: boolean;
-  onClose: () => void;
-  isEdit: boolean; // New prop to control edit mode
-}
+const VueandEditModel: React.FC<VueandEditModelProps> = ({
+	open,
+	onClose,
+	issView,
+	dataMeeting,
+	getdata,
+}) => {
+	const user = useAppSelector(selectConnectedUser);
+	const [formData, setFormData] = useState<FormData>({
+		meetingType: '',
+		meetingTitle: '',
+		dateTime: null,
+		businessDepartment: '',
+		businessLocation: '',
+		meetingLocation: '',
+		meetingObjective: '',
+		note: '',
+	});
+	const [checked, setChecked] = useState(false);
+	const [selectedValues, setSelectedValues] = useState<string[]>([]);
+	const [files, setFiles] = useState<File[]>([]);
+	const [attachedFiles, setAttachedFiles] = useState<AttachedFile[]>([]); // State for pre-existing files from dataMeeting
+	const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+	const [agendaItems, setAgendaItems] = useState<AgendaItem[]>([]);
+	const [actionItems, setActionItems] = useState<ActionItem[]>([]);
 
-const VueandEditModel: React.FC<VueandEditModelProps> = ({ open, onClose, isEdit }) => {
-  // State for form fields
-  const [meetingType, setMeetingType] = useState<string>('Safety Meeting');
-  const [meetingTitle, setMeetingTitle] = useState<string>('fdfdf');
-  const [dateAndTime, setDateAndTime] = useState<string>('12/22/12 08:12 PM');
-  const [businessDepartment, setBusinessDepartment] = useState<string>('Administration');
-  const [meetingLocation, setMeetingLocation] = useState<string>('Online');
-  const [meetingObjective, setMeetingObjective] = useState<string>('dfgdfgdf');
-  const [agendaItems, setAgendaItems] = useState<AgendaItem[]>([]);
-  const [visibleTo, setVisibleTo] = useState<string[]>(['Mehdi Ben Abdallah']);
-  const [notes, setNotes] = useState<string>('');
-  const [files, setFiles] = useState<File[]>([]);
-  const [fileNames, setFileNames] = useState<string[]>([]);
+	// Initialize form data when dataMeeting changes
+	useEffect(() => {
+		if (dataMeeting) {
+			setFormData({
+				meetingType: dataMeeting.meetingType || '',
+				meetingTitle: dataMeeting.meetingTitle || '',
+				dateTime: dataMeeting.dateTime ? new Date(dataMeeting.dateTime) : null,
+				businessDepartment: dataMeeting.businessDepartment || '',
+				businessLocation: dataMeeting.businessLocation || '',
+				meetingLocation: dataMeeting.meetingLocation || '',
+				meetingObjective: dataMeeting.meetingObjective || '',
+				note: dataMeeting.notes || '',
+			});
+			setChecked(dataMeeting.visibleTo && dataMeeting.visibleTo[0] !== 'all');
+			setSelectedValues(
+				dataMeeting.visibleTo && dataMeeting.visibleTo[0] !== 'all' ? dataMeeting.visibleTo : [],
+			);
+			setTeamMembers(dataMeeting.attendees || []);
+			setAgendaItems(dataMeeting.agenda || []);
+			setAttachedFiles(dataMeeting.attachedFiles || []); // Set pre-existing attached files
+			setFiles([]); // New files to be uploaded
+			setActionItems(dataMeeting.actionItems || []); // Assuming actionItems might be present
+		}
+	}, [dataMeeting]);
 
-  // State for MultiSelect
-  const [checked, setChecked] = useState<boolean>(true); // Controls whether MultiSelect is enabled
-  const [selectedValues, setSelectedValues] = useState<string[]>(['Mehdi Ben Abdallah']); // For MultiSelect values
+	const updateForm = useCallback(
+		(field: keyof FormData, value: any) => setFormData((p) => ({ ...p, [field]: value })),
+		[],
+	);
+	const toggleSwitch = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+		setChecked(e.target.checked);
+		if (!e.target.checked) setSelectedValues([]);
+	}, []);
+	const handleFiles = useCallback(
+		(newFiles: File[] | null) => setFiles((p) => (newFiles ? [...p, ...newFiles] : [])),
+		[],
+	);
+	const removeFile = useCallback(
+		(index: number) => setFiles((p) => p.filter((_, i) => i !== index)),
+		[],
+	);
+	const removeAttachedFile = useCallback(
+		(index: number) => setAttachedFiles((p) => p.filter((_, i) => i !== index)),
+		[],
+	); // Remove pre-existing file
+	const addItem = useCallback(
+		<T,>(setFn: React.Dispatch<React.SetStateAction<T[]>>, defaultItem: T) =>
+			setFn((p) => [...p, defaultItem]),
+		[],
+	);
+	const removeItem = useCallback(
+		<T,>(setFn: React.Dispatch<React.SetStateAction<T[]>>, index: number) =>
+			setFn((p) => p.filter((_, i) => i !== index)),
+		[],
+	);
+	const updateItem = useCallback(
+		<T,>(
+			setFn: React.Dispatch<React.SetStateAction<T[]>>,
+			index: number,
+			key: keyof T,
+			value: string,
+		) => setFn((p) => p.map((item, i) => (i === index ? { ...item, [key]: value } : item))),
+		[],
+	);
 
-  const meetingTypes: string[] = ['Safety Meeting', 'Team Meeting', 'Board Meeting'];
-  const businessDepartments: string[] = ['Administration', 'HR', 'Engineering'];
-  const meetingLocations: string[] = ['Online', 'Office', 'Conference Room'];
+	const handleSubmit = useCallback(async () => {
+		const formattedActionItems = actionItems.map((item) => ({
+			status: item.Status || 'Pending',
+			description: item.Description || '',
+			assignedPerson: item['Assigned To'] || '',
+			priority: item.Priority || '',
+			targetDate: item['Due Date'] || '',
+			controlDate: item['Control Date'] || 'N/A',
+			efficiencyCheck: item['Efficiency Check'] || 'N/A',
+		}));
 
-  // Mock users list for MultiSelect
-  const usersList: User[] = [
-    { _id: '1', name: 'Mehdi Ben Abdallah' },
-    { _id: '2', name: 'Sabra Gargouri' },
-    { _id: '3', name: 'Said Ben Abdallah' },
-    { _id: '4', name: 'Skander Farhat' },
-    { _id: '5', name: 'jonebdallah@gmail.com' },
-    { _id: '6', name: 'Self' },
-    { _id: '7', name: 'Adem Sghaier' },
-  ];
+		const data = {
+			...formData,
+			dateTime: formData.dateTime?.toISOString() || new Date().toISOString(),
+			attendees: JSON.stringify(teamMembers),
+			agenda: JSON.stringify(agendaItems),
+			attachedFiles: JSON.stringify([
+				...attachedFiles,
+				...files.map((f) => ({ name: f.name, size: f.size })),
+			]), // Combine existing and new files
+			visibleTo: JSON.stringify(checked ? selectedValues : ['all']),
+			actionItems: JSON.stringify(formattedActionItems),
+			incidentReports: JSON.stringify([]),
+			notes: formData.note,
+		};
+		try {
+			await updateMeetingReport(data, user?.organization, dataMeeting?.id);
+			toast.success('Meeting Report created successfully');
+			getdata();
+			onClose();
+		} catch (error: any) {
+			toast.error(error.response?.data?.message || 'Failed to create Meeting Report');
+			console.error(error);
+		}
+	}, [
+		formData,
+		teamMembers,
+		agendaItems,
+		files,
+		attachedFiles,
+		selectedValues,
+		checked,
+		actionItems,
+		user,
+	]);
 
-  const addAgendaItem = useCallback(() => {
-    setAgendaItems((prev) => [...prev, { agendaItem: '', presenter: '', timeAllocated: '' }]);
-  }, []);
+	return (
+		<Modal
+			opened={open}
+			onClose={onClose}
+			title={
+				<Text fw={700} c='#6c757d' fz='18px'>
+					{' '}
+					{issView ? 'View Meeting Report' : 'Update Meeting Report'}
+				</Text>
+			}
+			fullScreen
+			radius={0}
+			transitionProps={{ transition: 'fade', duration: 200 }}
+		>
+			<Stack
+				p='1em'
+				style={{ backgroundColor: '#fff', border: '1px solid #e9ecef', borderRadius: '5px' }}
+			>
+				<Flex gap='md' wrap='wrap'>
+					<Select
+						disabled={issView}
+						label='Meeting Type *'
+						placeholder='Select type'
+						data={['Team Meeting', 'Client Meeting', 'Board Meeting', 'Other']}
+						value={formData.meetingType}
+						onChange={(v) => updateForm('meetingType', v)}
+						w='32%'
+						styles={INPUT_STYLES}
+					/>
+					<TextInput
+						disabled={issView}
+						label='Meeting Title *'
+						placeholder='Enter title'
+						value={formData.meetingTitle}
+						onChange={(e) => updateForm('meetingTitle', e.target.value)}
+						w='32%'
+						styles={INPUT_STYLES}
+					/>
+					<DateTimePicker
+						disabled={issView}
+						label='Date and Time *'
+						placeholder='mm/dd/yyyy'
+						value={formData.dateTime}
+						onChange={(v) => updateForm('dateTime', v)}
+						w='32%'
+						styles={INPUT_STYLES}
+					/>
+				</Flex>
+				<Flex gap='md' wrap='wrap'>
+					<Select
+						disabled={issView}
+						label='Business Department *'
+						placeholder='Select department'
+						data={['Finance', 'HR', 'IT', 'Marketing', 'Operations']}
+						value={formData.businessDepartment}
+						onChange={(v) => updateForm('businessDepartment', v)}
+						w='32%'
+						styles={INPUT_STYLES}
+					/>
+					<Select
+						disabled={issView}
+						label='Business Location *'
+						placeholder='Select location'
+						data={['New York', 'London', 'Tokyo', 'Sydney', 'Remote']}
+						value={formData.businessLocation}
+						onChange={(v) => updateForm('businessLocation', v)}
+						w='32%'
+						styles={INPUT_STYLES}
+					/>
+					<Select
+						disabled={issView}
+						label='Meeting Location *'
+						placeholder='Select location'
+						data={['Conference Room A', 'Conference Room B', 'Online', 'Client Office']}
+						value={formData.meetingLocation}
+						onChange={(v) => updateForm('meetingLocation', v)}
+						w='32%'
+						styles={INPUT_STYLES}
+					/>
+				</Flex>
+				<Textarea
+					disabled={issView}
+					label='Meeting Objective *'
+					placeholder='Enter objective'
+					value={formData.meetingObjective}
+					onChange={(e) => updateForm('meetingObjective', e.target.value)}
+					styles={TEXTAREA_STYLES}
+				/>
 
-  const removeAgendaItem = useCallback((index: number) => {
-    setAgendaItems((prev) => prev.filter((_, i) => i !== index));
-  }, []);
+				<Text fw={600} c='#6c757d' fz='13px' mt='md'>
+					Team Members
+				</Text>
+				{teamMembers.map((m, i) => (
+					<Flex key={i} gap='sm' align='center'>
+						<TextInput
+							disabled={issView}
+							placeholder='Name'
+							w='25%'
+							value={m.name}
+							onChange={(e) => updateItem(setTeamMembers, i, 'name', e.target.value)}
+							styles={INPUT_STYLES}
+						/>
+						<TextInput
+							disabled={issView}
+							placeholder='Department'
+							w='25%'
+							value={m.department}
+							onChange={(e) => updateItem(setTeamMembers, i, 'department', e.target.value)}
+							styles={INPUT_STYLES}
+						/>
+						<TextInput
+							disabled={issView}
+							placeholder='Role'
+							w='20%'
+							value={m.role}
+							onChange={(e) => updateItem(setTeamMembers, i, 'role', e.target.value)}
+							styles={INPUT_STYLES}
+						/>
+						<TextInput
+							disabled={issView}
+							placeholder='Company'
+							w='25%'
+							value={m.companyName}
+							onChange={(e) => updateItem(setTeamMembers, i, 'companyName', e.target.value)}
+							styles={INPUT_STYLES}
+						/>
+						<ActionIcon
+							disabled={issView}
+							color='red'
+							onClick={() => removeItem(setTeamMembers, i)}
+						>
+							<Trash size='15' />
+						</ActionIcon>
+					</Flex>
+				))}
+				<Button
+					disabled={issView}
+					w='150px'
+					bg='#6c757d'
+					onClick={() =>
+						addItem(setTeamMembers, { name: '', department: '', role: '', companyName: '' })
+					}
+				>
+					<Text fz='12px'>Add Member</Text>
+				</Button>
 
-  const handleFileChange = useCallback((newFiles: File[] | null) => {
-    if (newFiles?.length) {
-      setFiles((prev) => [...prev, ...newFiles]);
-      setFileNames((prev) => [...prev, ...newFiles.map((file) => file.name)]);
-    } else {
-      setFiles([]);
-      setFileNames([]);
-    }
-  }, []);
+				<Text fw={600} c='#6c757d' fz='13px' mt='md'>
+					Agenda
+				</Text>
+				{agendaItems.map((a, i) => (
+					<Flex key={i} gap='sm' align='center'>
+						<TextInput
+							disabled={issView}
+							placeholder='Item'
+							w='32%'
+							value={a.agendaItem}
+							onChange={(e) => updateItem(setAgendaItems, i, 'agendaItem', e.target.value)}
+							styles={INPUT_STYLES}
+						/>
+						<TextInput
+							disabled={issView}
+							placeholder='Presenter'
+							w='32%'
+							value={a.presenter}
+							onChange={(e) => updateItem(setAgendaItems, i, 'presenter', e.target.value)}
+							styles={INPUT_STYLES}
+						/>
+						<TextInput
+							disabled={issView}
+							placeholder='Time'
+							w='32%'
+							value={a.timeAllocated}
+							onChange={(e) => updateItem(setAgendaItems, i, 'timeAllocated', e.target.value)}
+							styles={INPUT_STYLES}
+						/>
+						<ActionIcon
+							disabled={issView}
+							color='red'
+							onClick={() => removeItem(setAgendaItems, i)}
+						>
+							<Trash size='15' />
+						</ActionIcon>
+					</Flex>
+				))}
+				<Button
+					disabled={issView}
+					w='150px'
+					bg='#6c757d'
+					onClick={() =>
+						addItem(setAgendaItems, { agendaItem: '', presenter: '', timeAllocated: '' })
+					}
+				>
+					<Text fz='12px'>Add Agenda Item</Text>
+				</Button>
 
-  const removeFile = useCallback((index: number) => {
-    setFiles((prev) => prev.filter((_, i) => i !== index));
-    setFileNames((prev) => prev.filter((_, i) => i !== index));
-  }, []);
-
-  // Function to collect all form data
-  const getFormData = (): FormData => {
-    return {
-      meetingType,
-      meetingTitle,
-      dateAndTime,
-      businessDepartment,
-      meetingLocation,
-      meetingObjective,
-      agendaItems,
-      visibleTo: isEdit ? selectedValues : visibleTo,
-      notes,
-      attachedFiles: files,
-    };
-  };
-
-  // Log form data (for demonstration; you can use this data as needed)
-  const handleSubmit = () => {
-    const formData = getFormData();
-    console.log('Form Data:', formData);
-  };
-
-  const inputStyles = { label: { marginBottom: '5px' }, input: { borderColor: '#ced4da', borderRadius: '4px', height: '38px' } };
-
-  return (
-    <Modal
-      opened={open}
-      onClose={onClose}
-      title={
-        <Text
-          style={{
-            textOverflow: 'ellipsis',
-            overflow: 'hidden',
-            whiteSpace: 'nowrap',
-          }}
-          fw={700}
-          c="#6c757d"
-          fz="18px"
-        >
-          Meeting Report
-        </Text>
-      }
-      fullScreen
-      radius={0}
-      transitionProps={{ transition: 'fade', duration: 200 }}
-    >
-      <Box p="md" pb={'8em'}bg={'#f2f2f7'}>
-        {/* Form Fields */}
-        <Box style={{ textAlign: 'left' }} pb={'3em'} >
-          <Text fz="18px" c="#6c757d" fw={'600'}>
-            Report Reference: MEE-1742380342452
-          </Text>
-        </Box>
-        <Group grow mb="md">
-          <Box>
-            <Text fz="14px" c="#6c757d" mb={5}>
-              Meeting Type <Text component="span" c="red">*</Text>
-            </Text>
-            <select
-              value={meetingType}
-              onChange={(e) => setMeetingType(e.target.value)}
-              disabled={!isEdit}
-              style={{
-                width: '100%',
-                padding: '8px',
-                fontSize: '14px',
-                color: '#6c757d',
-                border: '1px solid #ced4da',
-                borderRadius: '4px',
-                backgroundColor: isEdit ? '#fff' : '#f8f9fa',
-              }}
-            >
-              {meetingTypes.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </Box>
-          <TextInput
-            label={
-              <Text fz="14px" c="#6c757d">
-                Meeting Title <Text component="span" c="red">*</Text>
-              </Text>
-            }
-            placeholder="fdfdf"
-            value={meetingTitle}
-            onChange={(e) => setMeetingTitle(e.target.value)}
-            disabled={!isEdit}
-            styles={{
-              label: { marginBottom: 5 },
-              input: { fontSize: '14px', color: '#6c757d', backgroundColor: isEdit ? '#fff' : '#f8f9fa' },
-            }}
-          />
-          <TextInput
-            label={
-              <Text fz="14px" c="#6c757d">
-                Date and Time <Text component="span" c="red">*</Text>
-              </Text>
-            }
-            placeholder="12/22/12 08:12 PM"
-            value={dateAndTime}
-            onChange={(e) => setDateAndTime(e.target.value)}
-            disabled={!isEdit}
-            styles={{
-              label: { marginBottom: 5 },
-              input: { fontSize: '14px', color: '#6c757d', backgroundColor: isEdit ? '#fff' : '#f8f9fa' },
-            }}
-          />
-        </Group>
-
-        <Group grow mb="md">
-          <Box>
-            <Text fz="14px" c="#6c757d" mb={5}>
-              Business Department <Text component="span" c="red">*</Text>
-            </Text>
-            <select
-              value={businessDepartment}
-              onChange={(e) => setBusinessDepartment(e.target.value)}
-              disabled={!isEdit}
-              style={{
-                width: '100%',
-                padding: '8px',
-                fontSize: '14px',
-                color: 'gray',
-                border: '1px solid #ced4da',
-                borderRadius: '4px',
-                backgroundColor: isEdit ? '#fff' : '#f8f9fa',
-              }}
-            >
-              {businessDepartments.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </Box>
-          <Box>
-            <Text fz="14px" c="#6c757d" mb={5}>
-              Meeting Location <Text component="span" c="red">*</Text>
-            </Text>
-            <select
-              value={meetingLocation}
-              onChange={(e) => setMeetingLocation(e.target.value)}
-              disabled={!isEdit}
-              style={{
-                width: '100%',
-                padding: '8px',
-                fontSize: '14px',
-                color: 'gray',
-                border: '1px solid #ced4da',
-                borderRadius: '4px',
-                backgroundColor: isEdit ? '#fff' : '#f8f9fa',
-              }}
-            >
-              {meetingLocations.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </Box>
-          <TextInput
-            label={
-              <Text fz="14px" c="#6c757d">
-                Meeting Location <Text component="span" c="red">*</Text>
-              </Text>
-            }
-            placeholder="12/22/12 08:12 PM"
-            value={meetingLocation}
-            onChange={(e) => setMeetingLocation(e.target.value)}
-            disabled={!isEdit}
-            styles={{
-              label: { marginBottom: 5 },
-              input: { fontSize: '14px', color: '#6c757d', backgroundColor: isEdit ? '#fff' : '#f8f9fa' },
-            }}
-          />
-        </Group>
-
-        <Textarea
-          label={
-            <Text fz="14px" c="#6c757d">
-              Meeting Objective <Text component="span" c="red">*</Text>
-            </Text>
-          }
-          placeholder="dfgdfgdf"
-          value={meetingObjective}
-          onChange={(e) => setMeetingObjective(e.target.value)}
-          disabled={!isEdit}
-          mb="md"
-          styles={{
-            label: { marginBottom: 5 },
-            input: { fontSize: '14px', color: '#6c757d', backgroundColor: isEdit ? '#fff' : '#f8f9fa' },
-          }}
-        />
-
-        {/* Agenda Section */}
-        <Text ff="'Roboto', sans-serif" fw={600} c="#6c757d" fz="13px" mt="md">
-          Agenda
-        </Text>
-        <Stack mb={'1em'}>
-          {agendaItems.map((agenda, index) => (
-            <Flex align="center" justify="space-between" w="100%" key={index} gap="sm">
-              <TextInput
-                placeholder="Agenda Item"
-                w="32%"
-                value={agenda.agendaItem}
-                onChange={(e) =>
-                  setAgendaItems((prev) =>
-                    prev.map((a, i) => (i === index ? { ...a, agendaItem: e.target.value } : a))
-                  )
-                }
-                disabled={!isEdit}
-                styles={{ input: { borderColor: '#ced4da', borderRadius: '4px', height: '38px', backgroundColor: isEdit ? '#fff' : '#f8f9fa' } }}
-              />
-              <TextInput
-                placeholder="Presenter"
-                w="32%"
-                value={agenda.presenter}
-                onChange={(e) =>
-                  setAgendaItems((prev) =>
-                    prev.map((a, i) => (i === index ? { ...a, presenter: e.target.value } : a))
-                  )
-                }
-                disabled={!isEdit}
-                styles={{ input: { borderColor: '#ced4da', borderRadius: '4px', height: '38px', backgroundColor: isEdit ? '#fff' : '#f8f9fa' } }}
-              />
-              <TextInput
-                placeholder="Time Allocated"
-                w="32%"
-                value={agenda.timeAllocated}
-                onChange={(e) =>
-                  setAgendaItems((prev) =>
-                    prev.map((a, i) => (i === index ? { ...a, timeAllocated: e.target.value } : a))
-                  )
-                }
-                disabled={!isEdit}
-                styles={{ input: { borderColor: '#ced4da', borderRadius: '4px', height: '38px', backgroundColor: isEdit ? '#fff' : '#f8f9fa' } }}
-              />
-              <ActionIcon
-                variant="filled"
-                color="red"
-                w="25px"
-                h="25px"
-                onClick={() => removeAgendaItem(index)}
-                disabled={!isEdit}
-              >
-                <Trash color="#fff" size="15" />
-              </ActionIcon>
-            </Flex>
-          ))}
-        </Stack>
-        <Button w="150px" bg="#6c757d" onClick={addAgendaItem} disabled={!isEdit}>
-          <Text fz="12px">Add Agenda Item</Text>
-        </Button>
-
-        {/* Visible To Section */}
-        <Divider label={<Text fz="16px" fw={500} c="#6c757d">Visible To</Text>} labelPosition="left" my="md" />
-        {isEdit ? (
-          <MultiSelect
-            label={<Text ff="'Roboto', sans-serif" fw={600} c="#6c757d" fz="12px">Visible To</Text>}
-            placeholder="Pick value"
-            data={usersList.map((user) => ({ value: user._id, label: user.name }))}
-            value={selectedValues}
-            onChange={setSelectedValues}
-            clearable
-            w="50%"
-            disabled={!checked}
-            withCheckIcon={false}
-          />
-        ) : (
-          <Checkbox.Group value={visibleTo} onChange={setVisibleTo}>
-            <Box>
-              {[
-                'Mehdi Ben Abdallah',
-                'Sabra Gargouri',
-                'Said Ben Abdallah',
-                'Skander Farhat',
-                'jonebdallah@gmail.com',
-                'Self',
-                'Adem Sghaier',
-              ].map((name) => (
-                <Box
-                  key={name}
-                  style={{
-                    padding: '8px 16px',
-                    backgroundColor: '#f8f9fa',
-                    borderBottom: '1px solid #e9ecef',
-                  }}
-                >
-                  <Checkbox
-                    value={name}
-                    label={<Text fz="14px" c="#6c757d">{name}</Text>}
-                    disabled={!isEdit}
-                    styles={{
-                      input: {
-                        borderColor: visibleTo.includes(name) ? '#007bff' : '#ced4da',
-                        backgroundColor: visibleTo.includes(name) ? '#007bff' : '#fff',
-                        width: 16,
-                        height: 16,
-                        borderRadius: '50%',
-                      },
-                      icon: {
-                        color: '#fff',
-                        fontSize: '10px',
-                      },
-                      label: { paddingLeft: 10 },
-                    }}
-                  />
-                </Box>
-              ))}
-            </Box>
-          </Checkbox.Group>
-        )}
-
-        {/* Notes Section */}
-        <Divider label={<Text fz="16px" fw={500} c="#6c757d">Notes</Text>} labelPosition="left" my="md" />
-        <Textarea
-          label={<Text ff="'Roboto', sans-serif" fw={600} c="#6c757d" fz="12px">Note</Text>}
-          placeholder="Enter note"
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          disabled={!isEdit}
-          w="50%"
-          styles={{ input: { backgroundColor: isEdit ? '#fff' : '#f8f9fa' } }}
-        />
-
-        {/* Attached Files Section */}
-        <Divider label={<Text fz="16px" fw={500} c="#6c757d">Attached Files</Text>} labelPosition="left" my="md" />
-        <Text ff="'Roboto', sans-serif" fw={600} c="#6c757d" fz="12px">Attach Files</Text>
-        <FileInput
-          placeholder={fileNames.length > 0 ? fileNames.join(', ') : "No file chosen"}
-          multiple
-          value={files}
-          onChange={handleFileChange}
-          disabled={!isEdit}
-          rightSection={<Folder2 size="25" color="#868e96" variant="Bold" />}
-          w="50%"
-          styles={inputStyles}
-        />
-        <Table>
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th fz="13px" c="#6c757d">Image</Table.Th>
-              <Table.Th fz="13px" c="#6c757d">File Name</Table.Th>
-              <Table.Th fz="13px" c="#6c757d">Size</Table.Th>
-              <Table.Th fz="13px" c="#6c757d">Action</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {files.map((file, index) => (
-              <Table.Tr key={file.name}>
-                <Table.Td>
-                  {file.type.startsWith('image/') && (
-                    <img
-                      src={URL.createObjectURL(file)}
-                      alt={file.name}
-                      style={{ width: '50px', height: '50px', objectFit: 'cover' }}
-                    />
-                  )}
-                </Table.Td>
-                <Table.Td fz="13px" c="#6c757d">{file.name}</Table.Td>
-                <Table.Td fz="13px" c="#6c757d">{(file.size / 1024).toFixed(2)} KB</Table.Td>
-                <Table.Td>
-                  <ActionIcon
-                    variant="filled"
-                    color="red"
-                    w="25px"
-                    h="25px"
-                    onClick={() => removeFile(index)}
-                    disabled={!isEdit}
-                  >
-                    <Trash color="#fff" size="15" />
-                  </ActionIcon>
-                </Table.Td>
-              </Table.Tr>
-            ))}
-          </Table.Tbody>
-        </Table>
-
-        {/* Print Button */}
-        <Box style={{ textAlign: 'right', marginTop: '20px' }}>
-          <Button
-            leftSection={<IconPrinter size={16} />}
-            color="teal"
-            styles={{ root: { fontSize: '14px' } }}
-            onClick={handleSubmit} // Log form data on click
-          >
-            Print Report
-          </Button>
-        </Box>
-      </Box>
-    </Modal>
-  );
+				<Stack mt='md'>
+					<Switch
+						disabled={issView}
+						checked={checked}
+						onChange={toggleSwitch}
+						label='Customize Visibility'
+						color='green'
+						size='sm'
+						thumbIcon={checked ? <IconCheck size={12} /> : <IconX size={12} />}
+					/>
+					<MultiSelect
+						label='Visible To'
+						placeholder='Pick value'
+						data={[]}
+						value={selectedValues}
+						onChange={setSelectedValues}
+						disabled={!checked}
+						w='50%'
+						styles={INPUT_STYLES}
+					/>
+					<Textarea
+						disabled={issView}
+						label='Note'
+						placeholder='Enter note'
+						value={formData.note}
+						onChange={(e) => updateForm('note', e.target.value)}
+						w='50%'
+						styles={TEXTAREA_STYLES}
+					/>
+					<FileInput
+						disabled={issView}
+						label='Attach Files'
+						placeholder={files.length ? files.map((f) => f.name).join(', ') : 'No file chosen'}
+						multiple
+						value={files}
+						onChange={handleFiles}
+						w='50%'
+						styles={INPUT_STYLES}
+						rightSection={<Folder2 size='25' color='#868e96' />}
+					/>
+					<Table>
+						<Table.Thead>
+							<Table.Tr>
+								{['Image', 'File Name', 'Size', 'Action'].map((h) => (
+									<Table.Th key={h} fz='13px' c='#6c757d'>
+										{h}
+									</Table.Th>
+								))}
+							</Table.Tr>
+						</Table.Thead>
+						<Table.Tbody>
+							{/* Render pre-existing attached files */}
+							{attachedFiles.map((f, i) => (
+								<Table.Tr key={`attached-${f.name}-${i}`}>
+									<Table.Td>
+										{f.name.toLowerCase().match(/\.(jpg|jpeg|png|gif)$/) && <Text>Image</Text>}
+									</Table.Td>
+									<Table.Td>{f.name}</Table.Td>
+									<Table.Td>{(f.size / 1024).toFixed(2)} KB</Table.Td>
+									<Table.Td>
+										<ActionIcon
+											disabled={issView}
+											color='red'
+											onClick={() => removeAttachedFile(i)}
+										>
+											<Trash size='15' />
+										</ActionIcon>
+									</Table.Td>
+								</Table.Tr>
+							))}
+							{/* Render newly uploaded files */}
+							{files.map((f, i) => (
+								<Table.Tr key={`new-${f.name}-${i}`}>
+									<Table.Td>
+										{f.type.startsWith('image/') && (
+											<img
+												src={URL.createObjectURL(f)}
+												alt={f.name}
+												style={{ width: '50px', height: '50px', objectFit: 'cover' }}
+											/>
+										)}
+									</Table.Td>
+									<Table.Td>{f.name}</Table.Td>
+									<Table.Td>{(f.size / 1024).toFixed(2)} KB</Table.Td>
+									<Table.Td>
+										<ActionIcon disabled={issView} color='red' onClick={() => removeFile(i)}>
+											<Trash size='15' />
+										</ActionIcon>
+									</Table.Td>
+								</Table.Tr>
+							))}
+						</Table.Tbody>
+					</Table>
+					<TableSection
+						isAddItems={false}
+						onSubmit={(data) => setActionItems(data.flatMap((s: any) => s.items))}
+						data={DATA_HEADERS}
+					/>
+				</Stack>
+				<Flex justify='end' gap={'1em'}>
+					{!issView && (
+						<Button bg='#4254ba' onClick={handleSubmit}>
+							Update Meeting
+						</Button>
+					)}
+					<Button bg='#17a497' leftSection={<FolderOpen size='22' variant='Bold' />}>
+						Print Report
+					</Button>
+				</Flex>
+			</Stack>
+		</Modal>
+	);
 };
 
 export default VueandEditModel;

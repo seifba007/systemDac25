@@ -2,13 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { Avatar, Tabs, Flex, Text, Image, Select, Box, Table, ActionIcon } from '@mantine/core';
 import { ArrowSwapVertical, Edit, Setting4, Trash } from 'iconsax-react';
 import BOX from '../../../../assets/boxnodata.png';
-import { useAppDispatch } from '@/core/store/hooks';
 import TableComponent from '../../boxtableglobal/Table';
 import ModelFilter from '../../modal/ModelFilter';
 import Categoriesfilter from '../../modal/Categoriesfilter';
 import DeleteModal from '../../modal/DeleteModal';
 import { useDisclosure } from '@mantine/hooks';
-import CreationApps from '../../modal/CreationApps';
 
 const tabStyles = (isActive: boolean) => ({
 	height: '32px',
@@ -183,7 +181,7 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 															radius='sm'
 														/>
 														<Text className={'txttablename'}>
-															{item?.apps.name ?? '..............'}
+															{item?.apps?.name ?? '..............'}
 														</Text>
 													</Flex>
 												</Table.Td>

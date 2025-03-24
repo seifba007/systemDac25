@@ -40,7 +40,6 @@ const RegisterForm = ({ goToNextEtape }: { goToNextEtape: () => void }) => {
 
 		register(registerData)
 			.then((res) => {
-				const emailPreference = res.data.data.emailPreference;
 				dispatch(
 					setConnectedUser({
 						id: res.data.data.id,
@@ -48,14 +47,6 @@ const RegisterForm = ({ goToNextEtape }: { goToNextEtape: () => void }) => {
 						email: res.data.data.email,
 						avatar: res.data.data.avatar,
 						role: res.data.data.role.name,
-						emailPreference: {
-							marketing: emailPreference?.marketing,
-							confirmation_updates: emailPreference?.confirmation_updates,
-							payments: emailPreference?.payments,
-							projects_updates: emailPreference?.projects_updates,
-							job_application: emailPreference?.job_application,
-						},
-						oneSignalUserId: res.data.data.oneSignalUserId,
 					}),
 				);
 				goToNextEtape();

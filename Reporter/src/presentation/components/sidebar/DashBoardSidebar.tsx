@@ -1,12 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useAppSelector } from '@/core/store/hooks';
 import { selectConnectedUser } from '@/core/store/modules/authSlice';
 import { Box, Button, Flex, Menu, Stack, Text, rem } from '@mantine/core';
 import PortfolioAvatar from '../avatar/ProtofolioAvatar';
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Logout, More } from 'iconsax-react';
-import { sidebarOptions } from './constant';
-import { ERole } from '@/core/entities/auth/authSlice.entity';
 import { MenuBar } from '../menu';
 import { ConfirmationModal } from '../modal';
 import { useDisclosure } from '@mantine/hooks';
@@ -15,22 +13,13 @@ import { logout } from '@/core/services/modulesServices/auth.service';
 
 const DashBoardSidebar = () => {
 	const { isMobile } = useResponsive();
-	const { pathname } = useLocation();
-	const currentPage = pathname.split('/')[1];
 	const currentUser = useAppSelector(selectConnectedUser);
 	const user = useAppSelector(selectConnectedUser);
-	const [openedPage, setOpenedPage] = useState('');
 	const [opened, { open, close }] = useDisclosure(false);
 	const [isLoading, setIsLoading] = useState(false);
 
-	useEffect(() => {
-		setOpenedPage(currentPage);
-	}, [currentPage]);
-
 	if (!currentUser || !currentUser?.role) return null;
 	const role = currentUser.role;
-
-
 
 	return (
 		<Box
@@ -39,66 +28,63 @@ const DashBoardSidebar = () => {
 			bg={'black.0'}
 			h={'100%'}
 		>
-			
-				<>
-					<Flex
-						style={{ borderRadius: '0.25rem', cursor: 'pointer' }}
-						justify={'space-between'}
-						align='center'
-						w={'95%'}
-						ml='2%'
-						mt='1.5rem'
-						h={'3.5rem'}
-						c='black.9'
-						gap='1rem'
-					>
-						<Link to={'/portfolio'}>
-							<Flex align={'center'} gap={rem(16)}>
-								<Box ml={rem(12)}>
-									<PortfolioAvatar width='2.5rem' />
-								</Box>
-								<Box>
-									<Text fz={'0.875rem'}>{user?.fullName}</Text>
-									<Text fz={'0.75rem'} c='#7B7E84'>
-										Talent
-									</Text>
-								</Box>
-							</Flex>
-						</Link>
-						<Menu shadow='md' width={200} position='bottom-start' offset={12}>
-							<Menu.Target>
-								<Box style={{ transform: 'rotate(90deg)' }} mr={'1.5rem'}>
-									<More size='22' color='#fff' />
-								</Box>
-							</Menu.Target>
-							<MenuBar />
-						</Menu>
-					</Flex>
-				</>
-			
+			<>
+				<Flex
+					style={{ borderRadius: '0.25rem', cursor: 'pointer' }}
+					justify={'space-between'}
+					align='center'
+					w={'95%'}
+					ml='2%'
+					mt='1.5rem'
+					h={'3.5rem'}
+					c='black.9'
+					gap='1rem'
+				>
+					<Link to={'/portfolio'}>
+						<Flex align={'center'} gap={rem(16)}>
+							<Box ml={rem(12)}>
+								<PortfolioAvatar width='2.5rem' />
+							</Box>
+							<Box>
+								<Text fz={'0.875rem'}>{user?.fullName}</Text>
+								<Text fz={'0.75rem'} c='#7B7E84'>
+									Talent
+								</Text>
+							</Box>
+						</Flex>
+					</Link>
+					<Menu shadow='md' width={200} position='bottom-start' offset={12}>
+						<Menu.Target>
+							<Box style={{ transform: 'rotate(90deg)' }} mr={'1.5rem'}>
+								<More size='22' color='#fff' />
+							</Box>
+						</Menu.Target>
+						<MenuBar />
+					</Menu>
+				</Flex>
+			</>
+
 			{/* <hr className='dh-line' /> */}
 			<Stack style={{ height: 'calc(100dvh - 60px' }} justify='space-between'>
 				<Flex direction={'column'}>
-					
-						<Link to={'/'}>
-							<Flex
-								w={'95%'}
-								ml='2%'
-								h={'3rem'}
-								gap='0.625rem'
-								mt='0.75rem'
-								p={'0.75rem'}
-								align='center'
-								c={'black.9'}
-								style={{ cursor: 'pointer', borderRadius: '0.25rem' }}
-							>
-								{'item.icon'}
-								<Text fz={'0.875rem'} fw={500}>
-									{'item.text'}
-								</Text>
-							</Flex>
-						</Link>
-			
+					<Link to={'/'}>
+						<Flex
+							w={'95%'}
+							ml='2%'
+							h={'3rem'}
+							gap='0.625rem'
+							mt='0.75rem'
+							p={'0.75rem'}
+							align='center'
+							c={'black.9'}
+							style={{ cursor: 'pointer', borderRadius: '0.25rem' }}
+						>
+							{'item.icon'}
+							<Text fz={'0.875rem'} fw={500}>
+								{'item.text'}
+							</Text>
+						</Flex>
+					</Link>
 				</Flex>
 				{isMobile && (
 					<Button
@@ -129,11 +115,6 @@ const DashBoardSidebar = () => {
 			/>
 		</Box>
 	);
-};
-const getBackgroundColor = (opened: string, text: string) => {
-	const normalizedOpened = opened.replace(/-/g, '').toLocaleLowerCase();
-	const normalizedText = text.replace(/\s+/g, '').toLocaleLowerCase();
-	return normalizedOpened === normalizedText ? 'black.10' : 'black.0';
 };
 
 export default DashBoardSidebar;

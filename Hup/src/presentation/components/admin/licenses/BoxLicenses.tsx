@@ -60,13 +60,10 @@ const BoxLicenses: React.FC<BoxTableAdminProps> = ({
   getUsers,
   titl,
 }) => {
-  const filteredUsers = users?.filter((user) => user.organization.name === titl) || [];
+  const filteredUsers = users?.filter((user) => user?.organization?.name === titl) || [];
   const totalPages = Math.ceil(totalCount / resultsPerPage);
   const hasUsers = filteredUsers.length > 0;
   const hasApps = availableApps && availableApps.length > 0;
-console.log(filteredUsers)
-console.log(availableApps)
-
   const [selectedRoles, setSelectedRoles] = useState<{ [key: string]: string }>({});
   const [loading, setLoading] = useState(false);
   // Initialize selectedRoles based on InstalledApps when users or availableApps change
@@ -74,9 +71,9 @@ console.log(availableApps)
     if (!users || !availableApps) return;
 
     const initialRoles: { [key: string]: string } = {};
-    filteredUsers.forEach((user) => {
-      availableApps.forEach((app) => {
-        const key = `${user.id}-${app.name}`;
+    filteredUsers?.forEach((user) => {
+      availableApps?.forEach((app) => {
+        const key = `${user?.id}-${app?.name}`;
         const accessLevel = getUserAppAccessLevel(user, app._id);
         initialRoles[key] = accessLevel;
       });
@@ -138,12 +135,12 @@ console.log(availableApps)
                   </Center>
                 </Table.Th>
                 {hasApps ? (
-                  availableApps.map((app,index) => (
+                  availableApps?.map((app,index) => (
                     <Table.Th key={index} >
                       <Flex align={'center'} justify={'center'} gap={'0.5em'}>
-                        <Avatar src={app.logo} alt={app.name} className={'avatar'} radius="sm" />
+                        <Avatar src={app?.logo} alt={app?.name} className={'avatar'} radius="sm" />
                         <Text className={'txttablename'} c={'#6c757d'}>
-                          {app.name}
+                          {app?.name}
                         </Text>
                       </Flex>
                     </Table.Th>
@@ -162,11 +159,11 @@ console.log(availableApps)
                 filteredUsers.map((user,index) => (
                   <Table.Tr key={index} >
                     <Table.Td pl={'0.5em'}>
-                      <Text fw={'600'} fz={'13px'} c={'#6c757d'} ff={"sans-serif"}>{user.fullName}</Text>
+                      <Text fw={'600'} fz={'13px'} c={'#6c757d'} ff={"sans-serif"}>{user?.fullName}</Text>
                     </Table.Td>
                     {hasApps ? (
                       availableApps.map((app,index) => {
-                        const key = `${user.id}-${app.name}`;
+                        const key = `${user?.id}-${app?.name}`;
                         return (
                           <Table.Td key={index} pl={'4em'} pr={'4em'}>
                             <Flex align={'center'} gap={'1em'}>
@@ -179,7 +176,7 @@ console.log(availableApps)
                                 className="form-select"
                                 value={selectedRoles[key] || 'Demo'}
                                 onChange={(e) =>
-                                  handleRoleChange(user.id, app._id, app.name, e.target.value)
+                                  handleRoleChange(user?.id, app?._id, app?.name, e.target.value)
                                 }
                                 style={{
                                   padding: '0.275rem 1.25rem 0.375rem 0.2em',

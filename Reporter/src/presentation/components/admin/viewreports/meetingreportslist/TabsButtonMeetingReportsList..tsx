@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {  Tabs, Flex, Text, Image, Select, Box, Table, ActionIcon } from '@mantine/core';
+import { Tabs, Flex, Text, Image, Select, Box, Table, ActionIcon } from '@mantine/core';
 import { Edit, Eye, Setting4, Trash } from 'iconsax-react';
 import BOX from '../../../../../assets/boxnodata.png';
 import { useDisclosure } from '@mantine/hooks';
@@ -9,8 +9,6 @@ import VueandEditModel from './modeles/VueandEditModel';
 import DeleteModal from '@/presentation/components/modal/DeleteModal';
 import toast from 'react-hot-toast';
 import { DeleteMeetingReport } from '@/core/services/modulesServices/meetingreport.service';
-
-
 
 const tabStyles = (isActive: boolean) => ({
 	height: '32px',
@@ -54,8 +52,10 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 	onSortChange,
 }) => {
 	const [activeTab, setActiveTab] = useState<string>('all');
-	const [modalOpen, setModalOpen] = useState<boolean>(false);
+	const [isView, setIsView] = useState<boolean>(false);
 	const [modalOpen2, setModalOpen2] = useState<boolean>(false);
+	const [Mdata, setMdata] = useState([]);
+
 	const [isEditt, setIsEditt] = useState(false);
 	useEffect(() => {
 		onTabChange(activeTab);
@@ -70,15 +70,11 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 			setActiveTab(value);
 		}
 	};
-	const closeModal = () => setModalOpen(false);
 	const openModal2 = () => setModalOpen2(true);
-  const [idaction, setIdaction] = useState('');
+	const [idaction, setIdaction] = useState('');
 
 	const handleSortChange = (sortValue: string) => onSortChange(sortValue);
-	const headerTabs = [
-		{ value: 'all', label: 'All' },
-
-	];
+	const headerTabs = [{ value: 'all', label: 'All' }];
 	const TableTh = [
 		{ label: 'Meeting Type' },
 		{ label: 'Report Reference' },
@@ -124,7 +120,7 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 											input: {
 												borderRadius: '4px',
 												background: '#E3E3E3',
-												width: '100px'
+												width: '100px',
 											},
 										})}
 									/>
@@ -152,7 +148,6 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 										<Setting4 size='14' color='var(--Grey-2, #686F7C)' />
 										{isResponsive ? null : <Text className={'txtFilter'}>Filter by</Text>}
 									</button>
-
 								</Box>
 							</Flex>
 
@@ -163,10 +158,7 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 											<Table.Tr key={index}>
 												{/* Severity Column */}
 												<Table.Td>
-													<Text
-														className="txttablename"
-
-													>
+													<Text className='txttablename'>
 														{item?.meetingType?.length ? item?.meetingType : '..............'}
 													</Text>
 												</Table.Td>
@@ -181,7 +173,7 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 												{/* Report Type/Status Column */}
 												<Table.Td>
 													<Text className={'txttablename'}>
-														{item.meetingTitle?.length ? item.meetingTitle : '.......'}
+														{item?.meetingTitle?.length ? item.meetingTitle : '.......'}
 													</Text>
 												</Table.Td>
 
@@ -203,7 +195,9 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 														style={{ maxWidth: '250px' }}
 														lineClamp={1}
 													>
-														{item?.businessDepartment?.length ? item.businessDepartment : '.......'}
+														{item?.businessDepartment?.length
+															? item?.businessDepartment
+															: '.......'}
 													</Text>
 												</Table.Td>
 
@@ -218,22 +212,51 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 													</Text>
 												</Table.Td>
 												<Table.Td>
-													<Flex gap={'0.5em'} className="txttablename">
+													<Flex gap={'0.5em'} className='txttablename'>
 														{item?.createdBy ?? '..............'}
 													</Flex>
 												</Table.Td>
 												{/* Actions Column */}
 												<Table.Td>
 													<Flex gap={'0.5em'}>
-														<ActionIcon variant="filled" color="#4254ba" w="25px" h="20px" onClick={() => { setVuemodalOpen(true);setIsEditt(false) }} >
-															<Eye color="#fff" size="15" variant="Bold" />
+														<ActionIcon
+															variant='filled'
+															color='#4254ba'
+															w='25px'
+															h='20px'
+															onClick={() => {
+																setIsView(true);
+																setVuemodalOpen(true);
+																setIsEditt(false);
+															}}
+														>
+															<Eye color='#fff' size='15' variant='Bold' />
 														</ActionIcon>
-														<ActionIcon variant="filled" color="yellow" w="25px" h="20px" onClick={() => { setVuemodalOpen(true);setIsEditt(true) }}>
-															<Edit color="#fff" size="15" variant="Bold"  />
+														<ActionIcon
+															variant='filled'
+															color='yellow'
+															w='25px'
+															h='20px'
+															onClick={() => {
+																setIsView(false);
+																setVuemodalOpen(true);
+																setIsEditt(true);
+																setMdata(item);
+															}}
+														>
+															<Edit color='#fff' size='15' variant='Bold' />
 														</ActionIcon>
 
-														<ActionIcon variant="filled" color="red" w="25px" h="20px" onClick={()=>{setIdaction(item.id),openVisibility()}}>
-															<Trash color="#fff" size="15" />
+														<ActionIcon
+															variant='filled'
+															color='red'
+															w='25px'
+															h='20px'
+															onClick={() => {
+																setIdaction(item.id), openVisibility();
+															}}
+														>
+															<Trash color='#fff' size='15' />
 														</ActionIcon>
 													</Flex>
 												</Table.Td>
@@ -261,45 +284,49 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 					</Tabs>
 				</Flex>
 			</Flex>
-			{
-				modalOpen&&(<VueandEditModel
+			{vuemodalOpen && (
+				<VueandEditModel
+					dataMeeting={Mdata}
 					open={vuemodalOpen}
 					onClose={() => setVuemodalOpen(false)}
 					isEdit={isEditt}
-				  />		)
-			}
-			
-			{modalOpen && (
+					issView={isView}
+					getdata={getmettingg}
+				/>
+			)}
+
+			{modalOpen2 && (
 				<ModelFilter
-					opened={modalOpen}
-					onClose={closeModal}
+					opened={modalOpen2}
+					onClose={() => {
+						setModalOpen2(false);
+					}}
 					onSortChange={handleSortChange}
 					titrepage={titrepage}
 					sortLabels={sortLabels}
 				/>
 			)}
-			      <DeleteModal
-        title="Confirm Deletion"
-        deleteText="Delete permanently"
-        subtitle="Are you sure you want to delete the Meeting Report"
-        opened={isVisibilityOpen}
-        close={closeVisibility}
-		handleDelete={() => {
-			if (idaction) {
-				DeleteMeetingReport({ id: idaction })
-					.then(() => {
-						toast.success('Meeting Report deleted');
-						closeVisibility();
-						getmettingg()
-					})
-					.catch((err) => {
-						console.log(err);
-						toast.error('' + err.data.message);
-					});
-			}
-		}}
-      />
-
+			<DeleteModal
+				title='Confirm Deletion'
+				deleteText='Delete permanently'
+				subtitle='Are you sure you want to delete the Meeting Report'
+				opened={isVisibilityOpen}
+				close={closeVisibility}
+				handleDelete={() => {
+					if (idaction) {
+						DeleteMeetingReport({ id: idaction })
+							.then(() => {
+								toast.success('Meeting Report deleted');
+								closeVisibility();
+								getmettingg();
+							})
+							.catch((err) => {
+								console.log(err);
+								toast.error('' + err.data.message);
+							});
+					}
+				}}
+			/>
 		</>
 	);
 };

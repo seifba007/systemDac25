@@ -17,7 +17,7 @@ export const getUsers = ({ options = {} }: ListOptions) => {
 export const updateUser = <T extends Partial<UserEntity>>(data: T) => {
 	return RequestService.update({ entity: USER.USER_BASE_URL, data, method: 'patch' });
 };
-export const getConnectedverif= () => {
+export const getConnectedverif = () => {
 	return HttpService.getInstance().executeRequest({
 		method: 'get',
 		endPoint: USER.VERIF,

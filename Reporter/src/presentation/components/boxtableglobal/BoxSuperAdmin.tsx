@@ -47,7 +47,7 @@ const BoxTableAdmin: React.FC<BoxTableAdminProps> = ({
 					onChange={(page) => setCurrentPage(page)}
 					color='#2c74ff'
 					siblings={0}
-					size="sm"
+					size='sm'
 				/>
 			</Flex>
 		</Flex>

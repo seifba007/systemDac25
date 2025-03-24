@@ -15,7 +15,6 @@ const RoutePaths: Array<RoutesType> = [
 		displayType: 'ALL',
 		isPrivate: false,
 	},
-
 ];
 
 export default RoutePaths;
