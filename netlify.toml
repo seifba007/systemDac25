@@ -4,6 +4,6 @@
   command = "npm install && npm run build"
 
 [[redirects]]
-  from = "/*"
+  from = "./Hup"
   to = "/index.html"
   status = 200
