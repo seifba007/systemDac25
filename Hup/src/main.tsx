@@ -5,8 +5,6 @@ import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from './core/store';
 import EntryPoint from './presentation/entryPoint/entryPoint';
 import '@mantine/core/styles.css';
-import '@mantine/charts/styles.css';
-import '@mantine/tiptap/styles.css';
 import './index.scss';
 import './core/i18n';
 import './sass/global.scss';

@@ -23,7 +23,8 @@
     "cross-env": "^7.0.3",
     "patch-package": "^8.0.0",
     "postinstall-postinstall": "^2.1.0",
-    "typescript": "^5.8.2"
+    "typescript": "^5.8.2",
+    "vite-tsconfig-paths": "^5.1.4"
   },
   "dependencies": {
     "@mantine/core": "^7.17.2",
