@@ -17,6 +17,8 @@
     "build:reporter": "npm run build --prefix ./Reporter"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^28.0.3",
+    "@rollup/plugin-node-resolve": "^16.0.1",
     "concurrently": "^9.1.2",
     "cross-env": "^7.0.3",
     "patch-package": "^8.0.0",
