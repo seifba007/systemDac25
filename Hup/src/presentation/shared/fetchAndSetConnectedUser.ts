@@ -11,7 +11,6 @@ export const fetchAndSetConnectedUser = async (dispatch: Dispatch) => {
 			avatar: res.data.user.avatar,
 			role: res.data.user.role,
 			apps: res.data.user.apps,
-		
 		};
 
 		dispatch(setConnectedUser(connectedUser));

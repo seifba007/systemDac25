@@ -1,5 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, TextInput, Button, Flex, Box, Title, FileInput, Text, Select, PasswordInput } from '@mantine/core';
+import {
+	Modal,
+	TextInput,
+	Button,
+	Flex,
+	Box,
+	Title,
+	FileInput,
+	Text,
+	Select,
+	PasswordInput,
+} from '@mantine/core';
 import '../../../sass/components/SuperAdminGlobal.scss';
 import { Folder } from 'iconsax-react';
 import { getConnectedUser, updateUser } from '@/core/services/modulesServices/user.service';
@@ -167,15 +178,24 @@ const EditUserModel: React.FC<EditUserModelProps> = ({ opened, onClose, userdata
 					value={formData.email}
 					onChange={(e) => handleInputChange('email', e.target.value)}
 				/>
-							<PasswordInput
-				value={formData.password}
-				onChange={(e) => handleInputChange('password', e.target.value)}
-				label={<Text  pb={'0.5em'} c={'#868e96'}> Password</Text>}
+				<PasswordInput
+					value={formData.password}
+					onChange={(e) => handleInputChange('password', e.target.value)}
+					label={
+						<Text pb={'0.5em'} c={'#868e96'}>
+							{' '}
+							Password
+						</Text>
+					}
 				/>
 				<PasswordInput
-				onChange={(e) => handleInputChange('confirmpassword', e.target.value)}
-				label={<Text  pb={'0.5em'} c={'#868e96'}>Confirm Password</Text>}
-				value={formData.confirmpassword}
+					onChange={(e) => handleInputChange('confirmpassword', e.target.value)}
+					label={
+						<Text pb={'0.5em'} c={'#868e96'}>
+							Confirm Password
+						</Text>
+					}
+					value={formData.confirmpassword}
 				/>
 				<Select
 					label={
@@ -195,7 +215,7 @@ const EditUserModel: React.FC<EditUserModelProps> = ({ opened, onClose, userdata
 							Role
 						</Text>
 					}
-					value={formData.role}  
+					value={formData.role}
 					onChange={(value) => handleInputChange('role', value || '')}
 					data={[
 						{ value: 'SmarDac Administrator', label: 'SmarDac Administrator' },
@@ -206,7 +226,6 @@ const EditUserModel: React.FC<EditUserModelProps> = ({ opened, onClose, userdata
 						{ value: 'Organization Manager', label: 'Organization Manager' },
 						{ value: 'Organization Viewer', label: 'Organization Viewer' },
 						{ value: 'Invited User', label: 'Invited User' },
-
 					]}
 				/>
 				<FileInput

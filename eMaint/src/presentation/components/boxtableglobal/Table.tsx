@@ -16,9 +16,7 @@ const TableComponent: React.FC<TableComponentProps> = ({ TableTh, children }) =>
 				<Table className={'table'} highlightOnHover miw={900}>
 					<Table.Thead className={cx('headertable', { scrolled })}>
 						<Table.Tr>
-							{TableTh?.map((item, idx) => (
-								<Table.Th key={idx}>{item.label}</Table.Th>
-							))}
+							{TableTh?.map((item, idx) => <Table.Th key={idx}>{item.label}</Table.Th>)}
 						</Table.Tr>
 					</Table.Thead>
 					{children}

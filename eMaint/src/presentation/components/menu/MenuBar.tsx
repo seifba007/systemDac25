@@ -50,10 +50,10 @@ const MenuBar = () => {
 								{currentUser?.role === 'TALENT'
 									? 'Talent'
 									: currentUser?.role === 'EDUCATOR'
-									? 'Educator'
-									: currentUser?.role === 'CLIENT'
-									? 'Client'
-									: null}
+										? 'Educator'
+										: currentUser?.role === 'CLIENT'
+											? 'Client'
+											: null}
 							</Text>
 						</Box>
 					</Flex>

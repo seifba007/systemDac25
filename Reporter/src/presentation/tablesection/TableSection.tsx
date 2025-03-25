@@ -93,7 +93,7 @@ const TableSection = ({ isAddItems, onSubmit, data }: TableSectionProps) => {
 				<Input
 					type='date'
 					value={value}
-					onChange={(e:any) => handleItemChange(sectionId, itemId, header, e.target.value)}
+					onChange={(e: any) => handleItemChange(sectionId, itemId, header, e.target.value)}
 				/>
 			);
 		}
@@ -127,7 +127,7 @@ const TableSection = ({ isAddItems, onSubmit, data }: TableSectionProps) => {
 			<Input
 				placeholder={header}
 				value={value}
-				onChange={(e:any) => handleItemChange(sectionId, itemId, header, e.target.value)}
+				onChange={(e: any) => handleItemChange(sectionId, itemId, header, e.target.value)}
 			/>
 		);
 	};

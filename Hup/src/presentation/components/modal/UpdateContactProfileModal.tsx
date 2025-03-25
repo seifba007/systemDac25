@@ -11,7 +11,7 @@ type UpdateContactProps = {
 	getdta: () => void;
 };
 
-const UpdateContactProfileModal = ({ opened, close, data ,getdta}: UpdateContactProps) => {
+const UpdateContactProfileModal = ({ opened, close, data, getdta }: UpdateContactProps) => {
 	const [profileInfo, setProfileInfo] = useState({
 		Phone: data?.Phone || '',
 		Address: data?.Addresss || null,
@@ -24,7 +24,6 @@ const UpdateContactProfileModal = ({ opened, close, data ,getdta}: UpdateContact
 			});
 		}
 	}, [data]);
-
 
 	const handleChange = (field: keyof typeof profileInfo) => (value: string | DateValue | null) => {
 		setProfileInfo((prev) => ({

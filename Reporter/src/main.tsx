@@ -15,11 +15,11 @@ import theme from './theme';
 
 const root = ReactDOM.createRoot(document.getElementById('root')!);
 root.render(
-  <Provider store={store}>
-    <PersistGate loading={null} persistor={persistor}>
-	<MantineProvider theme={theme}>
-	<EntryPoint />
-	</MantineProvider>
-    </PersistGate>
-  </Provider>,
+	<Provider store={store}>
+		<PersistGate loading={null} persistor={persistor}>
+			<MantineProvider theme={theme}>
+				<EntryPoint />
+			</MantineProvider>
+		</PersistGate>
+	</Provider>,
 );

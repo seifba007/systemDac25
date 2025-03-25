@@ -39,7 +39,7 @@ const AddNewDocument = () => {
 
 	const handleInputChange = (
 		index: number,
-		field: keyof typeof documents[number],
+		field: keyof (typeof documents)[number],
 		value: string,
 	) => {
 		const updatedDocuments = [...documents];

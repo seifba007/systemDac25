@@ -198,7 +198,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({ fields, onSubmit, buttonanme,
 													</Button>
 												</Table.Td>
 											</Table.Tr>
-									  ))
+										))
 									: null}
 							</Table.Tbody>
 						</Table>

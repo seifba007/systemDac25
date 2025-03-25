@@ -5,9 +5,7 @@ import { ADMIN } from './paths';
 const UsermangmentRoute = React.lazy(
 	() => import('@/presentation/components/admin/usermangment/UserMangment'),
 );
-const SuperAdminPage = React.lazy(
-	() => import('@/presentation/app/dashboard/Layout'),
-);
+const SuperAdminPage = React.lazy(() => import('@/presentation/app/dashboard/Layout'));
 const Organization = React.lazy(
 	() => import('@/presentation/components/admin/organization/Organization'),
 );

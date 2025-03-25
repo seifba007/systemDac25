@@ -33,7 +33,6 @@ const EntryPoint = () => {
 				});
 
 				OneSignal.User.addTag('user_role', user.role as ERole);
-			
 			})();
 		}
 	}, [user]);

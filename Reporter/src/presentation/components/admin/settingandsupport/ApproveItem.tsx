@@ -132,7 +132,9 @@ const ApproveItem: React.FC<ModelFilterProps> = ({
 															.split('T')[0]
 													: ''
 											}
-											onChange={(e:any) => handleValidationDateChange(index, e.currentTarget.value)}
+											onChange={(e: any) =>
+												handleValidationDateChange(index, e.currentTarget.value)
+											}
 										/>
 									</Table.Td>
 

@@ -224,7 +224,7 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 															w={'40px'}
 															h={'20px'}
 														>
-															<Edit color='#fff' size={'15'}variant='Bold'  />
+															<Edit color='#fff' size={'15'} variant='Bold' />
 														</ActionIcon>
 														<ActionIcon
 															variant='filled'

@@ -280,7 +280,7 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 					sortLabels={sortLabels}
 				/>
 			)}
-		
+
 			<DeleteModal
 				title='Delete App'
 				deleteText='Delete permanently'

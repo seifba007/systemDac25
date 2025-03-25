@@ -3,7 +3,11 @@ import { Button, Flex, Input, Modal, Text, Title, rem } from '@mantine/core';
 import toast from 'react-hot-toast';
 import { fetchAndSetConnectedUser } from '@/presentation/shared/fetchAndSetConnectedUser';
 import { useAppDispatch } from '@/core/store/hooks';
-import { addUserAvatar, getConnectedUser, updateUser } from '@/core/services/modulesServices/user.service';
+import {
+	addUserAvatar,
+	getConnectedUser,
+	updateUser,
+} from '@/core/services/modulesServices/user.service';
 import { setConnectedUser } from '@/core/store/modules/authSlice';
 
 type UpdateProfileProps = {
@@ -38,30 +42,28 @@ const UpdateProfileModal = ({ opened, close, data, getuserinfo }: UpdateProfileP
 	);
 	const dispatch = useAppDispatch();
 	const handleSave = async () => {
-	
-			const formData = new FormData();
-			formData.append('fullName', profileInfo.title);
-			updateUser(formData,data?.id)
-				.then(() => {
-					toast.success('photo profile successfully updated');
-					getuserinfo()
-							getConnectedUser().then((userData) => {
-											const user = userData.data.user;
-											dispatch(
-												setConnectedUser({
-													id: user.id,
-													fullName: user.fullName,
-													email: user.email,
-													avatar: user.picture,
-													role: user.role,
-													apps: user?.organization?.availableApps,
-												}),
-											);
-										});
-					close();
-				})
-				.catch();
-
+		const formData = new FormData();
+		formData.append('fullName', profileInfo.title);
+		updateUser(formData, data?.id)
+			.then(() => {
+				toast.success('photo profile successfully updated');
+				getuserinfo();
+				getConnectedUser().then((userData) => {
+					const user = userData.data.user;
+					dispatch(
+						setConnectedUser({
+							id: user.id,
+							fullName: user.fullName,
+							email: user.email,
+							avatar: user.picture,
+							role: user.role,
+							apps: user?.organization?.availableApps,
+						}),
+					);
+				});
+				close();
+			})
+			.catch();
 	};
 	const isButtonDisabled = !profileInfo.title;
 

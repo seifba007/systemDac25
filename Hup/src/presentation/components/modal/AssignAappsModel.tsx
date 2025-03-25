@@ -301,7 +301,7 @@ const AssignAappsModel: React.FC<EditUserModelProps> = ({ opened, onClose, data,
 					<Input
 						type='number'
 						value={isFree ? '' : licenses[key] || ''}
-						onChange={(e:any) => handleLicenseChange(key, e.currentTarget.value)}
+						onChange={(e: any) => handleLicenseChange(key, e.currentTarget.value)}
 						disabled={isDisabled || isFree}
 					/>
 				</Table.Td>

@@ -24,7 +24,7 @@ const AddMProcedure = () => {
 					? {
 							...section,
 							items: [...section.items, { id: Date.now(), description: '', comment: '' }],
-					  }
+						}
 					: section,
 			),
 		);
@@ -41,7 +41,7 @@ const AddMProcedure = () => {
 					? {
 							...section,
 							items: section.items.filter((item) => item.id !== itemId),
-					  }
+						}
 					: section,
 			),
 		);
@@ -61,7 +61,7 @@ const AddMProcedure = () => {
 							items: section.items.map((item) =>
 								item.id === itemId ? { ...item, [field]: value } : item,
 							),
-					  }
+						}
 					: section,
 			),
 		);

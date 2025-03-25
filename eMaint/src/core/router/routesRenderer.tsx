@@ -135,7 +135,7 @@ const RouteMiddleware = ({ _ }: Props) => {
 				? getElement()
 				: passport.requestIsFinished && (
 						<div>{passport.userIsConnected ? getElement() : escapeRoute()}</div>
-				  )}
+					)}
 		</div>
 	);
 };

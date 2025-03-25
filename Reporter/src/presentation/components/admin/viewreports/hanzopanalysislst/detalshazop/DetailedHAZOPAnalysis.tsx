@@ -245,7 +245,7 @@ const DetailedHAZOPAnalysis: React.FC = () => {
 										<Text
 											fz='12px'
 											w={'80px'}
-											onClick={(e:any) => {
+											onClick={(e: any) => {
 												e.stopPropagation();
 												openModal('createNode', node);
 											}}
@@ -513,7 +513,7 @@ const DetailedHAZOPAnalysis: React.FC = () => {
 																	padding: '2px 6px',
 																},
 															}}
-															onClick={(e:any) =>
+															onClick={(e: any) =>
 																openRiskModal(
 																	e.currentTarget.parentElement as HTMLElement,
 																	'initial',
@@ -574,7 +574,7 @@ const DetailedHAZOPAnalysis: React.FC = () => {
 																	padding: '2px 6px',
 																},
 															}}
-															onClick={(e:any) =>
+															onClick={(e: any) =>
 																openRiskModal(
 																	e.currentTarget.parentElement as HTMLElement,
 																	'residual',

@@ -128,12 +128,12 @@ const HomeNavbar = () => {
 		user?.role === ERole.TALENT
 			? '/portfolio'
 			: user?.role === ERole.EXPERT
-			? '/calendar'
-			: user?.role === ERole.EDUCATOR
-			? '/badges/explore'
-			: user?.role === ERole.SUPERADMIN
-			? '/super-admin'
-			: '';
+				? '/calendar'
+				: user?.role === ERole.EDUCATOR
+					? '/badges/explore'
+					: user?.role === ERole.SUPERADMIN
+						? '/super-admin'
+						: '';
 
 	return (
 		<Box>
