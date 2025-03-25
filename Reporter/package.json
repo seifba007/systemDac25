@@ -22,7 +22,6 @@
     "@mantine/core": "^7.9.1",
     "@mantine/form": "^7.6.2",
     "@mantine/hooks": "^7.9.1",
-    "@reduxjs/toolkit": "^1.9.7",
     "@tabler/icons-react": "^3.30.0",
     "@tiptap/extension-link": "^2.4.0",
     "@tiptap/extension-placeholder": "^2.11.0",
