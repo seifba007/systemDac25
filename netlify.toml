@@ -1,4 +1,9 @@
+[build]
+  base = "./Hup"
+  publish = "build"
+  command = "npm install && npm run build"
+
 [[redirects]]
   from = "/*"
-  to = "/Hup/index.html"
+  to = "/index.html"
   status = 200

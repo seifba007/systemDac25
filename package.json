@@ -11,10 +11,11 @@
     "add:hup": "yarn add --prefix ./Hup",
     "add:reporter": "yarn add --prefix ./Reporter",
     "start": "concurrently \"cross-env PORT=5173 npm start --prefix ./eMaint\" \"cross-env PORT=5174 npm start --prefix ./Hup\" \"cross-env PORT=5175 npm start --prefix ./Reporter\"",
-    "build": "npm run build:emaint && npm run build:hup && npm run build:reporter",
+    "build": "npm run build:hup",
     "build:emaint": "npm run build --prefix ./eMaint",
     "build:hup": "npm run build --prefix ./Hup",
-    "build:reporter": "npm run build --prefix ./Reporter"
+    "build:reporter": "npm run build --prefix ./Reporter",
+    "start:hup": "npm start --prefix ./Hup"
   },
   "devDependencies": {
     "concurrently": "^9.1.2",
