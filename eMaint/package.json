@@ -24,6 +24,7 @@
     "@mantine/core": "^7.17.0",
     "@mantine/form": "^7.6.2",
     "@mantine/hooks": "^7.17.0",
+    "@reduxjs/toolkit": "^1.8.5",
     "@tiptap/extension-link": "^2.4.0",
     "@tiptap/extension-placeholder": "^2.11.0",
     "@tiptap/extension-text-align": "^2.4.0",

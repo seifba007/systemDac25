@@ -23,7 +23,7 @@
     "@mantine/dates": "^7.7.0",
     "@mantine/form": "^7.6.2",
     "@mantine/hooks": "^7.9.1",
-    "@reduxjs/toolkit": "^1.9.7",
+    "@reduxjs/toolkit": "^1.8.5",
     "@tabler/icons-react": "^3.30.0",
     "@tiptap/extension-link": "^2.4.0",
     "@tiptap/extension-placeholder": "^2.11.0",
