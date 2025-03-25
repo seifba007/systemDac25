@@ -24,6 +24,7 @@
     "strictNullChecks": true, // Explicitly set (already included by strict)
     "noUnusedLocals": true, // Explicitly set (already included by strict)
     "noUnusedParameters": true // Explicitly set (already included by strict)
+    
   },
   "include": ["src/**/*"], // Simplified: includes all files in src
   "exclude": ["node_modules", "dist"], // Explicitly exclude node_modules and dist
