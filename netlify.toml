@@ -1,4 +1,4 @@
 [[redirects]]
   from = "/*"
-  to = "@/Hup/index.html"
+  to = "/Hup/index.html"
   status = 200
