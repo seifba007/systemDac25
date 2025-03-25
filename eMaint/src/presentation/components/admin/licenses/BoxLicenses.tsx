@@ -9,7 +9,7 @@ import {
 	Pagination,
 	ScrollArea,
 	Table,
-	Text
+	Text,
 } from '@mantine/core';
 import BOX from '../../../../assets/boxnodata.png';
 import { ArrowDown2 } from 'iconsax-react';
@@ -34,7 +34,7 @@ interface BoxTableAdminProps {
 	setResultsPerPage: (perPage: number) => void;
 	isResponsive: boolean;
 	Data: User[];
-	titl: string
+	titl: string;
 }
 
 const BoxLicenses: React.FC<BoxTableAdminProps> = ({
@@ -51,69 +51,68 @@ const BoxLicenses: React.FC<BoxTableAdminProps> = ({
 
 	return (
 		<Flex direction={'column'} justify={'space-between'} className={'BoxTablelicence'}>
-
 			<Text pb={'1em'} fw={'600'} c={'#6c757d'} fz={'15px'}>
 				Organization Users
 			</Text>
 			{Data?.length ? (
-							<ScrollArea >
-				
-				<Table withTableBorder withColumnBorders className="customTable">
-					<Table.Thead>
-						<Table.Tr>
-							<Table.Th>
-								<Center >
-									<Text fw={'600'} c={'#6c757d'}>User</Text>
-								</Center>
-							</Table.Th>
-							{Data.map((item) => (
-								<Table.Th key={item.id} >
-									<Flex align={'center'} justify={'center'} gap={'0.5em'}>
-										<Avatar
-											src={item.apps.logo}
-											alt={item.apps.name}
-											className={'avatar'}
-											radius="sm"
-										/>
-										<Text className={'txttablename'} c={'#6c757d'}>{item.apps.name}</Text>
-									</Flex>
+				<ScrollArea>
+					<Table withTableBorder withColumnBorders className='customTable'>
+						<Table.Thead>
+							<Table.Tr>
+								<Table.Th>
+									<Center>
+										<Text fw={'600'} c={'#6c757d'}>
+											User
+										</Text>
+									</Center>
 								</Table.Th>
-							))}
-						</Table.Tr>
-					</Table.Thead>
-
-					<Table.Tbody>
-						{Data.map((item) => (
-							<Table.Tr key={item.id}>
-								<Table.Td>
-									<Text className={'txttablename'}>{item.name}</Text>
-								</Table.Td>
-								{Data.map((appItem) => (
-									<Table.Td key={appItem.id} pl={'4em'} pr={'4em'}>
-										<Flex  align={'center'} gap={'2em'}>
-											<Checkbox color='#4254ba' styles={{ label: { fontWeight: 600, fontSize: (14) } }} />
-
-											<Text
-												className={'txttablename'}
-											>
-												Assigned
+								{Data.map((item) => (
+									<Table.Th key={item.id}>
+										<Flex align={'center'} justify={'center'} gap={'0.5em'}>
+											<Avatar
+												src={item.apps.logo}
+												alt={item.apps.name}
+												className={'avatar'}
+												radius='sm'
+											/>
+											<Text className={'txttablename'} c={'#6c757d'}>
+												{item.apps.name}
 											</Text>
-												<Autocomplete
-											
-													rightSectionPointerEvents="none"
-													rightSection={<ArrowDown2 size="16" color="#6c757d" />}
-													data={['SmarDac', 'Organization Users']} // Example data
-													placeholder="Select a title"
-												  />
 										</Flex>
-									</Table.Td>
+									</Table.Th>
 								))}
 							</Table.Tr>
-						))}
-					</Table.Tbody>
-				</Table>
-			</ScrollArea>
+						</Table.Thead>
 
+						<Table.Tbody>
+							{Data.map((item) => (
+								<Table.Tr key={item.id}>
+									<Table.Td>
+										<Text className={'txttablename'}>{item.name}</Text>
+									</Table.Td>
+									{Data.map((appItem) => (
+										<Table.Td key={appItem.id} pl={'4em'} pr={'4em'}>
+											<Flex align={'center'} gap={'2em'}>
+												<Checkbox
+													color='#4254ba'
+													styles={{ label: { fontWeight: 600, fontSize: 14 } }}
+												/>
+
+												<Text className={'txttablename'}>Assigned</Text>
+												<Autocomplete
+													rightSectionPointerEvents='none'
+													rightSection={<ArrowDown2 size='16' color='#6c757d' />}
+													data={['SmarDac', 'Organization Users']} // Example data
+													placeholder='Select a title'
+												/>
+											</Flex>
+										</Table.Td>
+									))}
+								</Table.Tr>
+							))}
+						</Table.Tbody>
+					</Table>
+				</ScrollArea>
 			) : (
 				<Flex
 					direction='column'
@@ -149,7 +148,7 @@ const BoxLicenses: React.FC<BoxTableAdminProps> = ({
 					onChange={(page) => setCurrentPage(page)}
 					color='#2c74ff'
 					siblings={0}
-					size="sm"
+					size='sm'
 				/>
 			</Flex>
 		</Flex>

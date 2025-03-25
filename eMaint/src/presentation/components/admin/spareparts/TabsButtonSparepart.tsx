@@ -8,7 +8,6 @@ import ModelFilter from '../../modal/ModelFilter';
 import Categoriesfilter from '../../modal/Categoriesfilter';
 import EditUserModel from '../../modal/EditUserModel';
 
-
 const tabStyles = (isActive: boolean) => ({
 	height: '32px',
 	padding: '0 16px',
@@ -30,16 +29,15 @@ export const sortLabels = {
 	'createdAt asc': 'Added date (Newest to Oldest)',
 };
 const RoleData = [
-	
 	{
-	  roles: [
-		{ key: 'default', label: 'Default' },
-		{ key: 'nameAsc', label: 'Administrator' },
-		{ key: 'nameDesc', label: 'Editor' },
-	  ],
+		roles: [
+			{ key: 'default', label: 'Default' },
+			{ key: 'nameAsc', label: 'Administrator' },
+			{ key: 'nameDesc', label: 'Editor' },
+		],
 	},
-  ];
-  
+];
+
 interface TabsButtonProps {
 	data: any[];
 	onTabChange: (tabValue: string) => void;
@@ -66,7 +64,7 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 	const [datauser, setdatauser] = useState<any>([]);
 	const [selectAll, setSelectAll] = useState<boolean>(false);
 	const dispatch = useAppDispatch();
-	
+
 	const [selectedCategory, setSelectedCategory] = useState<string>('');
 	useEffect(() => {
 		onTabChange(activeTab);
@@ -109,8 +107,8 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 		{ label: 'Minimum Stock' },
 		{ label: 'Attachments' },
 		{ label: 'Actions' },
-	  ];
-	  
+	];
+
 	return (
 		<>
 			<Flex direction='column'>
@@ -142,7 +140,7 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 											input: {
 												borderRadius: '4px',
 												background: '#E3E3E3',
-												width:'100px'
+												width: '100px',
 											},
 										})}
 									/>
@@ -178,51 +176,54 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 							</Flex>
 
 							{data?.length ? (
-							  <TableComponent TableTh={TableTh} selectAll={selectAll}>
-							  <Table.Tbody className={'tbody'}>
-								{data.map((item,key) => (
-								  <Table.Tr key={key}>
-									<Table.Td>
-										<Text className={'txttablename'}>{item?.name ?? '..............'}</Text>
-									
-									</Table.Td>
-									<Table.Td>
-									  <Text className={'txttablename'}>{item?.partNumber ?? '..............'}</Text>
-									</Table.Td>
-									<Table.Td>
-									  <Text className={'txttablename'}>{item?.type ?? '..............'}</Text>
-									</Table.Td>
-									<Table.Td>
-									  <Text className={'txttablename'}>{item?.cost ?? '..............'}</Text>
-									</Table.Td>
-									<Table.Td>
-									  <Text className={'txttablename'}>{item?.qtyOnHand ?? '..............'}</Text>
-									</Table.Td>
-									<Table.Td>
-									  <Text className={'txttablename'}>{item?.minimumStock ?? '..............'}</Text>
-									</Table.Td>
-									<Table.Td w={'10%'} >
-									  <Text  className={'txttablename'}>
-										{item?.attachments ? item?.attachments.join(', ') : 'No Attachments'}
-									  </Text>
-									</Table.Td>
-									<Table.Td >
-									  <ActionIcon
-										onClick={() => {
-										 
-										}}
-										variant="filled"
-										color="yellow"
-										w={'40px'}
-										h={'20px'}
-									  >
-										<Edit color="#fff" size={'15'} />
-									  </ActionIcon>
-									</Table.Td>
-								  </Table.Tr>
-								))}
-							  </Table.Tbody>
-							</TableComponent>
+								<TableComponent TableTh={TableTh} selectAll={selectAll}>
+									<Table.Tbody className={'tbody'}>
+										{data.map((item, key) => (
+											<Table.Tr key={key}>
+												<Table.Td>
+													<Text className={'txttablename'}>{item?.name ?? '..............'}</Text>
+												</Table.Td>
+												<Table.Td>
+													<Text className={'txttablename'}>
+														{item?.partNumber ?? '..............'}
+													</Text>
+												</Table.Td>
+												<Table.Td>
+													<Text className={'txttablename'}>{item?.type ?? '..............'}</Text>
+												</Table.Td>
+												<Table.Td>
+													<Text className={'txttablename'}>{item?.cost ?? '..............'}</Text>
+												</Table.Td>
+												<Table.Td>
+													<Text className={'txttablename'}>
+														{item?.qtyOnHand ?? '..............'}
+													</Text>
+												</Table.Td>
+												<Table.Td>
+													<Text className={'txttablename'}>
+														{item?.minimumStock ?? '..............'}
+													</Text>
+												</Table.Td>
+												<Table.Td w={'10%'}>
+													<Text className={'txttablename'}>
+														{item?.attachments ? item?.attachments.join(', ') : 'No Attachments'}
+													</Text>
+												</Table.Td>
+												<Table.Td>
+													<ActionIcon
+														onClick={() => {}}
+														variant='filled'
+														color='yellow'
+														w={'40px'}
+														h={'20px'}
+													>
+														<Edit color='#fff' size={'15'} />
+													</ActionIcon>
+												</Table.Td>
+											</Table.Tr>
+										))}
+									</Table.Tbody>
+								</TableComponent>
 							) : (
 								<Flex
 									direction='column'
@@ -253,7 +254,7 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 				/>
 			)}
 			{modalOpen && (
-					<ModelFilter
+				<ModelFilter
 					opened={modalOpen}
 					onClose={closeModal}
 					onSortChange={handleSortChange}
@@ -261,13 +262,8 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 					sortLabels={sortLabels}
 				/>
 			)}
-				{editmodalOpen && (
-					<EditUserModel
-					opened={editmodalOpen}
-					onClose={closeModal3}
-				    userdata={datauser}
-	
-				/>
+			{editmodalOpen && (
+				<EditUserModel opened={editmodalOpen} onClose={closeModal3} userdata={datauser} />
 			)}
 		</>
 	);

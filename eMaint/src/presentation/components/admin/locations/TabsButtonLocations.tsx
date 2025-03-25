@@ -1,6 +1,28 @@
 import React, { useEffect, useState } from 'react';
-import { Avatar, Tabs, Flex, Text, Image, Select, Box, Table, ActionIcon, rem } from '@mantine/core';
-import { ArrangeHorizontal, ArrowSwapVertical, Category, DocumentText1, Edit, Eye, Refresh, Setting4, StatusUp, Trash } from 'iconsax-react';
+import {
+	Avatar,
+	Tabs,
+	Flex,
+	Text,
+	Image,
+	Select,
+	Box,
+	Table,
+	ActionIcon,
+	rem,
+} from '@mantine/core';
+import {
+	ArrangeHorizontal,
+	ArrowSwapVertical,
+	Category,
+	DocumentText1,
+	Edit,
+	Eye,
+	Refresh,
+	Setting4,
+	StatusUp,
+	Trash,
+} from 'iconsax-react';
 import BOX from '../../../../assets/boxnodata.png';
 import { useAppDispatch } from '@/core/store/hooks';
 import TableComponent from '../../boxtableglobal/Table';
@@ -11,7 +33,6 @@ import CreationOrganization from '../../modal/CreationOrganization';
 import AssignAappsModel from '../../modal/AssignAappsModel';
 import DeleteModal from '../../modal/DeleteModal';
 import { useDisclosure } from '@mantine/hooks';
-
 
 const tabStyles = (isActive: boolean) => ({
 	height: '32px',
@@ -34,7 +55,6 @@ export const sortLabels = {
 	'createdAt asc': 'Added date (Newest to Oldest)',
 };
 const RoleData = [
-
 	{
 		roles: [
 			{ key: 'default', label: 'Default' },
@@ -97,7 +117,6 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 	const handleSortChange = (sortValue: string) => onSortChange(sortValue);
 	const [isVisibilityOpen, { open: openVisibility, close: closeVisibility }] = useDisclosure(false);
 
-
 	const headerTabs = [
 		{ value: 'all', label: 'All' },
 		{ value: 'Active', label: 'Active' },
@@ -111,7 +130,7 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 		{ label: 'Longitude' },
 		{ label: 'Actions' },
 	];
-	
+
 	return (
 		<>
 			<Flex direction='column'>
@@ -143,7 +162,7 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 											input: {
 												borderRadius: '4px',
 												background: '#E3E3E3',
-												width: '100px'
+												width: '100px',
 											},
 										})}
 									/>
@@ -160,78 +179,77 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 										))}
 									</Tabs.List>
 								)}
-							
 							</Flex>
 
 							{data?.length ? (
- <TableComponent
- TableTh={TableTh}
- selectAll={selectAll}
->
- <Table.Tbody className={'tbody'}>
-   {data?.map((item) => (
-	 <Table.Tr key={item.id}>
-	   <Table.Td>
-		   <Text className={'txttablename'}>
-			 {item?.assetName ?? 'N/A'}
-		   </Text>
-	   </Table.Td>
+								<TableComponent TableTh={TableTh} selectAll={selectAll}>
+									<Table.Tbody className={'tbody'}>
+										{data?.map((item) => (
+											<Table.Tr key={item.id}>
+												<Table.Td>
+													<Text className={'txttablename'}>{item?.assetName ?? 'N/A'}</Text>
+												</Table.Td>
 
-	   <Table.Td>
-		 <Text className={'txttablename'}>
-		   {item?.assetCode ?? 'N/A'}
-		 </Text>
-	   </Table.Td>
+												<Table.Td>
+													<Text className={'txttablename'}>{item?.assetCode ?? 'N/A'}</Text>
+												</Table.Td>
 
-	   <Table.Td>
-		 <Text className={'txttablename'}>
-		   {item?.serialNumber ?? 'N/A'}
-		 </Text>
-	   </Table.Td>
+												<Table.Td>
+													<Text className={'txttablename'}>{item?.serialNumber ?? 'N/A'}</Text>
+												</Table.Td>
 
-	
-	   <Table.Td>
-		 <Text className={'txttablename'} maw={rem(600)} lineClamp={4}>
-		   {item?.actualStatus ?? 'N/A'}
-		 </Text>
-	   </Table.Td>
-	   <Table.Td>
-		 <Text className={'txttablename'} maw={rem(600)} lineClamp={4}>
-		   {item?.actualLocation ?? '	N/A'}
-		 </Text>
-	   </Table.Td>
-	   <Table.Td w={'17%'}>
-		 <Flex gap={'0.5em'}>
-		   <ActionIcon
-				 onClick={() => { setdataOrganization(item); setAssignAppsOpen(true) }}
-				 variant="filled"
-				 color="#4254ba"
-				 w={'20%'}
-				 h={'10px'}
-			   >
-				 <Eye color='#fff' size={'15'} variant='Bold'/>
-			   </ActionIcon>
-			   <ActionIcon
-				 onClick={() => { setdataOrganization(item); setEditmodalOpen(true) }}
-				 variant="filled"
-				 color="yellow"
-				 w={'20%'}
-				 h={'10px'}
-			   >
-				 <Edit color='#fff' size={'15'}variant='Bold' />
-			   </ActionIcon>
-		   <ActionIcon variant="filled" color="red" w={'20%'} h={'10px'} onClick={openVisibility}>
-					 <Trash color='#fff' size={'15'} variant='Bold' />
-				   </ActionIcon>
-		 </Flex>
-	   </Table.Td> 
-
-	 </Table.Tr>
-   ))}
- </Table.Tbody>
-</TableComponent>
-
-) : (
+												<Table.Td>
+													<Text className={'txttablename'} maw={rem(600)} lineClamp={4}>
+														{item?.actualStatus ?? 'N/A'}
+													</Text>
+												</Table.Td>
+												<Table.Td>
+													<Text className={'txttablename'} maw={rem(600)} lineClamp={4}>
+														{item?.actualLocation ?? '	N/A'}
+													</Text>
+												</Table.Td>
+												<Table.Td w={'17%'}>
+													<Flex gap={'0.5em'}>
+														<ActionIcon
+															onClick={() => {
+																setdataOrganization(item);
+																setAssignAppsOpen(true);
+															}}
+															variant='filled'
+															color='#4254ba'
+															w={'20%'}
+															h={'10px'}
+														>
+															<Eye color='#fff' size={'15'} variant='Bold' />
+														</ActionIcon>
+														<ActionIcon
+															onClick={() => {
+																setdataOrganization(item);
+																setEditmodalOpen(true);
+															}}
+															variant='filled'
+															color='yellow'
+															w={'20%'}
+															h={'10px'}
+														>
+															<Edit color='#fff' size={'15'} variant='Bold' />
+														</ActionIcon>
+														<ActionIcon
+															variant='filled'
+															color='red'
+															w={'20%'}
+															h={'10px'}
+															onClick={openVisibility}
+														>
+															<Trash color='#fff' size={'15'} variant='Bold' />
+														</ActionIcon>
+													</Flex>
+												</Table.Td>
+											</Table.Tr>
+										))}
+									</Table.Tbody>
+								</TableComponent>
+							) : (
 								<Flex
 									direction='column'
 									justify='center'
@@ -274,7 +292,6 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 					opened={editmodalOpen}
 					onClose={closeModal3}
 					data={dataOrganization}
-
 				/>
 			)}
 			<DeleteModal
@@ -283,15 +300,14 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 				subtitle='Are you certain that you want to delete this Organization permanently?'
 				opened={isVisibilityOpen}
 				close={closeVisibility}
-				handleDelete={() =>
-				console.log('delete')
-				}
+				handleDelete={() => console.log('delete')}
 			/>
-				{assignAppsOpen && (
+			{assignAppsOpen && (
 				<AssignAappsModel
 					opened={assignAppsOpen}
-					onClose={()=>{setAssignAppsOpen(false)}}
- 
+					onClose={() => {
+						setAssignAppsOpen(false);
+					}}
 				/>
 			)}
 		</>

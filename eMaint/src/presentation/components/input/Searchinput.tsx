@@ -20,21 +20,20 @@ const SearchInput: React.FC<SearchInputProps> = ({
 
 	return (
 		//search input
-		
-			<Input
-				placeholder={placeholder}
-				w={isMobile?'auto':'300px'}
-				leftSection={<SearchNormal1 size='15' color='#686F7C' />}
-				className='input-element'
-				onChange={(e: any) => {
-					onSearch(e.target.value);
-					if (setCurrentPage) {
-						setCurrentPage(1);
-					}
-				}}
-				value={searchQuery}
-			/>
 
+		<Input
+			placeholder={placeholder}
+			w={isMobile ? 'auto' : '300px'}
+			leftSection={<SearchNormal1 size='15' color='#686F7C' />}
+			className='input-element'
+			onChange={(e: any) => {
+				onSearch(e.target.value);
+				if (setCurrentPage) {
+					setCurrentPage(1);
+				}
+			}}
+			value={searchQuery}
+		/>
 	);
 };
 

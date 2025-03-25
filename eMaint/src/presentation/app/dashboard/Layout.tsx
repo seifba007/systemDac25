@@ -14,7 +14,7 @@ const SuperAdminPage = () => {
 	return (
 		<div className={`${!isSidebarOpen && isResponsive ? 'superadminPage2' : 'superadminPage'}`}>
 			<div className={`${isSidebarOpen && isResponsive ? 'displnone' : 'contentWrapper'}`}>
-				<SuperAdminNavbar   />
+				<SuperAdminNavbar />
 				<main className={`${'mainContent'} ${isSidebarOpen && isResponsive ? 'sidebarOpen' : ''}`}>
 					<Outlet />
 				</main>

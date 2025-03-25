@@ -28,8 +28,6 @@ const DashBoardSidebar = () => {
 	if (!currentUser || !currentUser?.role) return null;
 	const role = currentUser.role;
 
-
-
 	return (
 		<Box
 			className={`dashboard ${role.toLocaleLowerCase()}`}
@@ -37,66 +35,63 @@ const DashBoardSidebar = () => {
 			bg={'black.0'}
 			h={'100%'}
 		>
-			
-				<>
-					<Flex
-						style={{ borderRadius: '0.25rem', cursor: 'pointer' }}
-						justify={'space-between'}
-						align='center'
-						w={'95%'}
-						ml='2%'
-						mt='1.5rem'
-						h={'3.5rem'}
-						c='black.9'
-						gap='1rem'
-					>
-						<Link to={'/portfolio'}>
-							<Flex align={'center'} gap={rem(16)}>
-								<Box ml={rem(12)}>
-									<PortfolioAvatar width='2.5rem' />
-								</Box>
-								<Box>
-									<Text fz={'0.875rem'}>{user?.fullName}</Text>
-									<Text fz={'0.75rem'} c='#7B7E84'>
-										Talent
-									</Text>
-								</Box>
-							</Flex>
-						</Link>
-						<Menu shadow='md' width={200} position='bottom-start' offset={12}>
-							<Menu.Target>
-								<Box style={{ transform: 'rotate(90deg)' }} mr={'1.5rem'}>
-									<More size='22' color='#fff' />
-								</Box>
-							</Menu.Target>
-							<MenuBar />
-						</Menu>
-					</Flex>
-				</>
-			
+			<>
+				<Flex
+					style={{ borderRadius: '0.25rem', cursor: 'pointer' }}
+					justify={'space-between'}
+					align='center'
+					w={'95%'}
+					ml='2%'
+					mt='1.5rem'
+					h={'3.5rem'}
+					c='black.9'
+					gap='1rem'
+				>
+					<Link to={'/portfolio'}>
+						<Flex align={'center'} gap={rem(16)}>
+							<Box ml={rem(12)}>
+								<PortfolioAvatar width='2.5rem' />
+							</Box>
+							<Box>
+								<Text fz={'0.875rem'}>{user?.fullName}</Text>
+								<Text fz={'0.75rem'} c='#7B7E84'>
+									Talent
+								</Text>
+							</Box>
+						</Flex>
+					</Link>
+					<Menu shadow='md' width={200} position='bottom-start' offset={12}>
+						<Menu.Target>
+							<Box style={{ transform: 'rotate(90deg)' }} mr={'1.5rem'}>
+								<More size='22' color='#fff' />
+							</Box>
+						</Menu.Target>
+						<MenuBar />
+					</Menu>
+				</Flex>
+			</>
+
 			{/* <hr className='dh-line' /> */}
 			<Stack style={{ height: 'calc(100dvh - 60px' }} justify='space-between'>
 				<Flex direction={'column'}>
-					
-						<Link to={'/'}>
-							<Flex
-								w={'95%'}
-								ml='2%'
-								h={'3rem'}
-								gap='0.625rem'
-								mt='0.75rem'
-								p={'0.75rem'}
-								align='center'
-								c={'black.9'}
-								style={{ cursor: 'pointer', borderRadius: '0.25rem' }}
-							>
-								{'item.icon'}
-								<Text fz={'0.875rem'} fw={500}>
-									{'item.text'}
-								</Text>
-							</Flex>
-						</Link>
-			
+					<Link to={'/'}>
+						<Flex
+							w={'95%'}
+							ml='2%'
+							h={'3rem'}
+							gap='0.625rem'
+							mt='0.75rem'
+							p={'0.75rem'}
+							align='center'
+							c={'black.9'}
+							style={{ cursor: 'pointer', borderRadius: '0.25rem' }}
+						>
+							{'item.icon'}
+							<Text fz={'0.875rem'} fw={500}>
+								{'item.text'}
+							</Text>
+						</Flex>
+					</Link>
 				</Flex>
 				{isMobile && (
 					<Button

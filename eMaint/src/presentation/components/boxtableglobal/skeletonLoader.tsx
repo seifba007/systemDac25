@@ -20,7 +20,6 @@ const SkeletonLoader = () => {
 
 	return (
 		<Box className='skeleton' style={{ padding: '20px' }}>
-
 			{isMobile ? (
 				<>
 					{/* Render double skeleton header only for mobile */}
@@ -43,7 +42,6 @@ const SkeletonLoader = () => {
 						<Box className='skeleton-header-left'>
 							<Box className='skeleton-cell skeleton-rectangle' id='halfBigSkeleton'></Box>
 						</Box>
-					
 					</Box>
 
 					{/* Render 6 skeleton container only for larger screens */}

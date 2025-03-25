@@ -22,10 +22,10 @@ const ConfirmationModal = ({
 }: ConfirmationModalProps) => {
 	return (
 		<Modal
-		overlayProps={{
-			backgroundOpacity: 0.55,
-			blur: 3,
-		  }}
+			overlayProps={{
+				backgroundOpacity: 0.55,
+				blur: 3,
+			}}
 			opened={opened}
 			onClose={close}
 			centered

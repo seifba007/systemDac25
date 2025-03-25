@@ -3,11 +3,7 @@ import { ERole, LoginEntity } from '@/core/entities/auth/authSlice.entity';
 import useGoogleAuth from '@/core/hooks/useGoogleAuth';
 import useRedirectIfConn from '@/core/hooks/useRedirectIfConn';
 import { login, loginWithGoogle } from '@/core/services/modulesServices/auth.service';
-import {
-
-	getConnectedTalent,
-	getConnectedUser,
-} from '@/core/services/modulesServices/user.service';
+import { getConnectedTalent, getConnectedUser } from '@/core/services/modulesServices/user.service';
 import errorHandler from '@/core/services/requestServices/errorHandle';
 import { useAppDispatch, useAppSelector } from '@/core/store/hooks';
 import { clearConnectedUser, setConnectedUser } from '@/core/store/modules/authSlice';
@@ -26,7 +22,7 @@ import React from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { Link, useNavigate } from 'react-router-dom';
-import logo from '../../../../assets/logo-dark.png'
+import logo from '../../../../assets/logo-dark.png';
 
 const Login = () => {
 	const methods = useForm();
@@ -126,14 +122,15 @@ const Login = () => {
 			<header>
 				<div className='logo'>
 					<Link to={'/'}>
-						{isTablet ? 
-									<Link to={'/'}>
-			<Image src={logo}  h={'20px'}/>
-			</Link> : 
-			<Link to={'/'}>
-			<Image src={logo}  h={'40px'}/>
-			</Link>
-}
+						{isTablet ? (
+							<Link to={'/'}>
+								<Image src={logo} h={'20px'} />
+							</Link>
+						) : (
+							<Link to={'/'}>
+								<Image src={logo} h={'40px'} />
+							</Link>
+						)}
 					</Link>
 				</div>
 				{!isTablet && (

@@ -180,10 +180,10 @@ const EventModal = ({
 	}, [isUpdate, open]); // eslint-disable-line react-hooks/exhaustive-deps
 	return (
 		<Modal
-		overlayProps={{
-			backgroundOpacity: 0.55,
-			blur: 3,
-		  }}
+			overlayProps={{
+				backgroundOpacity: 0.55,
+				blur: 3,
+			}}
 			opened={opened}
 			size={508}
 			onClose={close}

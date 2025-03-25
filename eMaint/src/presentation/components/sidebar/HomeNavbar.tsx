@@ -230,7 +230,6 @@ const HomeNavbar = () => {
 					{user?.role === ERole.USER || !user ? (
 						<>
 							<Group visibleFrom='sm'>
-								
 								<Link to={'/login'}>
 									<Button
 										bg={'blue'}

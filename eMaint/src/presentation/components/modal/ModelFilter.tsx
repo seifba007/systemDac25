@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, Radio, Text, Title, Flex, Box } from '@mantine/core';
-import '../../../sass/components/SuperAdminGlobal.scss'
+import '../../../sass/components/SuperAdminGlobal.scss';
 
 interface ModelFilterProps {
 	opened: boolean;
@@ -32,10 +32,10 @@ const ModelFilter: React.FC<ModelFilterProps> = ({ opened, onClose, onSortChange
 
 	return (
 		<Modal
-		overlayProps={{
-			backgroundOpacity: 0.55,
-			blur: 3,
-		  }}
+			overlayProps={{
+				backgroundOpacity: 0.55,
+				blur: 3,
+			}}
 			opened={opened}
 			onClose={onClose}
 			title={

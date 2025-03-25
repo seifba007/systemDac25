@@ -5,8 +5,6 @@ import BOX from '../../../../../assets/boxnodata.png';
 import { useAppDispatch } from '@/core/store/hooks';
 import TableComponent from '../../../boxtableglobal/Table';
 
-
-
 const tabStyles = (isActive: boolean) => ({
 	height: '32px',
 	padding: '0 16px',
@@ -28,7 +26,6 @@ export const sortLabels = {
 	'createdAt asc': 'Added date (Newest to Oldest)',
 };
 
-  
 interface TabsButtonProps {
 	data: any[];
 	onTabChange: (tabValue: string) => void;
@@ -55,7 +52,7 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 	const [datauser, setdatauser] = useState<any>([]);
 	const [selectAll, setSelectAll] = useState<boolean>(false);
 	const dispatch = useAppDispatch();
-	
+
 	const [selectedCategory, setSelectedCategory] = useState<string>('');
 	useEffect(() => {
 		onTabChange(activeTab);
@@ -84,9 +81,8 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 		{ label: 'Related Asset' },
 		{ label: 'Description' },
 		{ label: 'Actions' },
-	
-	  ];
-	  
+	];
+
 	return (
 		<>
 			<Flex direction='column'>
@@ -118,7 +114,7 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 											input: {
 												borderRadius: '4px',
 												background: '#E3E3E3',
-												width:'100px'
+												width: '100px',
 											},
 										})}
 									/>
@@ -135,51 +131,48 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 										))}
 									</Tabs.List>
 								)}
-							
 							</Flex>
 
-
-
-
 							{!data?.length ? (
-							  <TableComponent TableTh={TableTh} selectAll={selectAll}>
-							  <Table.Tbody className={'tbody'} >
-								{data.map((item) => (
-								  <Table.Tr key={item.id}>
-									<Table.Td>
-										<Text className={'txttablename'}>{item?.name ?? '..............'}</Text>
-									
-									</Table.Td>
-									<Table.Td>
-									  <Text className={'txttablename'}>{item?.partNumber ?? '..............'}</Text>
-									</Table.Td>
-									<Table.Td>
-									  <Text className={'txttablename'}>{item?.type ?? '..............'}</Text>
-									</Table.Td>
-									<Table.Td>
-									  <Text className={'txttablename'}>{item?.cost ?? '..............'}</Text>
-									</Table.Td>
-									<Table.Td>
-									  <Text className={'txttablename'}>{item?.qtyOnHand ?? '..............'}</Text>
-									</Table.Td>
-								
-									<Table.Td >
-									  <ActionIcon
-										onClick={() => {
-										 
-										}}
-										variant="filled"
-										color="yellow"
-										w={'40px'}
-										h={'20px'}
-									  >
-										<Edit color="#fff" size={'15'} />
-									  </ActionIcon>
-									</Table.Td>
-								  </Table.Tr>
-								))}
-							  </Table.Tbody>
-							</TableComponent>
+								<TableComponent TableTh={TableTh} selectAll={selectAll}>
+									<Table.Tbody className={'tbody'}>
+										{data.map((item) => (
+											<Table.Tr key={item.id}>
+												<Table.Td>
+													<Text className={'txttablename'}>{item?.name ?? '..............'}</Text>
+												</Table.Td>
+												<Table.Td>
+													<Text className={'txttablename'}>
+														{item?.partNumber ?? '..............'}
+													</Text>
+												</Table.Td>
+												<Table.Td>
+													<Text className={'txttablename'}>{item?.type ?? '..............'}</Text>
+												</Table.Td>
+												<Table.Td>
+													<Text className={'txttablename'}>{item?.cost ?? '..............'}</Text>
+												</Table.Td>
+												<Table.Td>
+													<Text className={'txttablename'}>
+														{item?.qtyOnHand ?? '..............'}
+													</Text>
+												</Table.Td>
+
+												<Table.Td>
+													<ActionIcon
+														onClick={() => {}}
+														variant='filled'
+														color='yellow'
+														w={'40px'}
+														h={'20px'}
+													>
+														<Edit color='#fff' size={'15'} />
+													</ActionIcon>
+												</Table.Td>
+											</Table.Tr>
+										))}
+									</Table.Tbody>
+								</TableComponent>
 							) : (
 								<Flex
 									direction='column'
@@ -200,11 +193,8 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 					</Tabs>
 				</Flex>
 			</Flex>
-		
 		</>
 	);
 };
-
-
 
 export default TabsButton;

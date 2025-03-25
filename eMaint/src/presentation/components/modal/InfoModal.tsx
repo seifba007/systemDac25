@@ -16,7 +16,7 @@ const InfoModal = ({ opened, closeInfo }: { opened: boolean; closeInfo: () => vo
 			overlayProps={{
 				backgroundOpacity: 0.55,
 				blur: 3,
-			  }}
+			}}
 			radius={'md'}
 			centered
 		>

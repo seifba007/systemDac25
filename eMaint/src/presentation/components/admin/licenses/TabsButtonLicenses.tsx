@@ -10,7 +10,6 @@ import DeleteModal from '../../modal/DeleteModal';
 import { useDisclosure } from '@mantine/hooks';
 import CreationApps from '../../modal/CreationApps';
 
-
 const tabStyles = (isActive: boolean) => ({
 	height: '32px',
 	padding: '0 16px',
@@ -32,7 +31,6 @@ export const sortLabels = {
 	'createdAt asc': 'Added date (Newest to Oldest)',
 };
 const RoleData = [
-
 	{
 		roles: [
 			{ key: 'default', label: 'Default' },
@@ -136,7 +134,7 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 											input: {
 												borderRadius: '4px',
 												background: '#E3E3E3',
-												width: '100px'
+												width: '100px',
 											},
 										})}
 									/>
@@ -172,10 +170,7 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 							</Flex>
 
 							{data?.length ? (
-								<TableComponent
-									TableTh={TableTh}
-
-								>
+								<TableComponent TableTh={TableTh}>
 									<Table.Tbody className={'tbody'}>
 										{data?.map((item) => (
 											<Table.Tr key={item.id}>
@@ -202,11 +197,12 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 												<Table.Td>
 													<Text className={'txttablename'}>
 														<Box
-															className={item.active === false ? 'Blocked' : statusClassMap['Active']}
+															className={
+																item.active === false ? 'Blocked' : statusClassMap['Active']
+															}
 														>
 															{item.active === false ? 'Blocked' : 'Active'}
 														</Box>
-
 													</Text>
 												</Table.Td>
 
@@ -218,22 +214,28 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 													>
 														{item?.path ?? '..............'}
 													</Text>
-
 												</Table.Td>
 												<Table.Td>
-
 													<Flex gap={'0.5em'}>
-
 														<ActionIcon
-															onClick={() => { setdataOrganization(item); setEditmodalOpen(true) }}
-															variant="filled"
-															color="yellow"
+															onClick={() => {
+																setdataOrganization(item);
+																setEditmodalOpen(true);
+															}}
+															variant='filled'
+															color='yellow'
 															w={'40px'}
 															h={'20px'}
 														>
 															<Edit color='#fff' size={'15'} />
 														</ActionIcon>
-														<ActionIcon variant="filled" color="red" w={'40px'} h={'20px'} onClick={openVisibility}>
+														<ActionIcon
+															variant='filled'
+															color='red'
+															w={'40px'}
+															h={'20px'}
+															onClick={openVisibility}
+														>
 															<Trash color='#fff' size={'15'} />
 														</ActionIcon>
 													</Flex>
@@ -283,7 +285,9 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 			{editmodalOpen && (
 				<CreationApps
 					opened={editmodalOpen}
-					onClose={() => { setEditmodalOpen(false) }}
+					onClose={() => {
+						setEditmodalOpen(false);
+					}}
 					data={dataOrganization}
 				/>
 			)}
@@ -293,11 +297,8 @@ const TabsButton: React.FC<TabsButtonProps> = ({
 				subtitle='Are you certain that you want to delete this App permanently?'
 				opened={isVisibilityOpen}
 				close={closeVisibility}
-				handleDelete={() =>
-					console.log('delete')
-				}
+				handleDelete={() => console.log('delete')}
 			/>
-
 		</>
 	);
 };

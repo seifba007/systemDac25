@@ -77,10 +77,10 @@ const SearchAndSelect: React.FC<SearchAndSelectProps> = ({
 				)}
 			</Flex>
 			<Modal
-			overlayProps={{
-				backgroundOpacity: 0.55,
-				blur: 3,
-			  }}
+				overlayProps={{
+					backgroundOpacity: 0.55,
+					blur: 3,
+				}}
 				radius={'md'}
 				opened={opened}
 				onClose={close}
