@@ -396,11 +396,6 @@
     "@jridgewell/resolve-uri" "^3.1.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
 
-"@mantine/charts@^7.7.0":
-  version "7.17.2"
-  resolved "https://registry.npmjs.org/@mantine/charts/-/charts-7.17.2.tgz"
-  integrity sha512-ckB23pIqRjzysUz2EiWZD9AVyf7t0r7o7zfJbl01nzOezFgYq5RGeRoxvpcsfBC+YoSbB/43rjNcXtYhtA7QzA==
-
 "@mantine/core@^7.9.1":
   version "7.9.1"
   resolved "https://registry.npmjs.org/@mantine/core/-/core-7.9.1.tgz"
@@ -3800,6 +3795,7 @@ rollup@^4.13.0:
     "@rollup/rollup-linux-arm64-musl" "4.13.1"
     "@rollup/rollup-linux-riscv64-gnu" "4.13.1"
     "@rollup/rollup-linux-s390x-gnu" "4.13.1"
+    "@rollup/rollup-linux-x64-gnu" "4.13.1"
     "@rollup/rollup-linux-x64-musl" "4.13.1"
     "@rollup/rollup-win32-arm64-msvc" "4.13.1"
     "@rollup/rollup-win32-ia32-msvc" "4.13.1"

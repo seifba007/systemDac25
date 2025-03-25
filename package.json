@@ -20,6 +20,11 @@
     "concurrently": "^9.1.2",
     "cross-env": "^7.0.3",
     "patch-package": "^8.0.0",
-    "postinstall-postinstall": "^2.1.0"
+    "postinstall-postinstall": "^2.1.0",
+    "typescript": "^5.8.2"
+  },
+  "dependencies": {
+    "@mantine/core": "^7.17.2",
+    "@mantine/hooks": "^7.17.2"
   }
 }
