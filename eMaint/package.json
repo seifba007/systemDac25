@@ -21,13 +21,9 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@gsap/react": "^2.1.0",
-    "@mantine/charts": "^7.17.0",
     "@mantine/core": "^7.17.0",
-    "@mantine/dates": "^7.17.0",
     "@mantine/form": "^7.6.2",
     "@mantine/hooks": "^7.17.0",
-    "@mantine/tiptap": "^7.9.1",
-    "@reduxjs/toolkit": "^2.2.7",
     "@tiptap/extension-link": "^2.4.0",
     "@tiptap/extension-placeholder": "^2.11.0",
     "@tiptap/extension-text-align": "^2.4.0",
