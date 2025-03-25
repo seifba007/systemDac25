@@ -1,19 +1,4 @@
 [[redirects]]
-  from = "/Hup/*"
-  to = "/Hup/index.html"
-  status = 200
-
-[[redirects]]
-  from = "/Reporter/*"
-  to = "/Reporter/index.html"
-  status = 200
-
-[[redirects]]
-  from = "/eMaint/*"
-  to = "/eMaint/index.html"
-  status = 200
-
-[[redirects]]
   from = "/*"
   to = "/Hup/index.html"
   status = 200
