@@ -166,7 +166,7 @@ const PhoneNumberInput = ({
 				placeholder={selectedCountry.mask}
 				w={'100%'}
 				value={phoneNumber.number}
-				onChange={(e:any) => {
+				onChange={(e: any) => {
 					setPhoneNumber({
 						code: selectedCountry.code,
 						number: e.currentTarget.value,
