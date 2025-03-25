@@ -1,0 +1,192 @@
+@use "../../../utilities/variables" as *;
+@use "../../../utilities/mixins" as *;
+
+main#signup {
+    .box-link {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        gap: 0.75rem;
+    }
+    .verif-code {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+        margin-top: 5.75rem;
+        @include tablet {
+            margin-top: 1.5rem;
+            align-items: start;
+            margin-top: 3rem;
+
+        }
+        > svg {
+            @include tablet {
+                display: none;
+            }
+        }
+        img {
+            margin-bottom: 1.75rem;
+        }
+        p {
+            color: $greyBlue;
+            text-align: center;
+            line-height: 1.5rem;
+            width: 30rem;
+            margin-bottom: 3.5rem;
+            @include tablet {
+                text-align: start;
+                margin-bottom: 1.75rem;
+                width: 90%;
+            }
+            span {
+                color: $darkGrey;
+                font-weight: bold;
+            }
+        }
+    }
+    .input {
+        @include tablet {
+            width: 100%;
+        }
+        @include mobile {
+            width: 100%;
+        }
+        input {
+            @include tablet {
+                width: 100%;
+            }
+            @include mobile {
+                width: 100%;
+            }
+        }
+    }
+    .resend {
+        text-align: center;
+        margin-top: 3.5rem;
+        font-size: 0.88rem;
+        span {
+            color: $blue;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+    }
+    .right-signup {
+        padding: 2.5rem 0;
+        > svg {
+            display: block;
+            margin: auto;
+            margin-bottom: 3.75rem;
+        }
+        .link {
+            text-align: end;
+            font-size: 1rem;
+            font-weight: 500;
+            line-height: 1.25rem;
+            margin-bottom: 3rem;
+            margin-right: 2.5rem;
+            span {
+                color: $black;
+                font-weight: 600;
+                text-decoration: underline;
+                text-underline-offset: 4px;
+                text-decoration-thickness: 2px
+            }
+            @include tablet {
+                margin-top: 1rem;
+                text-align: center;
+                span {
+                    color: $blue;
+                }
+            }
+        }
+        .content {
+            margin-left: 35rem;
+            width: calc(100% - 35rem);
+            @include computer {
+                width: 60%;
+                margin: 0 auto;
+            }
+            @include tablet {
+                margin-left: 0;
+                width: 90%;
+                margin: auto;
+            }
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            .signup-form {
+                width: 35rem;
+                h1 {
+                    font-size: 2.5rem;
+                    font-weight: 600;
+                    text-align: center;
+                    margin-bottom: 2.5rem;
+                    @include tablet {
+                        font-size: 1rem;
+                        margin-bottom: 1.5rem;
+                        text-align: start;
+                    }
+                }
+                button.google {
+                    position: relative;
+                    border: 0.75px solid $lightGrey;
+                    background: $offWhiteLight;
+                    width: 100%;
+                    height: 3rem;
+                    color: $black;
+                    border-radius: 8px;
+                    cursor: pointer;
+        
+                    img {
+                        width: 1.5rem;
+                        height: 1.5rem;
+                    }
+        
+                    @include flexcenter;
+                    gap: 0.5rem;
+                }
+                .wrapper {
+                    position: relative;
+                    margin: 1.75rem 0;
+                    text-align: center;
+                    &::before,
+                    &::after {
+                        content: "";
+                        position: absolute;
+                        top: 50%;
+                        width: 15.8rem;
+                        border-bottom: 1px solid $lightBlue;
+                    }
+
+                    &::before {
+                        left: 0;
+                    }
+
+                    &::after {
+                        right: 0;
+                    }
+
+                    span {
+                        position: relative;
+                        text-align: center;
+                        color: $greyBlue;
+                    }
+                }
+                p {
+                    font-size: 1rem;
+                    margin-bottom: 2.5rem;
+                    font-weight: 400;
+                    span {
+                        color: $black;
+                        font-weight: 600;
+                        text-decoration: underline;
+                        text-underline-offset: 4px;
+                        text-decoration-thickness: 2px
+                    }
+                }
+            }
+        }
+    }
+}

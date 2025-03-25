@@ -1,0 +1,75 @@
+@import "../../../utilities/variables";
+
+
+.project-creation-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    .loading-text {
+        font-size: 0.9rem;
+        color: $greyBlue;
+    }
+}
+
+.project-loader-container{
+    width: fit-content;
+    height: fit-content;
+    position: relative;
+    margin: 4rem auto;
+}
+
+.loader-05 {
+    display: inline-block;
+	width: 7.5rem;
+	height: 7.5rem;
+	color: $blue;
+	vertical-align: middle;
+	pointer-events: none;
+	border: .2em solid transparent;
+	border-top-color: currentcolor;
+	border-radius: 50%;
+	animation: 1s loader-05 linear infinite;
+	position: relative;
+	&:before {
+		content: '';
+		display: block;
+		width: inherit;
+		height: inherit;
+		position: absolute;
+		top: -.2em;
+		;
+		left: -.2em;
+		;
+		border: .2em solid currentcolor;
+		border-radius: 50%;
+		opacity: .5;
+	}
+}
+
+@keyframes loader-05 {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
+.floating-logo {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 2rem;
+    height: 2rem;
+    fill: $blue;
+    animation: 2s floating-logo linear infinite;
+}
+
+.center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh;
+}

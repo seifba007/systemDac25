@@ -1,0 +1,18 @@
+.notification-item {
+      border-radius: 8px;
+     transition: background-color 0.3s ease-in-out;
+ 
+
+   
+  
+     .notification-item.unread {
+       background-color: #EAF1FF;  
+       }
+     .notification-dot{
+            width: 8px;
+            height: 8px;
+            background: #007bff;
+            border-Radius: 50%;
+      
+     }
+ }

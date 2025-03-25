@@ -1,0 +1,26 @@
+diff --git a/node_modules/@mantine/core/lib/components/Modal/use-modals-stack.d.ts b/node_modules/@mantine/core/lib/components/Modal/use-modals-stack.d.ts
+index 9458d67..9b6118e 100644
+--- a/node_modules/@mantine/core/lib/components/Modal/use-modals-stack.d.ts
++++ b/node_modules/@mantine/core/lib/components/Modal/use-modals-stack.d.ts
+@@ -5,11 +5,13 @@ interface ModalStackReturnType<T extends string> {
+     toggle: (id: T) => void;
+     closeAll: () => void;
+     register: (id: T) => {
+-        opened: boolean;
+-        onClose: () => void;
+-        stackId: T;
++      opened: boolean;
++      onClose: () => void;
++      stackId: T;
+     };
+-}
+-export declare function useModalsStack<const T extends string>(modals: T[]): ModalStackReturnType<T>;
+-export declare const useDrawersStack: typeof useModalsStack;
+-export {};
++  }
++  
++  export declare function useModalsStack<T extends string>(modals: T[]): ModalStackReturnType<T>;
++  export declare const useDrawersStack: typeof useModalsStack;
++  export {};
++  
+\ No newline at end of file
